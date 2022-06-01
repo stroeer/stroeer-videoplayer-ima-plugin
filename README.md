@@ -1,0 +1,3 @@
+Ströer Videoplayer IMA Plugin
+=============================
+

@@ -1,0 +1,56 @@
+{
+ "version": "0.0.1",
+ "name": "@stroeer/stroeer-videoplayer-ima-plugin",
+ "description": "Ströer Videoplayer IMA Plugin",
+ "main": "dist/StroeerVideoplayer-ima-plugin.umd.js",
+ "files": [
+  "dist"
+ ],
+ "scripts": {
+  "build": "npm-run-all build:*",
+  "build:js": "rollup -c",
+  "watch": "npm-run-all watch:*",
+  "watch:js": "rollup -c -w",
+  "lint": "eslint src/*.ts src/**/*.ts"
+ },
+ "repository": {
+  "type": "git",
+  "url": "git@github.com:stroeer/stroeer-videoplayer-ima-plugin.git"
+ },
+ "author": "Marco Kellershoff <marco@kellershoff.net>",
+ "license": "MIT",
+ "devDependencies": {
+  "@babel/cli": "^7.12.10",
+  "@babel/core": "^7.12.10",
+  "@babel/preset-typescript": "^7.12.7",
+  "@rollup/plugin-json": "^4.1.0",
+  "@rollup/plugin-node-resolve": "^11.2.0",
+  "@rollup/plugin-typescript": "^8.1.0",
+  "@stroeer/stroeer-videoplayer": "^0.0.2",
+  "@stroeer/stroeer-videoplayer-default-ui": "^0.0.2",
+  "@stroeer/stroeer-videoplayer-ivad-ui": "^0.0.1",
+  "@superevilmegaco/jest-evil-svg-transformer": "^0.0.4",
+  "@types/node-fetch": "^2.5.8",
+  "@typescript-eslint/eslint-plugin": "4",
+  "@typescript-eslint/parser": "^4.14.1",
+  "eslint": "7",
+  "eslint-config-standard-with-typescript": "^20.0.0",
+  "eslint-plugin-cypress": "^2.11.2",
+  "eslint-plugin-import": "2",
+  "eslint-plugin-node": "11",
+  "eslint-plugin-promise": "4",
+  "jest-coverage-badges": "^1.1.2",
+  "npm-run-all": "^4.1.5",
+  "rollup": "^2.38.0",
+  "rollup-plugin-svg": "^2.0.0",
+  "sass": "^1.32.7",
+  "ts-node": "^9.1.1",
+  "ts-standard": "^10.0.0",
+  "tslib": "^2.1.0",
+  "typescript": "^4.1.3",
+  "whatwg-fetch": "^3.6.2"
+ },
+ "dependencies": {
+  "@alugha/ima": "^2.0.2"
+ }
+}
