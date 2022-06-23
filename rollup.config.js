@@ -2,20 +2,36 @@ import typescript from '@rollup/plugin-typescript'
 import json from '@rollup/plugin-json'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import svg from 'rollup-plugin-svg'
+import scss from 'rollup-plugin-scss'
+import pkg from './package.json'
+
+const isDevMode = Boolean(process.env.ROLLUP_WATCH)
+console.log('is dev mode', isDevMode)
 
 export default [{
   input: 'src/plugin.ts',
-  output: {
-    file: 'dist/StroeerVideoplayer-ima-plugin.umd.js',
-    exports: 'default',
+  output: [{
+    file: pkg.module,
+    format: 'es',
+    exports: 'named',
+    sourcemap: isDevMode
+  }, {
+    file: pkg.main,
     format: 'umd',
-    name: 'StroeerVideoplayerIMAPlugin',
-    sourcemap: true
-  },
+    exports: 'named',
+    name: 'StroeerVideoIMAPlugin',
+    sourcemap: isDevMode
+  }],
   plugins: [
     nodeResolve(),
-    typescript(),
+    typescript({
+      sourceMap: isDevMode
+    }),
     json(),
-    svg()
+    svg(),
+    scss({
+      output: 'dist/stroeerVideoplayer-ima-plugin.min.css',
+      outputStyle: 'compressed'
+    })
   ]
 }]

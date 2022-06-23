@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<head>
+	<title>Dev</title>
+	<style>
+		html, body {background-color: black;}
+		video {
+			max-width: 100%;
+			width: 100%;
+		}
+		.container {
+			margin: 0 auto;
+			max-width: 776px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+    <video id="myvideo" class="stroeervideoplayer" preload="metadata" controls playsinline>
+			<source src="https://evilcdn.net/demo-videos/walialu-44s-testspot-longboarding-1080p.mp4" type="video/mp4" data-label="1080p" />
+			<source src="https://evilcdn.net/demo-videos/walialu-44s-testspot-longboarding-720p.mp4" type="video/mp4" data-label="720p" />
+			<source src="https://evilcdn.net/demo-videos/walialu-44s-testspot-longboarding-240p.mp4" type="video/mp4" data-label="240p" />
+		</video>
+
+	</div>
+
+	<hr />
+
+	<script src="//imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+
+	<script src="node_modules/@stroeer/stroeer-videoplayer/dist/StroeerVideoplayer.umd.js"></script>
+	<link rel="stylesheet" href="node_modules/@stroeer/stroeer-videoplayer/dist/StroeerVideoplayer.css" />
+
+	<script src="node_modules/@stroeer/stroeer-videoplayer-default-ui/dist/StroeerVideoplayer-default-ui.umd.js"></script>
+	<link rel="stylesheet" href="node_modules/@stroeer/stroeer-videoplayer-default-ui/dist/StroeerVideoplayer-default-ui.css" />
+
+	<link rel="stylesheet" href="dist/StroeerVideoplayer-ima-plugin.min.css" />
+	<script type="module" src="dev.esm.js"></script>
+
+</body>
