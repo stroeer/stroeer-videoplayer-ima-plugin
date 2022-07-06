@@ -1,9 +1,11 @@
 import StroeerVideoplayer from '@stroeer/stroeer-videoplayer'
 import StroeerVideoplayerDefaultUI from '@stroeer/stroeer-videoplayer-default-ui'
+import { StroeerVideoplayerEndcardPlugin } from '@stroeer/stroeer-videoplayer-plugin-endcard'
 import StroeerVideoplayerIMAPlugin from './stroeerVideoplayer-ima-plugin.esm'
 
 StroeerVideoplayer.registerUI(StroeerVideoplayerDefaultUI)
 StroeerVideoplayer.registerPlugin(StroeerVideoplayerIMAPlugin)
+StroeerVideoplayer.registerPlugin(StroeerVideoplayerEndcardPlugin)
 
 let videoData
 const video = document.getElementById('myvideo')
@@ -54,7 +56,18 @@ video.addEventListener('contentVideoSixthOctile', function () {
 })
 
 const myvideoplayer = new StroeerVideoplayer(video)
+myvideoplayer.loadStreamSource()
+myvideoplayer.loadFirstChunk()
+
 myvideoplayer.initPlugin('ima', {})
-// myvideoplayer.loadStreamSource()
-// myvideoplayer.loadFirstChunk()
+myvideoplayer.initPlugin('endcard', {
+  revolverplayTime: 7,
+  dataKeyMap: {
+    image_large: 'preview_image',
+    image_medium: 'preview_image',
+    image_small: 'thumbnail',
+    endpoint: 'endcard_url',
+    poster: 'preview_image'
+  }
+})
 // console.log(myvideoplayer)

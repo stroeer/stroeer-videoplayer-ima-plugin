@@ -27926,6 +27926,7 @@ var StroeerVideoplayer = /** @class */ (function () {
             _this._dataStore.videoEl.dataset.meta = JSON.stringify(videoData);
         };
         this.replaceAndPlay = function (videoData, autoplay) {
+          console.log('>>> replace: ', videoData);
             if (autoplay === void 0) { autoplay = false; }
             if (videoData.playlists === undefined)
                 return;
@@ -29010,88 +29011,510 @@ var UI = /** @class */ (function () {
     return UI;
 }());
 
-var version$2 = "0.0.1";
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
 
-var noop$2 = function () {
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+
+function __awaiter(thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+
+function __generator(thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+}
+
+var debugMode$1 = false;
+if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+    if (window.localStorage.getItem('StroeerVideoplayerDebugMode') !== null) {
+        debugMode$1 = true;
+    }
+}
+var logger = {
+    log: function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        if (debugMode$1) {
+            console.log.apply(console, args);
+        }
+    }
+};
+
+// https://www.carlrippon.com/fetch-with-async-await-and-typescript/
+function fetchAPI(request) {
+    return __awaiter(this, void 0, void 0, function () {
+        var response, body, err_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch(request)];
+                case 1:
+                    response = _a.sent();
+                    if (!response.ok) {
+                        throw new Error("HTTP error! status: " + response.status);
+                    }
+                    _a.label = 2;
+                case 2:
+                    _a.trys.push([2, 4, , 5]);
+                    return [4 /*yield*/, response.json()];
+                case 3:
+                    body = _a.sent();
+                    return [3 /*break*/, 5];
+                case 4:
+                    err_1 = _a.sent();
+                    logger.log('Something went wrong with fetching api!', err_1);
+                    return [3 /*break*/, 5];
+                case 5: return [2 /*return*/, body];
+            }
+        });
+    });
+}
+var transformData = function (data, keyMap) {
+    var _loop_1 = function (newKey, oldKey) {
+        data.forEach(function (item) {
+            if (!item[oldKey])
+                return;
+            item[newKey] = item[oldKey];
+        });
+    };
+    for (var _i = 0, _a = Object.entries(keyMap); _i < _a.length; _i++) {
+        var _b = _a[_i], newKey = _b[0], oldKey = _b[1];
+        _loop_1(newKey, oldKey);
+    }
+    return data;
+};
+
+function noop$2() {
+    return false;
+}
+function noopData(data) {
+    return data;
+}
+
+var getCircleProgress = function (value) {
+    var radius = 30.667; // this is radius value of svg circle
+    var circumference = 2 * Math.PI * radius;
+    var p = value / 100;
+    var dashOffset = circumference * (1 - p);
+    return dashOffset;
+};
+var updateCircleStyle = function (el, value) {
+    el.style.strokeDashoffset = String(value);
+};
+var ticker = function (time, remainingTime, el, cb) {
+    var value = ((time - remainingTime) / time) * 100;
+    updateCircleStyle(el, getCircleProgress(value));
+    if (remainingTime < 0) {
+        cb();
+    }
+};
+
+var getTile = function (index, obj, revolverplayTime) {
+    var template = "\n    <style>\n      .plugin-endcard-tile-" + index + " .plugin-endcard-thumbnail {\n        background-image: url(" + obj.image_small + ");\n      }\n\n      @media only screen and (min-width: 769px) {\n        .plugin-endcard-tile-" + index + " .plugin-endcard-thumbnail {\n          background-image: url(" + (index === 0 ? obj.image_large : obj.image_medium) + ");\n        }\n      }\n    </style>\n    <div class=\"plugin-endcard-tile plugin-endcard-tile-" + index + "\" data-idx=\"" + index + "\" data-role=\"plugin-endcard-tile\">\n      " + (index === 0 && revolverplayTime !== 0
+        ? '<button class="plugin-endcard-button-pause" data-role="plugin-endcard-pause">Anhalten</button>'
+        : '') + "  \n      <div class=\"plugin-endcard-thumbnail\"></div>\n      <div class=\"plugin-endcard-overlay\">\n        " + (index === 0
+        ? "\n          <svg class=\"plugin-endcard-revolverplay-icon\" data-role=\"plugin-endcard-revolverplay-icon\" width=\"103\" height=\"75\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n            <g filter=\"url(#filter0_d)\">\n              <path d=\"M62.073 37.89l-20-13.333A1.334 1.334 0 0040 25.667v26.666a1.334 1.334 0 002.073 1.11l20-13.334a1.335 1.335 0 000-2.218z\" fill=\"#fff\"/>\n            </g>\n            " + (revolverplayTime !== 0
+            ? "\n              <circle class=\"plugin-endcard-progress-meter\" cx=\"48\" cy=\"39\" r=\"30.667\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2.667\"/>\n              <circle class=\"plugin-endcard-progress-value\" data-role=\"plugin-endcard-progress-value\" cx=\"48\" cy=\"39\" r=\"30.667\" transform=\"rotate(-90 48 39)\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2.667\" stroke-dasharray=\"192.686\" stroke-dashoffset=\"192.686\" />\n            "
+            : '') + "\n            <defs>\n              <filter id=\"filter0_d\" x=\"-5.333\" y=\"-1\" width=\"112\" height=\"112\" filterUnits=\"userSpaceOnUse\" color-interpolation-filters=\"sRGB\">\n                <feFlood flood-opacity=\"0\" result=\"BackgroundImageFix\"/>\n                <feColorMatrix in=\"SourceAlpha\" values=\"0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0\"/>\n                <feOffset dy=\"16\"/><feGaussianBlur stdDeviation=\"20\"/>\n                <feColorMatrix values=\"0 0 0 0 0.490196 0 0 0 0 0.596078 0 0 0 0 0.698039 0 0 0 0.2 0\"/>\n                <feBlend mode=\"multiply\" in2=\"BackgroundImageFix\" result=\"effect1_dropShadow\"/>\n                <feBlend in=\"SourceGraphic\" in2=\"effect1_dropShadow\" result=\"shape\"/>\n              </filter>\n            </defs>\n          </svg> \n        "
+        : "\n        <svg class=\"plugin-endcard-play-icon\" width=\"22\" height=\"29\" viewBox=\"0 0 17 22\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n          <path d=\"M16.555 10.168L1.555 0.168C1.248 -0.0359995 0.853 -0.0559995 0.529 0.118001C0.203 0.292001 0 0.631001 0 1V21C0 21.369 0.203 21.708 0.528 21.882C0.676 21.961 0.838 22 1 22C1.194 22 1.388 21.943 1.555 21.832L16.555 11.832C16.833 11.646 17 11.334 17 11C17 10.666 16.833 10.354 16.555 10.168Z\" fill=\"white\"/>\n        </svg>\n        ") + "\n        <p class=\"plugin-endcard-title\">\n          " + (index === 0 ? '<span class="plugin-endcard-title-pre">Nächstes Video</span>' : '') + "\n          <span class=\"plugin-endcard-title-main\">" + obj.title + "</span>\n        </p>\n      </div>\n    </div>\n\n  ";
+    return template;
+};
+var getTileReplay = function (imageUrl, classes) {
+    if (classes === void 0) { classes = ''; }
+    var template = "\n    <div class=\"plugin-endcard-tile-replay " + classes + "\" data-role=\"plugin-endcard-tile-replay\">\n      <div class=\"plugin-endcard-thumbnail\" style=\"background-image: url(" + imageUrl + ");\"></div>\n      <div class=\"plugin-endcard-overlay\">\n        <svg class=\"plugin-endcard-replay-icon\" width=\"26\" height=\"21\" viewBox=\"0 0 20 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n          <path d=\"M19 16H1C0.447715 16 0 15.5523 0 15V10C0 9.44772 0.447715 9 1 9C1.55228 9 2 9.44772 2 10V14H18V5H8V8L3 4L8 0V3H19C19.553 3 20 3.447 20 4V15C20 15.553 19.553 16 19 16Z\" fill=\"white\"/>\n        </svg>\n        <p class=\"plugin-endcard-replay-title\">Video wiederholen</p>\n      </div>\n    </div>\n  ";
+    return template;
+};
+
+var EndcardPlugin = /** @class */ (function () {
+    function EndcardPlugin(stroeervideoplayer, opts) {
+        var _this = this;
+        if (opts === void 0) { opts = {}; }
+        this.getEndcardUrl = function () {
+            var url = _this.videoElement.dataset.endcardUrl;
+            return url !== undefined ? url : '';
+        };
+        this.setEndcardUrl = function (url) {
+            _this.videoElement.dataset.endcardUrl = url;
+        };
+        this.reset = function () {
+            _this.clearRevolverplayTimer();
+            _this.removeClickEvents();
+            _this.endcardContainer.innerHTML = '';
+            _this.hide();
+            _this.isVideoFinished = false;
+        };
+        this.revolverplay = function () {
+            if (_this.revolverplayTime === 0 || _this.showFallback)
+                return;
+            /* eslint-disable-next-line */
+            var progressSvgCircle = _this.endcardContainer.querySelector('[data-role="plugin-endcard-progress-value"]');
+            var remainingTime = _this.revolverplayTime;
+            var revolverplayTicker = function () {
+                ticker(_this.revolverplayTime, remainingTime, progressSvgCircle, function () {
+                    _this.play(0, true);
+                    _this.dispatchEvent('plugin-endcard:revolverplay');
+                    _this.onRevolverplayCallback();
+                });
+                remainingTime--;
+            };
+            revolverplayTicker();
+            _this.intervalTicker = setInterval(revolverplayTicker, 1000);
+        };
+        this.clearRevolverplayTimer = function () {
+            if (_this.intervalTicker !== null) {
+                clearInterval(_this.intervalTicker);
+            }
+        };
+        this.replay = function () {
+            _this.videoplayer.play();
+        };
+        this.play = function (idx, autoplay) {
+            var nextVideo = _this.transformedData[idx];
+            _this.setEndcardUrl(nextVideo.endpoint);
+            _this.videoplayer.replaceAndPlay(nextVideo, autoplay);
+            _this.onPlayCallback(nextVideo);
+            _this.dispatchEvent('plugin-endcard:play', nextVideo);
+        };
+        this.clickToPlay = function (e) {
+            e.preventDefault();
+            var el = e.target.closest('[data-role="plugin-endcard-tile"]');
+            var idx = el !== null ? el.getAttribute('data-idx') : null;
+            if (idx === null)
+                return;
+            _this.play(parseInt(idx), false);
+            _this.dispatchEvent('plugin-endcard:click-to-play');
+            _this.onClickToPlayCallback();
+        };
+        this.clickToReplay = function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            _this.replay();
+            _this.dispatchEvent('plugin-endcard:click-to-replay');
+            _this.onClickToReplayCallback();
+        };
+        this.clickToPause = function (e) {
+            var circles = _this.endcardContainer.querySelectorAll('[data-role="plugin-endcard-revolverplay-icon"] circle');
+            var target = e.currentTarget;
+            e.preventDefault();
+            e.stopPropagation();
+            _this.dispatchEvent('plugin-endcard:revolverplay-pause');
+            _this.onRevolverplayPauseCallback();
+            _this.clearRevolverplayTimer();
+            if (target !== null) {
+                target.remove();
+            }
+            circles.forEach(function (circle) {
+                circle.remove();
+            });
+        };
+        this.addClickEvents = function () {
+            var tiles = _this.endcardContainer.querySelectorAll('[data-role="plugin-endcard-tile"]');
+            var pauseButton = _this.endcardContainer.querySelector('[data-role="plugin-endcard-pause"]');
+            var replayTile = _this.endcardContainer.querySelector('[data-role="plugin-endcard-tile-replay"]');
+            tiles.forEach(function (tile) {
+                tile.addEventListener('click', _this.clickToPlay);
+            });
+            if (replayTile !== null) {
+                replayTile.addEventListener('click', _this.clickToReplay);
+            }
+            if (pauseButton !== null) {
+                pauseButton.addEventListener('click', _this.clickToPause);
+            }
+        };
+        this.removeClickEvents = function () {
+            var tiles = _this.endcardContainer.querySelectorAll('[data-role="plugin-endcard-tile"]');
+            var pauseButton = _this.endcardContainer.querySelector('[data-role="plugin-endcard-pause"]');
+            var replayTile = _this.endcardContainer.querySelector('[data-role="plugin-endcard-tile-replay"]');
+            tiles.forEach(function (tile) {
+                tile.removeEventListener('click', _this.clickToPlay);
+            });
+            if (replayTile !== null) {
+                replayTile.removeEventListener('click', _this.clickToReplay);
+            }
+            if (pauseButton !== null) {
+                pauseButton.removeEventListener('click', _this.clickToPause);
+            }
+        };
+        this.renderFallback = function () {
+            var replayTemplate = getTileReplay(_this.videoplayer.getPosterImage(), 'plugin-endcard-tile-single');
+            _this.endcardContainer.innerHTML += replayTemplate;
+            _this.addClickEvents();
+        };
+        this.render = function () {
+            var endpoint = _this.getEndcardUrl();
+            if (endpoint === null || _this.showFallback) {
+                _this.showFallback = true;
+                _this.renderFallback();
+                return;
+            }
+            fetchAPI(endpoint)
+                .then(function (data) {
+                _this.transformedData = _this.transformApiData(transformData(data, _this.dataKeyMap));
+                logger.log(_this.transformedData);
+                _this.showFallback = false;
+                _this.endcardContainer.innerHTML = '';
+                for (var i = 0; i < 5; i++) {
+                    var tileTemplate = getTile(i, _this.transformedData[i], _this.revolverplayTime);
+                    var replayTemplate = getTileReplay(_this.videoplayer.getPosterImage());
+                    if (i === 3) {
+                        _this.endcardContainer.innerHTML += replayTemplate;
+                    }
+                    _this.endcardContainer.innerHTML += tileTemplate;
+                }
+                _this.addClickEvents();
+                if (_this.isVideoFinished) {
+                    _this.revolverplay();
+                }
+            })
+                .catch(function (err) {
+                logger.log('Something went wrong with fetching api!', err);
+                _this.showFallback = true;
+                _this.renderFallback();
+            });
+        };
+        this.hide = function () {
+            if (_this.uiEl.classList.contains('plugin-endcard-ui-small')) {
+                _this.uiEl.classList.remove('plugin-endcard-ui-small');
+            }
+            _this.endcardContainer.classList.add('endcard-hidden');
+        };
+        this.show = function () {
+            _this.uiEl.classList.add('plugin-endcard-ui-small');
+            _this.isVideoFinished = true;
+            if (typeof _this.videoplayer.exitFullscreen === 'function') {
+                _this.videoplayer.exitFullscreen();
+            }
+            if (_this.endcardContainer.childNodes.length === 0) {
+                _this.showFallback = true;
+                _this.renderFallback();
+            }
+            else {
+                _this.revolverplay();
+            }
+            _this.endcardContainer.classList.remove('endcard-hidden');
+            _this.dispatchEvent('plugin-endcard:show');
+            _this.onLoadedCallback();
+        };
+        this.videoplayer = stroeervideoplayer;
+        this.videoElement = stroeervideoplayer.getVideoEl();
+        this.dataKeyMap = opts.dataKeyMap !== undefined ? opts.dataKeyMap : noop$2;
+        this.transformedData = [];
+        this.showFallback =
+            opts.showFallback !== undefined ? opts.showFallback : false;
+        this.revolverplayTime =
+            opts.revolverplayTime !== undefined ? opts.revolverplayTime : 5;
+        this.intervalTicker = null;
+        this.onLoadedCallback =
+            opts.onLoadedCallback !== undefined ? opts.onLoadedCallback : noop$2;
+        this.onClickToPlayCallback =
+            opts.onClickToPlayCallback !== undefined
+                ? opts.onClickToPlayCallback
+                : noop$2;
+        this.onClickToReplayCallback =
+            opts.onClickToReplayCallback !== undefined
+                ? opts.onClickToReplayCallback
+                : noop$2;
+        this.onRevolverplayCallback =
+            opts.onRevolverplayCallback !== undefined
+                ? opts.onRevolverplayCallback
+                : noop$2;
+        this.onRevolverplayPauseCallback =
+            opts.onRevolverplayPauseCallback !== undefined
+                ? opts.onRevolverplayPauseCallback
+                : noop$2;
+        this.onPlayCallback = opts.onPlayCallback !== undefined ? opts.onPlayCallback : noop$2;
+        this.transformApiData =
+            opts.transformApiData !== undefined ? opts.transformApiData : noopData;
+        this.isVideoFinished = false;
+        this.uiEl = stroeervideoplayer.getUIEl();
+        this.endcardContainer = document.createElement('div');
+        this.endcardContainer.classList.add('plugin-endcard-container', 'endcard-hidden');
+        this.videoElement.after(this.endcardContainer);
+        return this;
+    }
+    EndcardPlugin.prototype.dispatchEvent = function (eventName, data) {
+        if (data === void 0) { data = {}; }
+        var event = new CustomEvent(eventName, { detail: data });
+        this.videoplayer.getVideoEl().dispatchEvent(event);
+    };
+    return EndcardPlugin;
+}());
+
+var version$2 = "2.0.1";
+
+var Plugin = /** @class */ (function () {
+    function Plugin() {
+        var _this = this;
+        this.init = function (StroeerVideoplayer, opts) {
+            if (opts === void 0) { opts = {}; }
+            logger.log('opts', opts);
+            logger.log('version', Plugin.version);
+            var videoEl = StroeerVideoplayer.getVideoEl();
+            var endcardPlugin = new EndcardPlugin(StroeerVideoplayer, opts);
+            _this.onVideoElPlay = function () {
+                endcardPlugin.reset();
+                videoEl.removeEventListener('play', _this.onVideoElPlay);
+            };
+            _this.onVideoElFirstQuartile = function () {
+                endcardPlugin.render();
+            };
+            _this.onVideoElEnd = function (e) {
+                videoEl.addEventListener('play', _this.onVideoElPlay);
+                endcardPlugin.show();
+            };
+            videoEl.addEventListener('contentVideoSecondOctile', _this.onVideoElFirstQuartile);
+            videoEl.addEventListener('contentVideoEnded', _this.onVideoElEnd);
+        };
+        this.deinit = function (StroeerVideoplayer) {
+            var videoEl = StroeerVideoplayer.getVideoEl();
+            videoEl.removeEventListener('contentVideoSecondOctile', _this.onVideoElFirstQuartile);
+            videoEl.removeEventListener('contentVideoEnded', _this.onVideoElEnd);
+            var endcardContainer = StroeerVideoplayer.getRootEl().querySelector('.plugin-endcard-container');
+            if (endcardContainer !== undefined) {
+                endcardContainer.remove();
+            }
+        };
+        this.onVideoElPlay = noop$2;
+        this.onVideoElFirstQuartile = noop$2;
+        this.onVideoElEnd = noop$2;
+        return this;
+    }
+    Plugin.version = version$2;
+    Plugin.pluginName = 'endcard';
+    return Plugin;
+}());
+
+var version$3 = "0.0.1";
+
+var noop$3 = function () {
     return false;
 };
 
-var Plugin = /** @class */ (function () {
-    function Plugin(StroeerVideoplayer, imaOpts) {
+var eventWrapper = function (eventName, eventData) {
+    var ev = document.createEvent('Event');
+    ev.initEvent(eventName, true, true);
+    if (eventData !== undefined) {
+        ev.detail = eventData;
+    }
+    return ev;
+};
+
+var debugMode$2 = false;
+if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+    if (window.localStorage.getItem('StroeerVideoplayerDebugMode') !== null) {
+        debugMode$2 = true;
+    }
+}
+var Logger$1 = {
+    log: function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        if (debugMode$2) {
+            console.log.apply(console, args);
+        }
+    }
+};
+
+var Plugin$1 = /** @class */ (function () {
+    function Plugin() {
         var _this = this;
         this.init = function (StroeerVideoplayer, opts) {
-            _this.initIMA = function () {
-                var videoElementWidth;
-                var videoElementHeight;
-                var adsLoaded;
-                var adsManager;
-                adsLoaded = false;
-                var videoElement = StroeerVideoplayer.getVideoEl();
-                videoElementWidth = videoElement.clientWidth;
-                videoElementHeight = videoElement.clientHeight;
-                var adContainer = document.createElement('div');
-                adContainer.classList.add('ad-container');
-                videoElement.after(adContainer);
-                adContainer.addEventListener('click', function () {
-                    console.log('ad container clicked');
-                });
-                var adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, videoElement);
-                var adsLoader = new google.ima.AdsLoader(adDisplayContainer);
-                window.addEventListener('resize', function (event) {
-                    console.log('window resized');
-                    if (adsManager) {
-                        var width = videoElement.clientWidth;
-                        var height = videoElement.clientHeight;
-                        adsManager.resize(width, height, google.ima.ViewMode.NORMAL);
+            var _a, _b, _c;
+            opts = opts !== null && opts !== void 0 ? opts : {};
+            opts.numRedirects = (_a = opts.numRedirects) !== null && _a !== void 0 ? _a : 10;
+            opts.timeout = (_b = opts.timeout) !== null && _b !== void 0 ? _b : 5000;
+            opts.adLabel = (_c = opts.adLabel) !== null && _c !== void 0 ? _c : 'Advertisment ends in {{seconds}} seconds';
+            var videoElement = StroeerVideoplayer.getVideoEl();
+            var videoElementWidth = videoElement.clientWidth;
+            var videoElementHeight = videoElement.clientHeight;
+            var adContainer = document.createElement('div');
+            adContainer.classList.add('ad-container');
+            videoElement.after(adContainer);
+            var adsManager;
+            var adDisplayContainer;
+            var adsLoader;
+            _this.onVideoElPlay = function (event) {
+                var prerollAdTag = videoElement.getAttribute('data-ivad-preroll-adtag');
+                if (prerollAdTag !== null) {
+                    videoElement.removeEventListener('play', _this.onVideoElPlay);
+                    if (prerollAdTag === 'adblocked') {
+                        videoElement.dispatchEvent(eventWrapper('ima:error', {
+                            errorCode: 301,
+                            errorMessage: 'VAST redirect timeout reached'
+                        }));
+                        Logger$1.log('event', 'ima:error', {
+                            errorCode: 301,
+                            errorMessage: 'VAST redirect timeout reached'
+                        });
                     }
-                });
-                adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, function (adsManagerLoadedEvent) {
-                    console.log('ads manager loaded');
-                    adsManager = adsManagerLoadedEvent.getAdsManager(videoElement);
-                    adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, function (adErrorEvent) {
-                        console.log(adErrorEvent.getError());
-                        if (adsManager) {
-                            adsManager.destroy();
+                    else {
+                        videoElement.pause();
+                        videoElement.dispatchEvent(new CustomEvent('ima:adcall'));
+                        event.preventDefault();
+                        // Initialize the container. Must be done via a user action on mobile devices.
+                        videoElement.load();
+                        adDisplayContainer.initialize();
+                        console.log('>>> init');
+                        try {
+                            adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL);
+                            adsManager.start();
+                            console.log('>>> start');
                         }
-                    }, false);
-                    /*
-                    adsManager.addEventListener(
-                      google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, () => {
-                        videoElement.pause()
-                      })
-          
-                    adsManager.addEventListener(
-                      google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, () => {
-                        // eslint-disable-next-line
-                        videoElement.play()
-                        adContainer.style.display = 'none'
-                      })
-                    */
-                    adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, function (adEvent) {
-                        var ad = adEvent.getAd();
-                        if (ad.isLinear() === false) {
+                        catch (adError) {
+                            // play the video without the ads
+                            console.log('AdsManager could not be started', adError);
                             // eslint-disable-next-line
                             videoElement.play();
                         }
-                    });
-                }, false);
-                /*
-                adsLoader.addEventListener(
-                  google.ima.AdErrorEvent.Type.AD_ERROR,
-                  function () {
-                    console.log('ad error')
-                  },
-                  false)
-                */
-                // Let the AdsLoader know when the video has ended
-                videoElement.addEventListener('contentVideoEnded', function () {
-                    adsLoader.contentComplete();
-                });
+                    }
+                }
+            };
+            _this.requestAds = function () {
                 var adsRequest = new google.ima.AdsRequest();
-                adsRequest.adTagUrl = 'https://pubads.g.doubleclick.net/gampad/ads?' +
-                    'sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&' +
-                    'impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&' +
-                    'cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=';
+                adsRequest.adTagUrl = videoElement.getAttribute('data-ivad-preroll-adtag');
                 // Specify the linear and nonlinear slot sizes. This helps the SDK to
                 // select the correct creative if multiple are returned.
                 adsRequest.linearAdSlotWidth = videoElement.clientWidth;
@@ -29102,40 +29525,129 @@ var Plugin = /** @class */ (function () {
                 adsLoader.requestAds(adsRequest);
                 videoElementWidth = videoElement.clientWidth;
                 videoElementHeight = videoElement.clientHeight;
-                videoElement.addEventListener('play', function (evt) {
-                    if (adsLoaded) {
-                        return;
-                    }
-                    adsLoaded = true;
-                    evt.preventDefault();
-                    videoElement.load();
-                    adDisplayContainer.initialize();
-                    try {
-                        adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL);
-                        adsManager.start();
-                    }
-                    catch (adError) {
-                        // play the video without the ads
-                        console.log('AdsManager could not be started', adError);
-                        // eslint-disable-next-line
-                        videoElement.play();
+            };
+            _this.initIMA = function () {
+                adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, videoElement);
+                adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+                adsManager = null;
+                window.addEventListener('resize', function (event) {
+                    console.log('window resized', adsManager);
+                    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+                    if (adsManager) {
+                        var width = videoElement.clientWidth;
+                        var height = videoElement.clientHeight;
+                        adsManager.resize(width, height, google.ima.ViewMode.NORMAL);
                     }
                 });
+                console.log('Add loaded listener');
+                adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, function (adsManagerLoadedEvent) {
+                    console.log('ads manager loaded');
+                    adsManager = adsManagerLoadedEvent.getAdsManager(videoElement);
+                    adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, function (adErrorEvent) {
+                        var error = adErrorEvent.getError();
+                        videoElement.dispatchEvent(eventWrapper('ima:error', {
+                            errorCode: error.getVastErrorCode(),
+                            errorMessage: error.getMessage()
+                        }));
+                        Logger$1.log('Event', 'ima:error', {
+                            errorCode: error.getVastErrorCode(),
+                            errorMessage: error.getMessage()
+                        });
+                    });
+                    adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, function () {
+                        videoElement.pause();
+                    });
+                    adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, function () {
+                        videoElement.play();
+                        adContainer.style.display = 'none';
+                    });
+                    adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, function () {
+                        Logger$1.log('>>> all ads complete');
+                    });
+                    adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, function () {
+                        Logger$1.log('>>> ad loaded');
+                    });
+                    adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, function () {
+                        StroeerVideoplayer.deinitUI('default');
+                        // StroeerVideoplayer.initUI('ima')
+                        adContainer.style.display = 'block';
+                        Logger$1.log('Event', 'ima:impression');
+                        videoElement.dispatchEvent(eventWrapper('ima:impression'));
+                    });
+                    adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, function () {
+                        // StroeerVideoplayer.deinitUI('ima')
+                        StroeerVideoplayer.initUI('default');
+                        Logger$1.log('Event', 'ima:ended');
+                        videoElement.dispatchEvent(eventWrapper('ima:ended'));
+                    });
+                    adsManager.addEventListener(google.ima.AdEvent.Type.PAUSED, function () {
+                        Logger$1.log('Event', 'ima:pause');
+                        videoElement.dispatchEvent(eventWrapper('ima:pause'));
+                    });
+                    adsManager.addEventListener(google.ima.AdEvent.Type.CLICK, function () {
+                        Logger$1.log('Event', 'ima:click');
+                        videoElement.dispatchEvent(eventWrapper('ima:click'));
+                    });
+                    adsManager.addEventListener(google.ima.AdEvent.Type.FIRST_QUARTILE, function () {
+                        Logger$1.log('Event', 'ima:firstQuartile');
+                        videoElement.dispatchEvent(eventWrapper('ima:firstQuartile'));
+                    });
+                    adsManager.addEventListener(google.ima.AdEvent.Type.MIDPOINT, function () {
+                        Logger$1.log('Event', 'ima:midpoint');
+                        videoElement.dispatchEvent(eventWrapper('ima:midpoint'));
+                    });
+                    adsManager.addEventListener(google.ima.AdEvent.Type.THIRD_QUARTILE, function () {
+                        Logger$1.log('Event', 'ima:thirdQuartile');
+                        videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'));
+                    });
+                });
+                adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, function (adErrorEvent) {
+                    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+                    if (adsManager) {
+                        adsManager.destroy();
+                    }
+                    var error = adErrorEvent.getError();
+                    videoElement.dispatchEvent(eventWrapper('ima:error', {
+                        errorCode: error.getVastErrorCode(),
+                        errorMessage: error.getMessage()
+                    }));
+                    Logger$1.log('Event', 'ima:error', {
+                        errorCode: error.getVastErrorCode(),
+                        errorMessage: error.getMessage()
+                    });
+                });
+                // Let the AdsLoader know when the video has ended
+                videoElement.addEventListener('contentVideoEnded', function () {
+                    adsLoader.contentComplete();
+                });
+                console.log('>>> request ads');
+                _this.requestAds();
             };
-            var videoEl = StroeerVideoplayer.getVideoEl();
-            videoEl.addEventListener('loadedmetadata', function () {
-                _this.initIMA();
-            });
+            _this.onVideoElContentVideoEnded = function () {
+                videoElement.addEventListener('play', _this.onVideoElPlay);
+            };
+            videoElement.addEventListener('play', _this.onVideoElPlay);
+            videoElement.addEventListener('contentVideoEnded', _this.onVideoElContentVideoEnded);
+            videoElement.addEventListener('loadedmetadata', _this.initIMA());
         };
-        this.initIMA = noop$2;
+        this.deinit = function (StroeerVideoplayer) {
+            var videoElement = StroeerVideoplayer.getVideoEl();
+            videoElement.removeEventListener('play', _this.onVideoElPlay);
+            videoElement.removeEventListener('contentVideoEnded', _this.onVideoElContentVideoEnded);
+        };
+        this.initIMA = noop$3;
+        this.requestAds = noop$3;
+        this.onVideoElPlay = noop$3;
+        this.onVideoElContentVideoEnded = noop$3;
         return this;
     }
-    Plugin.version = version$2;
+    Plugin.version = version$3;
     Plugin.pluginName = 'ima';
     return Plugin;
 }());
 
 StroeerVideoplayer.registerUI(UI);
+StroeerVideoplayer.registerPlugin(Plugin$1);
 StroeerVideoplayer.registerPlugin(Plugin);
 
 let videoData;
@@ -29187,8 +29699,19 @@ video.addEventListener('contentVideoSixthOctile', function () {
 });
 
 const myvideoplayer = new StroeerVideoplayer(video);
+myvideoplayer.loadStreamSource();
+myvideoplayer.loadFirstChunk();
+
 myvideoplayer.initPlugin('ima', {});
-// myvideoplayer.loadStreamSource()
-// myvideoplayer.loadFirstChunk()
+myvideoplayer.initPlugin('endcard', {
+  revolverplayTime: 7,
+  dataKeyMap: {
+    image_large: 'preview_image',
+    image_medium: 'preview_image',
+    image_small: 'thumbnail',
+    endpoint: 'endcard_url',
+    poster: 'preview_image'
+  }
+});
 // console.log(myvideoplayer)
 //# sourceMappingURL=dev.esm.js.map

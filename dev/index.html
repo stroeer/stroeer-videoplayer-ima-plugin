@@ -15,25 +15,23 @@
 </head>
 <body>
 	<div class="container">
-    <video id="myvideo" class="stroeervideoplayer" preload="metadata" controls playsinline>
-			<source src="https://evilcdn.net/demo-videos/walialu-44s-testspot-longboarding-1080p.mp4" type="video/mp4" data-label="1080p" />
-			<source src="https://evilcdn.net/demo-videos/walialu-44s-testspot-longboarding-720p.mp4" type="video/mp4" data-label="720p" />
-			<source src="https://evilcdn.net/demo-videos/walialu-44s-testspot-longboarding-240p.mp4" type="video/mp4" data-label="240p" />
-		</video>
-
+    <video id="myvideo" class="stroeervideoplayer"
+      data-meta='{"id":255559724,"title":"4 Tipps, mit denen du beim Amazon Prime Day richtig sparen kannst","duration":188,"producer":"origin:self","uploaded":"2019-07-12T13:02:07.000Z"}'
+      preload="metadata" poster="https://videos.giga.de/files/1307753225/720p.jpg" controls playsinline
+      data-endcard-url="https://videos.giga.de/suggestions/1307753225">
+      <source src="https://vid-cdn60.stroeermb.de/1307753225_v4/playlist.m3u8" type="application/x-mpegURL">
+    </video>
 	</div>
 
 	<hr />
 
 	<script src="//imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
 
-	<script src="node_modules/@stroeer/stroeer-videoplayer/dist/StroeerVideoplayer.umd.js"></script>
 	<link rel="stylesheet" href="node_modules/@stroeer/stroeer-videoplayer/dist/StroeerVideoplayer.css" />
-
-	<script src="node_modules/@stroeer/stroeer-videoplayer-default-ui/dist/StroeerVideoplayer-default-ui.umd.js"></script>
 	<link rel="stylesheet" href="node_modules/@stroeer/stroeer-videoplayer-default-ui/dist/StroeerVideoplayer-default-ui.css" />
-
-	<link rel="stylesheet" href="dist/StroeerVideoplayer-ima-plugin.min.css" />
+  <link rel="stylesheet" href="node_modules/@stroeer/stroeer-videoplayer-plugin-endcard/dist/stroeerVideoplayer-endcard-plugin.min.css" />
+	
+  <link rel="stylesheet" href="dist/StroeerVideoplayer-ima-plugin.min.css" />
 	<script type="module" src="dev.esm.js"></script>
 
 </body>

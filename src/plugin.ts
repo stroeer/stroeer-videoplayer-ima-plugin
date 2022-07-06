@@ -1,5 +1,7 @@
 import { version } from '../package.json'
 import noop from './noop'
+import eventWrapper from './eventWrapper'
+import logger from './logger'
 import './ima.scss'
 
 interface IStroeerVideoplayer {
@@ -16,104 +18,79 @@ class Plugin {
   public static pluginName: string = 'ima'
 
   initIMA: Function
+  requestAds: Function
+  onVideoElPlay: Function
+  onVideoElContentVideoEnded: Function
 
-  constructor (StroeerVideoplayer: IStroeerVideoplayer, imaOpts?: any) {
+  constructor () {
     this.initIMA = noop
+    this.requestAds = noop
+    this.onVideoElPlay = noop
+    this.onVideoElContentVideoEnded = noop
 
     return this
   }
 
   init = (StroeerVideoplayer: IStroeerVideoplayer, opts?: any): void => {
     opts = opts ?? {}
+    opts.numRedirects = opts.numRedirects ?? 10
+    opts.timeout = opts.timeout ?? 5000
+    opts.adLabel = opts.adLabel ?? 'Advertisment ends in {{seconds}} seconds'
 
-    this.initIMA = (): void => {
-      let videoElementWidth: number
-      let videoElementHeight: number
-      let adsLoaded: boolean
-      let adsManager: any
+    const videoElement = StroeerVideoplayer.getVideoEl()
+    let videoElementWidth = videoElement.clientWidth
+    let videoElementHeight = videoElement.clientHeight
+    const adContainer = document.createElement('div')
+    adContainer.classList.add('ad-container')
+    videoElement.after(adContainer)
 
-      adsLoaded = false
+    let adActive: boolean = false
+    let adsManager: any
+    let adDisplayContainer: any
+    let adsLoader: any
 
-      const videoElement = StroeerVideoplayer.getVideoEl()
-      videoElementWidth = videoElement.clientWidth
-      videoElementHeight = videoElement.clientHeight
-      const adContainer = document.createElement('div')
-      adContainer.classList.add('ad-container')
-      videoElement.after(adContainer)
+    this.onVideoElPlay = (event: Event) => {
+      const prerollAdTag = videoElement.getAttribute('data-ivad-preroll-adtag')
 
-      adContainer.addEventListener('click', () => {
-        console.log('ad container clicked')
-      })
+      if (prerollAdTag !== null) {
+        videoElement.removeEventListener('play', this.onVideoElPlay)
 
-      const adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, videoElement)
-      const adsLoader = new google.ima.AdsLoader(adDisplayContainer)
+        if (prerollAdTag === 'adblocked') {
+          videoElement.dispatchEvent(eventWrapper('ima:error', {
+            errorCode: 301,
+            errorMessage: 'VAST redirect timeout reached'
+          }))
+          logger.log('event', 'ima:error', {
+            errorCode: 301,
+            errorMessage: 'VAST redirect timeout reached'
+          })
+        } else {
+          videoElement.pause()
+          videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
+          event.preventDefault()
 
-      window.addEventListener('resize', (event) => {
-        console.log('window resized')
-        if (adsManager) {
-          const width = videoElement.clientWidth
-          const height = videoElement.clientHeight
-          adsManager.resize(width, height, google.ima.ViewMode.NORMAL)
+          // Initialize the container. Must be done via a user action on mobile devices.
+          videoElement.load()
+          adDisplayContainer.initialize()
+          console.log('>>> init')
+
+          try {
+            adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL)
+            adsManager.start()
+            console.log('>>> start')
+          } catch (adError) {
+            // play the video without the ads
+            console.log('AdsManager could not be started', adError)
+            // eslint-disable-next-line
+            videoElement.play()
+          }
         }
-      })
+      }
+    }
 
-      adsLoader.addEventListener(
-        google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, (adsManagerLoadedEvent: any) => {
-          console.log('ads manager loaded')
-          adsManager = adsManagerLoadedEvent.getAdsManager(videoElement)
-
-          adsManager.addEventListener(
-            google.ima.AdErrorEvent.Type.AD_ERROR, (adErrorEvent: any) => {
-              console.log(adErrorEvent.getError())
-              if (adsManager) {
-                adsManager.destroy()
-              }
-            }, false)
-
-          /*
-          adsManager.addEventListener(
-            google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, () => {
-              videoElement.pause()
-            })
-
-          adsManager.addEventListener(
-            google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, () => {
-              // eslint-disable-next-line
-              videoElement.play()
-              adContainer.style.display = 'none'
-            })
-          */
-
-          adsManager.addEventListener(
-            google.ima.AdEvent.Type.LOADED, (adEvent: any) => {
-              const ad = adEvent.getAd()
-              if (ad.isLinear() === false) {
-                // eslint-disable-next-line
-                videoElement.play()
-              }
-            })
-        }, false)
-
-      /*
-      adsLoader.addEventListener(
-        google.ima.AdErrorEvent.Type.AD_ERROR,
-        function () {
-          console.log('ad error')
-        },
-        false)
-      */
-
-      // Let the AdsLoader know when the video has ended
-      videoElement.addEventListener('contentVideoEnded', () => {
-        adsLoader.contentComplete()
-      })
-
+    this.requestAds = (): void => {
       const adsRequest = new google.ima.AdsRequest()
-
-      adsRequest.adTagUrl = 'https://pubads.g.doubleclick.net/gampad/ads?' +
-        'sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&' +
-        'impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&' +
-        'cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator='
+      adsRequest.adTagUrl = videoElement.getAttribute('data-ivad-preroll-adtag')
 
       // Specify the linear and nonlinear slot sizes. This helps the SDK to
       // select the correct creative if multiple are returned.
@@ -127,34 +104,132 @@ class Plugin {
 
       videoElementWidth = videoElement.clientWidth
       videoElementHeight = videoElement.clientHeight
-
-      videoElement.addEventListener('play', (evt: Event) => {
-        if (adsLoaded) {
-          return
-        }
-        adsLoaded = true
-
-        evt.preventDefault()
-
-        videoElement.load()
-        adDisplayContainer.initialize()
-
-        try {
-          adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL)
-          adsManager.start()
-        } catch (adError) {
-          // play the video without the ads
-          console.log('AdsManager could not be started', adError)
-          // eslint-disable-next-line
-          videoElement.play()
-        }
-      })
     }
 
-    const videoEl = StroeerVideoplayer.getVideoEl()
-    videoEl.addEventListener('loadedmetadata', () => {
-      this.initIMA()
-    })
+    this.initIMA = (): void => {
+      adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, videoElement)
+      adsLoader = new google.ima.AdsLoader(adDisplayContainer)
+      adsManager = null
+
+      window.addEventListener('resize', (event) => {
+        console.log('window resized', adsManager)
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        if (adsManager) {
+          const width = videoElement.clientWidth
+          const height = videoElement.clientHeight
+          adsManager.resize(width, height, google.ima.ViewMode.NORMAL)
+        }
+      })
+
+      console.log('Add loaded listener')
+      adsLoader.addEventListener(
+        google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+        (adsManagerLoadedEvent: google.ima.AdsManagerLoadedEvent) => {
+          console.log('ads manager loaded')
+          adsManager = adsManagerLoadedEvent.getAdsManager(videoElement)
+
+          adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,
+            (adErrorEvent: google.ima.AdErrorEvent) => {
+              const error = adErrorEvent.getError()
+              videoElement.dispatchEvent(eventWrapper('ima:error', {
+                errorCode: error.getVastErrorCode(),
+                errorMessage: error.getMessage()
+              }))
+              logger.log('Event', 'ima:error', {
+                errorCode: error.getVastErrorCode(),
+                errorMessage: error.getMessage()
+              })
+            })
+          adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, () => {
+            videoElement.pause()
+          })
+          adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, () => {
+            videoElement.play()
+            adContainer.style.display = 'none'
+          })
+          adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, () => {
+            logger.log('>>> all ads complete')
+          })
+
+          adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, () => {
+            logger.log('>>> ad loaded')
+          })
+          adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, () => {
+            StroeerVideoplayer.deinitUI('default')
+            // StroeerVideoplayer.initUI('ima')
+            adContainer.style.display = 'block'
+            logger.log('Event', 'ima:impression')
+            videoElement.dispatchEvent(eventWrapper('ima:impression'))
+          })
+          adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, () => {
+            // StroeerVideoplayer.deinitUI('ima')
+            StroeerVideoplayer.initUI('default')
+            logger.log('Event', 'ima:ended')
+            videoElement.dispatchEvent(eventWrapper('ima:ended'))
+          })
+
+          adsManager.addEventListener(google.ima.AdEvent.Type.PAUSED, () => {
+            logger.log('Event', 'ima:pause')
+            videoElement.dispatchEvent(eventWrapper('ima:pause'))
+          })
+          adsManager.addEventListener(google.ima.AdEvent.Type.CLICK, () => {
+            logger.log('Event', 'ima:click')
+            videoElement.dispatchEvent(eventWrapper('ima:click'))
+          })
+          adsManager.addEventListener(google.ima.AdEvent.Type.FIRST_QUARTILE, () => {
+            logger.log('Event', 'ima:firstQuartile')
+            videoElement.dispatchEvent(eventWrapper('ima:firstQuartile'))
+          })
+          adsManager.addEventListener(google.ima.AdEvent.Type.MIDPOINT, () => {
+            logger.log('Event', 'ima:midpoint')
+            videoElement.dispatchEvent(eventWrapper('ima:midpoint'))
+          })
+          adsManager.addEventListener(google.ima.AdEvent.Type.THIRD_QUARTILE, () => {
+            logger.log('Event', 'ima:thirdQuartile')
+            videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'))
+          })
+        })
+
+      adsLoader.addEventListener(
+        google.ima.AdErrorEvent.Type.AD_ERROR,
+        (adErrorEvent: google.ima.AdErrorEvent) => {
+          // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+          if (adsManager) {
+            adsManager.destroy()
+          }
+          const error = adErrorEvent.getError()
+          videoElement.dispatchEvent(eventWrapper('ima:error', {
+            errorCode: error.getVastErrorCode(),
+            errorMessage: error.getMessage()
+          }))
+          logger.log('Event', 'ima:error', {
+            errorCode: error.getVastErrorCode(),
+            errorMessage: error.getMessage()
+          })
+        })
+
+      // Let the AdsLoader know when the video has ended
+      videoElement.addEventListener('contentVideoEnded', () => {
+        adsLoader.contentComplete()
+      })
+
+      console.log('>>> request ads')
+      this.requestAds()
+    }
+
+    this.onVideoElContentVideoEnded = () => {
+      videoElement.addEventListener('play', this.onVideoElPlay)
+    }
+
+    videoElement.addEventListener('play', this.onVideoElPlay)
+    videoElement.addEventListener('contentVideoEnded', this.onVideoElContentVideoEnded)
+    videoElement.addEventListener('loadedmetadata', this.initIMA())
+  }
+
+  deinit = (StroeerVideoplayer: IStroeerVideoplayer): void => {
+    const videoElement = StroeerVideoplayer.getVideoEl()
+    videoElement.removeEventListener('play', this.onVideoElPlay)
+    videoElement.removeEventListener('contentVideoEnded', this.onVideoElContentVideoEnded)
   }
 }
 

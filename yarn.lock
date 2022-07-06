@@ -632,6 +632,11 @@
   "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer-default-ui/-/stroeer-videoplayer-default-ui-1.0.0.tgz"
   "version" "1.0.0"
 
+"@stroeer/stroeer-videoplayer-plugin-endcard@^2.0.1":
+  "integrity" "sha512-8kN1uL06ZmjDDYHru3mupXhkiqIfiNFhwe2UDYaROFlroCYiNsLGy5LCjBfmB1i01SWA9mjr5J9NYBq6bIDKLw=="
+  "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer-plugin-endcard/-/stroeer-videoplayer-plugin-endcard-2.0.1.tgz"
+  "version" "2.0.1"
+
 "@stroeer/stroeer-videoplayer@^1.0.1":
   "integrity" "sha512-IA3D/DNBQELGo7RxBIXrFbOILD7mxNMMGOlXBfOTNxMVd3twCrgHoxAfX/TlGfCRxuBcASejNQYGKpegK43Lig=="
   "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer/-/stroeer-videoplayer-1.0.1.tgz"
