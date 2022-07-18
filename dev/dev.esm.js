@@ -27829,12 +27829,15 @@ var StroeerVideoplayer = /** @class */ (function () {
             if (hls === null)
                 return;
             var onLevelLoaded = function () {
+                console.log('first chunk loaded');
+                videoEl.dispatchEvent(new Event('stroeer-videoplayer:firstChunkLoaded'));
                 hls.off(HlsJs.Events.LEVEL_LOADED, onLevelLoaded);
                 hls.stopLoad();
             };
             hls.on(HlsJs.Events.LEVEL_LOADED, onLevelLoaded);
         };
         this.loadStreamSource = function () {
+            console.log('>>>> loadStreamSource');
             var videoEl = _this._dataStore.videoEl;
             var videoSource = videoEl.querySelector('source');
             var canPlayNativeHls = videoEl.canPlayType('application/vnd.apple.mpegurl') === 'probably' ||
@@ -27853,6 +27856,7 @@ var StroeerVideoplayer = /** @class */ (function () {
                 });
                 _this._dataStore.hls = hls_1;
                 hls_1.loadSource(videoSource.src);
+                console.log('>>>> hls - load source');
                 hls_1.attachMedia(videoEl);
                 hls_1.on(HlsJs.Events.ERROR, function (event, data) {
                     log('error')('HlsJs.Events.Error', event, data);
@@ -27863,16 +27867,19 @@ var StroeerVideoplayer = /** @class */ (function () {
                                 log('error')('fatal network error encountered, try to recover');
                                 videoEl.dispatchEvent(new CustomEvent('hlsNetworkError', { detail: data }));
                                 hls_1.startLoad();
+                                console.log('>>>> hls - network error');
                                 break;
                             case HlsJs.ErrorTypes.MEDIA_ERROR:
                                 // This seems to be a bit buggy, so we're going to ignore it for now
                                 // it seems as if it breaks the video playback and you can't resume it,
                                 // even though it's stated in the docs that it's supposed to recover from this error and is best practice
                                 // log('error')('fatal media error encountered, try to recover')
-                                // hls.recoverMediaError()
+                                hls_1.recoverMediaError();
+                                console.log('>>>> hls - media error');
                                 break;
                             default:
                                 log('error')('fatal error encountered, cannot recover', data.type);
+                                console.log('>>>> hls - fatal error');
                                 hls_1.destroy();
                                 break;
                         }
@@ -27926,7 +27933,6 @@ var StroeerVideoplayer = /** @class */ (function () {
             _this._dataStore.videoEl.dataset.meta = JSON.stringify(videoData);
         };
         this.replaceAndPlay = function (videoData, autoplay) {
-          console.log('>>> replace: ', videoData);
             if (autoplay === void 0) { autoplay = false; }
             if (videoData.playlists === undefined)
                 return;
@@ -27988,6 +27994,7 @@ var StroeerVideoplayer = /** @class */ (function () {
                     ds.videoFirstPlay = false;
                     this.dispatchEvent(new Event('firstPlay'));
                     if (HlsJs.isSupported() && ds.hls !== null) {
+                        console.log('>>>> hls - start load');
                         ds.hls.startLoad();
                     }
                 }
@@ -29011,6 +29018,614 @@ var UI = /** @class */ (function () {
     return UI;
 }());
 
+var version$2 = "0.0.2";
+
+var UIIcons$1 = "<?xml version=\"1.0\" encoding=\"utf-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><symbol viewBox=\"0 0 24 24\" id=\"Icon-CaptionOff\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M22.5 5.5h-20a1 1 0 00-1 1v12a1 1 0 001 1h20a1 1 0 001-1v-12a1 1 0 00-1-1z\"/><path d=\"M10.92 15.241a4.375 4.375 0 01-1.557.259 2.49 2.49 0 01-1.963-.776 3.253 3.253 0 01-.691-2.224 3.593 3.593 0 01.333-1.593c.207-.439.543-.804.964-1.046.453-.25.964-.374 1.481-.361a3.68 3.68 0 011.653.375M18.072 15.241a4.384 4.384 0 01-1.557.259 2.49 2.49 0 01-1.968-.776 3.248 3.248 0 01-.687-2.224 3.593 3.593 0 01.333-1.593c.208-.439.544-.804.965-1.046.453-.25.964-.374 1.481-.361a3.673 3.673 0 011.652.375\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-CaptionOn\" xmlns=\"http://www.w3.org/2000/svg\"><g clip-path=\"url(#bclip0)\"><path d=\"M23 4H1a1 1 0 00-1 1v14a1 1 0 001 1h22a1 1 0 001-1V5a1 1 0 00-1-1zM9.215 14.3c.342 0 .682-.049 1.01-.146.334-.099.662-.215.983-.349V15.6c-.703.3-1.46.448-2.224.435a3.51 3.51 0 01-2.725-1.031 4.248 4.248 0 01-.949-2.981 4.77 4.77 0 01.459-2.143 3.3 3.3 0 011.322-1.42 3.993 3.993 0 012.027-.5 5.587 5.587 0 012.434.553l-.65 1.67a7.241 7.241 0 00-.871-.343A3.01 3.01 0 009.1 9.7a1.352 1.352 0 00-1.182.62 3 3 0 00-.424 1.711c-.002 1.513.572 2.269 1.721 2.269zm7.138 0c.342 0 .682-.049 1.01-.146.334-.099.662-.215.983-.349V15.6a5.44 5.44 0 01-2.224.435 3.513 3.513 0 01-2.722-1.03 4.248 4.248 0 01-.949-2.981 4.77 4.77 0 01.459-2.143 3.3 3.3 0 011.319-1.421 4 4 0 012.028-.5 5.586 5.586 0 012.433.553l-.65 1.67a7.304 7.304 0 00-.87-.343 3.017 3.017 0 00-.935-.14 1.352 1.352 0 00-1.182.62 3 3 0 00-.424 1.711c0 1.513.575 2.269 1.724 2.269z\"/></g><defs><clipPath id=\"bclip0\"><path d=\"M0 0h24v24H0z\"/></clipPath></defs></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Fullscreen\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M8.293 14.293L3 19.586V15H1v7a1 1 0 001 1h7v-2H4.414l5.293-5.293-1.414-1.414zM22 1h-7v2h4.586l-5.293 5.293 1.414 1.414L21 4.414V9h2V2a1 1 0 00-1-1zM9 3V1H2a1 1 0 00-1 1v7h2V4.414l5.293 5.293 1.414-1.414L4.414 3H9zM21 19.586l-5.293-5.293-1.414 1.414L19.586 21H15v2h7a1 1 0 001-1v-7h-2v4.586z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-FullscreenOff\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M2.414 23l5.293-5.293v4.586h2v-7a1 1 0 00-1-1h-7v2h4.586L1 21.586 2.414 23zM15.293 9.707h7v-2h-4.586L23 2.414 21.586 1l-5.293 5.293V1.707h-2v7a1 1 0 001 1zM1.707 7.707v2h7a1 1 0 001-1v-7h-2v4.586L2.414 1 1 2.414l5.293 5.293H1.707zM16.293 17.707L21.586 23 23 21.586l-5.293-5.293h4.586v-2h-7a1 1 0 00-1 1v7h2v-4.586z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Mute\" xmlns=\"http://www.w3.org/2000/svg\"><g clip-path=\"url(#eclip0)\"><path d=\"M10.567 17.675L17.4 22.8a.995.995 0 001.047.095c.339-.17.553-.516.553-.895V9.242l-8.433 8.433zM2 17h5L19 5V2a1.001 1.001 0 00-1.6-.8L9.667 7H2a1 1 0 00-1 1v8a1 1 0 001 1z\"/><path d=\"M1 24a.999.999 0 01-.707-1.707l22-22a.999.999 0 111.414 1.414l-22 22A.997.997 0 011 24z\"/></g><defs><clipPath id=\"eclip0\"><path d=\"M0 0h24v24H0z\"/></clipPath></defs></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-NextVideo\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M12.625 3.219A.999.999 0 0011 4v6.719l-9.375-7.5A.999.999 0 000 4v16a.999.999 0 001.625.781l9.375-7.5V20a.999.999 0 001.625.781l10-8a1 1 0 000-1.562l-10-8z\"/><rect x=\"21\" y=\"3.063\" width=\"2\" height=\"18\" rx=\"1\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Pause\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M8.455 2H3.909A.91.91 0 003 2.91v18.18a.91.91 0 00.91.91h4.545a.91.91 0 00.909-.91V2.91a.91.91 0 00-.91-.91zM19.818 2h-4.545a.91.91 0 00-.91.91v18.18a.909.909 0 00.91.91h4.545a.909.909 0 00.91-.91V2.91a.91.91 0 00-.91-.91z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-PiP\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M1 4.063h20v12H1v-12z\"/><path d=\"M11 12.563h12a.5.5 0 01.5.5v7a.5.5 0 01-.5.5H11a.5.5 0 01-.5-.5v-7a.5.5 0 01.5-.5z\"/></symbol><symbol viewBox=\"0 0 17 22\" id=\"Icon-Play\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M16.56 10.17l-15-10a1 1 0 00-1-.05A1 1 0 000 1v20a1 1 0 00.53.88A1 1 0 001 22a1 1 0 00.56-.17l15-10a1 1 0 000-1.66z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Quality\" xmlns=\"http://www.w3.org/2000/svg\"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M1 4h22a1 1 0 011 1v14a1 1 0 01-1 1H1a1 1 0 01-1-1V5a1 1 0 011-1zm8.186 12.531h1.757V8H9.186v3.457H5.758V8H4v8.531h1.758v-3.656h3.428v3.656zM13.444 8v8.531h2.643c.746-.004 1.416-.175 2.01-.515a3.484 3.484 0 001.377-1.436c.328-.617.492-1.322.492-2.115v-.393c0-.793-.166-1.5-.498-2.12a3.505 3.505 0 00-1.389-1.442c-.59-.34-1.26-.51-2.01-.51h-2.625zm1.758 7.12V9.423h.867c.692 0 1.217.224 1.576.674.36.445.54 1.101.54 1.968v.452c-.008.835-.194 1.478-.557 1.927-.363.45-.889.674-1.576.674h-.85z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Replay\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M21 20H3a1 1 0 01-1-1v-5a1 1 0 112 0v4h16V9H10v3L5 8l5-4v3h11a1 1 0 011 1v11a1 1 0 01-1 1z\"/></symbol><symbol viewBox=\"0 0 103 110\" id=\"Icon-Revolver\" xmlns=\"http://www.w3.org/2000/svg\"><g filter=\"url(#lfilter0_d)\"><path d=\"M62.073 37.89l-20-13.333A1.334 1.334 0 0040 25.667v26.666a1.334 1.334 0 002.073 1.11l20-13.334a1.335 1.335 0 000-2.218z\"/></g><circle cx=\"48\" cy=\"39\" r=\"30.667\" stroke=\"#fff\" stroke-width=\"2.667\"/><path d=\"M48 8.333a32 32 0 0112.246 2.436c3.882 1.608 7.45 4.593 10.42 7.564\" stroke=\"#E20074\" stroke-width=\"2.667\" stroke-linecap=\"round\"/><defs><filter id=\"lfilter0_d\" x=\"-5.333\" y=\"-1\" width=\"112\" height=\"112\" filterUnits=\"userSpaceOnUse\" color-interpolation-filters=\"sRGB\"><feFlood flood-opacity=\"0\" result=\"BackgroundImageFix\"/><feColorMatrix in=\"SourceAlpha\" values=\"0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0\" result=\"hardAlpha\"/><feOffset dy=\"16\"/><feGaussianBlur stdDeviation=\"20\"/><feColorMatrix values=\"0 0 0 0 0.490196 0 0 0 0 0.596078 0 0 0 0 0.698039 0 0 0 0.2 0\"/><feBlend mode=\"multiply\" in2=\"BackgroundImageFix\" result=\"effect1_dropShadow\"/><feBlend in=\"SourceGraphic\" in2=\"effect1_dropShadow\" result=\"shape\"/></filter></defs></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Settings\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M20.872 13.453c.082-.48.125-.966.128-1.453a9.026 9.026 0 00-.128-1.453l2.1-2.029a1 1 0 00.171-1.218l-1.5-2.6a1.009 1.009 0 00-1.143-.461l-2.8.8a9.018 9.018 0 00-2.527-1.451L14.47.758A1 1 0 0013.5 0h-3a1 1 0 00-.97.758l-.707 2.83A9.017 9.017 0 006.3 5.039l-2.8-.8a1.01 1.01 0 00-1.143.461l-1.5 2.6a1 1 0 00.171 1.219l2.1 2.029c-.082.48-.125.965-.128 1.452.003.487.046.973.128 1.453l-2.1 2.029A1 1 0 00.857 16.7l1.5 2.6a1 1 0 001.142.462l2.8-.8a9.017 9.017 0 002.527 1.451l.707 2.83A1 1 0 0010.5 24h3a1 1 0 00.97-.758l.707-2.83a9.019 9.019 0 002.523-1.451l2.8.8a1 1 0 001.142-.462l1.5-2.6a1 1 0 00-.171-1.219l-2.099-2.027zM12 16a4 4 0 110-8 4 4 0 010 8z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Share\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"4.174\" cy=\"11.478\" r=\"4.174\"/><circle cx=\"19.826\" cy=\"4.174\" r=\"4.174\"/><circle cx=\"19.826\" cy=\"19.826\" r=\"4.174\"/><path d=\"M20.348 3.734L6.26 11.867 20.348 20\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Volume\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M14.447 1.105A1.006 1.006 0 0013.4 1.2L5.667 7H1a1 1 0 00-1 1v8a1 1 0 001 1h4.667l7.733 5.8a.995.995 0 001.047.095c.339-.17.553-.516.553-.895V2c0-.379-.214-.725-.553-.895zM18.243 7.758l-.707-.707-1.414 1.414.707.707a4.003 4.003 0 010 5.656l-.707.707 1.414 1.414.707-.707a6.006 6.006 0 000-8.484z\"/><path d=\"M20.364 4.222L18.95 5.636l.707.707c3.119 3.119 3.119 8.195 0 11.314l-.707.707 1.414 1.414.707-.707c3.899-3.899 3.899-10.243 0-14.143l-.707-.706z\"/></symbol><symbol fill=\"none\" viewBox=\"0 0 56 16\" id=\"LiveIndicator\" xmlns=\"http://www.w3.org/2000/svg\"><circle opacity=\".2\" cx=\"8\" cy=\"8\" r=\"8\" fill=\"#E20074\"/><circle cx=\"8\" cy=\"8\" r=\"4\" fill=\"#E20074\"/><path d=\"M25.94 11.352h4.354V13h-6.405V3.047h2.05v8.305zM34.776 13h-2.05V3.047h2.05V13zm6.705-2.468l2.256-7.485h2.283L42.555 13h-2.14l-3.451-9.953h2.276l2.242 7.485zm12.59-1.845h-3.937v2.665h4.622V13h-6.672V3.047h6.658v1.661h-4.608V7.08h3.938v1.607z\" fill=\"#E20074\"/></symbol></svg>";
+
+var noop$2 = function () {
+    return false;
+};
+
+function SVGHelper$1(type, opts) {
+    var _a, _b;
+    opts = opts !== null && opts !== void 0 ? opts : {};
+    opts.svgAttributes = (_a = opts.svgAttributes) !== null && _a !== void 0 ? _a : [];
+    opts.svgAttributes.push(['role', 'presentation']);
+    opts.svgAttributes.push(['focusable', 'false']);
+    var namespace = 'http://www.w3.org/2000/svg';
+    var iconPrefix = '';
+    var iconPath = '#' + iconPrefix;
+    var icon = document.createElementNS(namespace, 'svg');
+    opts.svgAttributes.forEach(function (attr) {
+        icon.setAttribute(attr[0], attr[1]);
+    });
+    var use = document.createElementNS(namespace, 'use');
+    var path = iconPath + type;
+    if ('href' in use) {
+        use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', path);
+    }
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    if ((_b = opts.useAttributes) === null || _b === void 0 ? void 0 : _b.length) {
+        opts.useAttributes.forEach(function (attr) {
+            use.setAttribute(attr[0], attr[1]);
+        });
+    }
+    use.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', path);
+    icon.appendChild(use);
+    return icon;
+}
+
+var debugMode$1 = false;
+if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+    if (window.localStorage.getItem('StroeerVideoplayerDebugMode') !== null) {
+        debugMode$1 = true;
+    }
+}
+var Logger$1 = {
+    log: function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        if (debugMode$1) {
+            args.unshift('StroeerVideoplayer.UI.IMA');
+            console.log.apply(console, args);
+        }
+    }
+};
+
+var isTouchDevice$1 = function () {
+    return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
+};
+var hideElement$1 = function (element) {
+    element.classList.add('hidden');
+    element.setAttribute('aria-hidden', 'true');
+};
+var showElement$1 = function (element) {
+    element.classList.remove('hidden');
+    element.removeAttribute('aria-hidden');
+};
+var UI$1 = /** @class */ (function () {
+    function UI() {
+        var _this = this;
+        // createButton Function:
+        // creates a HTMLElement with given options, adds it to the buttonsContainer and returns it
+        //   tag - the html tag to choose, mostly 'button'
+        //   cls - the css class the tag gets
+        //   aria - the aria label
+        //   svgid - the id of the icon in the icon-svg
+        //   ishidden - true to render hidden initially
+        //   clickcb - a callback function called on 'click'
+        this.createButton = function (StroeerVideoplayer, tag, cls, aria, svgid, ishidden, evts) {
+            var buttonsContainer = StroeerVideoplayer.getUIEl().querySelector('.buttons');
+            var el = document.createElement(tag);
+            el.classList.add(cls);
+            el.setAttribute('aria-label', aria);
+            el.appendChild(SVGHelper$1(svgid));
+            if (ishidden)
+                hideElement$1(el);
+            var _loop_1 = function (i) {
+                el.addEventListener(evts[i].name, function (ev) {
+                    evts[i].callb(ev);
+                });
+            };
+            for (var i = 0; i < evts.length; i++) {
+                _loop_1(i);
+            }
+            buttonsContainer.appendChild(el);
+            return el;
+        };
+        this.setTimeDisp = function (timeDisp, current, total) {
+            var secondsLeft = Math.floor(total - current);
+            var secondsLeftString = String(secondsLeft);
+            if (isNaN(secondsLeft)) {
+                timeDisp.innerHTML = 'Werbung';
+            }
+            else {
+                timeDisp.innerHTML = 'Werbung endet in ' + secondsLeftString + ' Sekunden';
+            }
+        };
+        this.init = function (StroeerVideoplayer) {
+            Logger$1.log('version', version$2);
+            var rootEl = StroeerVideoplayer.getRootEl();
+            var videoEl = StroeerVideoplayer.getVideoEl();
+            videoEl.removeAttribute('controls');
+            var uiEl = StroeerVideoplayer.getUIEl();
+            if (uiEl.children.length !== 0) {
+                return;
+            }
+            if (document.getElementById('stroeer-videoplayer-ima-ui-icons') === null) {
+                var uiIconsContainer = document.createElement('div');
+                uiIconsContainer.id = 'stroeer-videoplayer-ima-ui-icons';
+                uiIconsContainer.innerHTML = UIIcons$1;
+                document.body.appendChild(uiIconsContainer);
+            }
+            var uiContainer = document.createElement('div');
+            var loadingSpinnerContainer = document.createElement('div');
+            var loadingSpinnerAnimation = document.createElement('div');
+            var seekPreviewContainer = document.createElement('div');
+            var seekPreview = document.createElement('div');
+            var seekPreviewVideo = document.createElement('video');
+            var seekPreviewTime = document.createElement('div');
+            var seekPreviewTimeMinutes = document.createElement('span');
+            var seekPreviewTimeDivider = document.createElement('span');
+            var seekPreviewTimeSeconds = document.createElement('span');
+            var volumeContainer = document.createElement('div');
+            var volumeRange = document.createElement('div');
+            var volumeLevel = document.createElement('div');
+            var volumeLevelBubble = document.createElement('div');
+            var controlBar = document.createElement('div');
+            var buttonsContainer = document.createElement('div');
+            var overlayContainer = document.createElement('div');
+            seekPreviewVideo.setAttribute('preload', 'auto');
+            seekPreviewContainer.classList.add('seek-preview-container');
+            hideElement$1(seekPreviewContainer);
+            seekPreview.classList.add('seek-preview');
+            seekPreviewTime.classList.add('seek-preview-time');
+            seekPreviewTimeMinutes.classList.add('seek-preview-time-minutes');
+            seekPreviewTimeDivider.classList.add('seek-preview-time-divider');
+            seekPreviewTimeDivider.innerHTML = ':';
+            seekPreviewTimeSeconds.classList.add('seek-preview-time-seconds');
+            seekPreviewTime.appendChild(seekPreviewTimeMinutes);
+            seekPreviewTime.appendChild(seekPreviewTimeDivider);
+            seekPreviewTime.appendChild(seekPreviewTimeSeconds);
+            seekPreview.appendChild(seekPreviewVideo);
+            seekPreview.appendChild(seekPreviewTime);
+            seekPreviewContainer.appendChild(seekPreview);
+            volumeContainer.className = 'volume-container';
+            volumeContainer.style.opacity = '0';
+            volumeRange.className = 'volume-range';
+            volumeLevel.className = 'volume-level';
+            volumeLevelBubble.className = 'volume-level-bubble';
+            volumeRange.appendChild(volumeLevelBubble);
+            volumeRange.appendChild(volumeLevel);
+            volumeContainer.appendChild(volumeRange);
+            overlayContainer.className = 'video-overlay';
+            uiContainer.className = _this.uiContainerClassName;
+            loadingSpinnerContainer.className = 'loading-spinner';
+            hideElement$1(loadingSpinnerContainer);
+            loadingSpinnerAnimation.className = 'animation';
+            loadingSpinnerContainer.appendChild(loadingSpinnerAnimation);
+            controlBar.className = 'controlbar';
+            buttonsContainer.className = 'buttons';
+            controlBar.appendChild(volumeContainer);
+            controlBar.appendChild(buttonsContainer);
+            uiContainer.appendChild(controlBar);
+            uiContainer.appendChild(overlayContainer);
+            uiContainer.appendChild(loadingSpinnerContainer);
+            uiEl.appendChild(uiContainer);
+            (function () {
+                for (var i = 0; i < 12; i++) {
+                    var d = document.createElement('div');
+                    loadingSpinnerAnimation.appendChild(d);
+                }
+            })();
+            if (isTouchDevice$1()) {
+                var overlayTouchClickContainer = document.createElement('div');
+                overlayTouchClickContainer.className = 'video-overlay-touchclick';
+                overlayTouchClickContainer.innerHTML = 'Mehr Informationen';
+                uiContainer.appendChild(overlayTouchClickContainer);
+            }
+            var dispatchEvent = function (eventName, data) {
+                var event = new CustomEvent(eventName, { detail: data });
+                videoEl.dispatchEvent(event);
+            };
+            var showLoading = function (modus) {
+                if (modus) {
+                    showElement$1(loadingSpinnerContainer);
+                }
+                else {
+                    hideElement$1(loadingSpinnerContainer);
+                }
+            };
+            StroeerVideoplayer.loading = function (modus) {
+                showLoading(modus);
+            };
+            videoEl.addEventListener('waiting', function () {
+                showLoading(true);
+            });
+            videoEl.addEventListener('canplay', function () {
+                showLoading(false);
+            });
+            videoEl.addEventListener('playing', function () {
+                showLoading(false);
+            });
+            // Create the Buttons
+            var playButton = _this.createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'Icon-Play', false, [
+                {
+                    name: 'click',
+                    callb: function () {
+                        dispatchEvent('UIPlay', videoEl.currentTime);
+                        dispatchEvent('uiima:play', videoEl.currentTime);
+                        if (videoEl.currentTime > 0) {
+                            dispatchEvent('uiima:resume', videoEl.currentTime);
+                        }
+                        // videoEl.play()
+                    }
+                }
+            ]);
+            if (videoEl.paused === false) {
+                hideElement$1(playButton);
+            }
+            var pauseButton = _this.createButton(StroeerVideoplayer, 'button', 'pause', 'Pause', 'Icon-Pause', videoEl.paused, [
+                {
+                    name: 'click',
+                    callb: function () {
+                        dispatchEvent('UIPause', videoEl.currentTime);
+                        dispatchEvent('uiima:pause', videoEl.currentTime);
+                        // videoEl.pause()
+                    }
+                }
+            ]);
+            var muteButton = _this.createButton(StroeerVideoplayer, 'button', 'mute', 'Mute', 'Icon-Volume', videoEl.muted, [
+                {
+                    name: 'click',
+                    callb: function () {
+                        dispatchEvent('UIMute', videoEl.currentTime);
+                        dispatchEvent('uiima:mute', videoEl.currentTime);
+                        // videoEl.muted = true
+                    }
+                }
+            ]);
+            var unmuteButton = _this.createButton(StroeerVideoplayer, 'button', 'unmute', 'Unmute', 'Icon-Mute', videoEl.muted !== true, [
+                {
+                    name: 'click',
+                    callb: function () {
+                        dispatchEvent('UIUnmute', videoEl.currentTime);
+                        dispatchEvent('uiima:unmute', videoEl.currentTime);
+                        // videoEl.muted = false
+                    }
+                }
+            ]);
+            // Time Display
+            var timeDisp = document.createElement('div');
+            timeDisp.classList.add('time');
+            controlBar.appendChild(timeDisp);
+            var isAlreadyInFullscreenMode = function () {
+                return (document.fullscreenElement === rootEl || document.fullscreenElement === videoEl);
+            };
+            StroeerVideoplayer.enterFullscreen = function () {
+                if (typeof rootEl.requestFullscreen === 'function') {
+                    rootEl.requestFullscreen();
+                }
+                else if (typeof rootEl.webkitRequestFullscreen === 'function') {
+                    if (navigator.userAgent.includes('iPad')) {
+                        videoEl.webkitRequestFullscreen();
+                    }
+                    else {
+                        rootEl.webkitRequestFullscreen();
+                    }
+                }
+                else if (typeof rootEl.mozRequestFullScreen === 'function') {
+                    rootEl.mozRequestFullScreen();
+                }
+                else if (typeof rootEl.msRequestFullscreen === 'function') {
+                    rootEl.msRequestFullscreen();
+                }
+                else if (typeof rootEl.webkitEnterFullscreen === 'function') {
+                    rootEl.webkitEnterFullscreen();
+                }
+                else if (typeof videoEl.webkitEnterFullscreen === 'function') {
+                    videoEl.webkitEnterFullscreen();
+                }
+                else {
+                    console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found');
+                }
+            };
+            var enterFullscreenButtonIsHidden = isAlreadyInFullscreenMode();
+            // Fullscreen Button
+            var enterFullscreenButton = _this.createButton(StroeerVideoplayer, 'button', 'enterFullscreen', 'Enter Fullscreen', 'Icon-Fullscreen', enterFullscreenButtonIsHidden, [{
+                    name: 'click',
+                    callb: function () {
+                        dispatchEvent('UIEnterFullscreen', videoEl.currentTime);
+                        dispatchEvent('uiima:enterFullscreen', videoEl.currentTime);
+                        // StroeerVideoplayer.enterFullscreen()
+                    }
+                }]);
+            StroeerVideoplayer.exitFullscreen = function () {
+                if (typeof document.exitFullscreen === 'function') {
+                    document.exitFullscreen().then(noop$2).catch(noop$2);
+                }
+                else if (typeof document.webkitExitFullscreen === 'function') {
+                    document.webkitExitFullscreen();
+                }
+                else if (typeof document.mozCancelFullScreen === 'function') {
+                    document.mozCancelFullScreen().then(noop$2).catch(noop$2);
+                }
+                else if (typeof document.msExitFullscreen === 'function') {
+                    document.msExitFullscreen();
+                }
+                else if (typeof videoEl.webkitExitFullscreen === 'function') {
+                    videoEl.webkitExitFullscreen();
+                }
+                else {
+                    console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found');
+                }
+            };
+            var exitFullscreenButtonIsHidden = !isAlreadyInFullscreenMode();
+            var exitFullscreenButton = _this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'Icon-FullscreenOff', exitFullscreenButtonIsHidden, [{
+                    name: 'click',
+                    callb: function () {
+                        dispatchEvent('UIExitFullscreen', videoEl.currentTime);
+                        dispatchEvent('uiima:ExitFullscreen', videoEl.currentTime);
+                        // StroeerVideoplayer.exitFullscreen()
+                    }
+                }]);
+            seekPreviewVideo.src = videoEl.querySelector('source').src;
+            controlBar.appendChild(buttonsContainer);
+            var controlBarContainer = document.createElement('div');
+            controlBarContainer.classList.add('controlbar-container');
+            controlBarContainer.appendChild(controlBar);
+            uiContainer.appendChild(controlBarContainer);
+            uiEl.appendChild(uiContainer);
+            var toggleControlbarInSeconds = 5;
+            var toggleControlbarSecondsLeft = toggleControlbarInSeconds;
+            var toggleControlbarTicker = function () {
+                if (videoEl.paused === true) {
+                    controlBarContainer.style.opacity = '1';
+                    toggleControlbarSecondsLeft = toggleControlbarInSeconds;
+                    return;
+                }
+                if (toggleControlbarSecondsLeft === 0) {
+                    controlBarContainer.style.opacity = '0';
+                }
+                else {
+                    toggleControlbarSecondsLeft = toggleControlbarSecondsLeft - 1;
+                }
+            };
+            rootEl.addEventListener('mousemove', function () {
+                toggleControlbarSecondsLeft = toggleControlbarInSeconds;
+                controlBarContainer.style.opacity = '1';
+            });
+            clearInterval(_this.toggleControlBarInterval);
+            _this.toggleControlBarInterval = setInterval(toggleControlbarTicker, 1000);
+            var toggleVolumeSliderInSeconds = 2;
+            var toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
+            var toggleVolumeSliderTicker = function () {
+                if (toggleVolumeSliderSecondsLeft === 0) {
+                    volumeContainer.style.opacity = '0';
+                }
+                else {
+                    toggleVolumeSliderSecondsLeft = toggleVolumeSliderSecondsLeft - 1;
+                }
+            };
+            volumeContainer.addEventListener('mousemove', function () {
+                toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
+            });
+            clearInterval(_this.toggleVolumeBarInterval);
+            _this.toggleVolumeBarInterval = setInterval(toggleVolumeSliderTicker, 1000);
+            _this.onVideoElPlay = function () {
+                hideElement$1(playButton);
+                showElement$1(pauseButton);
+            };
+            videoEl.addEventListener('play', _this.onVideoElPlay);
+            _this.onVideoElPause = function () {
+                showElement$1(playButton);
+                hideElement$1(pauseButton);
+            };
+            videoEl.addEventListener('pause', _this.onVideoElPause);
+            videoEl.addEventListener('loadedmetadata', function () {
+                _this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration);
+            });
+            if (videoEl.paused === true && videoEl.currentTime === 0) {
+                videoEl.load();
+            }
+            _this.onVideoElTimeupdate = function () {
+                _this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration);
+            };
+            videoEl.addEventListener('timeupdate', _this.onVideoElTimeupdate);
+            // set initial value of volume bar
+            volumeLevel.style.height = String(videoEl.volume * 100) + '%';
+            if (videoEl.volume <= 0.9) {
+                volumeLevelBubble.style.bottom = String(videoEl.volume * 100) + '%';
+            }
+            var calulateVolumePercentageBasedOnYCoords = function (y) {
+                var percentage = (100 / volumeRange.offsetHeight) * y;
+                return percentage;
+            };
+            var updateVolumeWhileDragging = function (evt) {
+                var clientY = evt.clientY;
+                if (clientY === undefined) {
+                    if ('touches' in evt && evt.touches.length > 0) {
+                        clientY = evt.touches[0].clientY;
+                    }
+                    else {
+                        clientY = false;
+                    }
+                }
+                if (clientY === false)
+                    return;
+                var volumeRangeBoundingClientRect = volumeRange.getBoundingClientRect();
+                var volumeContainerOffsetY = 0;
+                if ('x' in volumeRangeBoundingClientRect) {
+                    volumeContainerOffsetY = volumeRangeBoundingClientRect.y;
+                }
+                else {
+                    volumeContainerOffsetY = volumeRangeBoundingClientRect.top;
+                }
+                var y = clientY - volumeContainerOffsetY;
+                if (y < 0)
+                    y = 0;
+                if (y > volumeRangeBoundingClientRect.height) {
+                    y = volumeRangeBoundingClientRect.height;
+                }
+                var percentageY = calulateVolumePercentageBasedOnYCoords(y);
+                var percentageHeight = 100 - percentageY;
+                var percentageHeightString = String(percentageHeight);
+                var percentageYString = String(percentageY);
+                volumeLevel.style.height = percentageHeightString + '%';
+                if (percentageY < 90) {
+                    volumeLevelBubble.style.top = percentageYString + '%';
+                }
+                var volume = percentageHeight / 100;
+                videoEl.volume = volume;
+            };
+            var draggingWhat = '';
+            _this.onDragStart = function (evt) {
+                switch (evt.target) {
+                    case volumeRange:
+                    case volumeLevel:
+                    case volumeLevelBubble:
+                        dispatchEvent('UIVolumeChangeStart', {
+                            volume: videoEl.volume,
+                            currentTime: videoEl.currentTime
+                        });
+                        dispatchEvent('uiima:VolumeChangeStart', {
+                            volume: videoEl.volume,
+                            currentTime: videoEl.currentTime
+                        });
+                        draggingWhat = 'volume';
+                        break;
+                }
+            };
+            _this.onDragEnd = function (evt) {
+                if (draggingWhat === 'volume') {
+                    draggingWhat = '';
+                    updateVolumeWhileDragging(evt);
+                    dispatchEvent('UIVolumeChangeEnd', {
+                        volume: videoEl.volume,
+                        currentTime: videoEl.currentTime
+                    });
+                    dispatchEvent('uiima:VolumeChangeEnd', {
+                        volume: videoEl.volume,
+                        currentTime: videoEl.currentTime
+                    });
+                }
+            };
+            _this.onDrag = function (evt) {
+                if (draggingWhat === 'volume') {
+                    updateVolumeWhileDragging(evt);
+                }
+            };
+            document.body.addEventListener('touchstart', _this.onDragStart, {
+                passive: true
+            });
+            document.body.addEventListener('touchend', _this.onDragEnd, {
+                passive: true
+            });
+            document.body.addEventListener('touchmove', _this.onDrag, {
+                passive: true
+            });
+            document.body.addEventListener('mousedown', _this.onDragStart, {
+                passive: true
+            });
+            document.body.addEventListener('mouseup', _this.onDragEnd, {
+                passive: true
+            });
+            document.body.addEventListener('mousemove', _this.onDrag, {
+                passive: true
+            });
+            _this.onVideoElVolumeChange = function () {
+                if (videoEl.muted === true) {
+                    hideElement$1(muteButton);
+                    showElement$1(unmuteButton);
+                }
+                else {
+                    showElement$1(muteButton);
+                    hideElement$1(unmuteButton);
+                }
+            };
+            videoEl.addEventListener('volumechange', _this.onVideoElVolumeChange);
+            muteButton.addEventListener('mouseover', function () {
+                if (isTouchDevice$1()) {
+                    return;
+                }
+                volumeContainer.style.opacity = '1';
+                toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
+            });
+            unmuteButton.addEventListener('mouseover', function () {
+                if (isTouchDevice$1()) {
+                    return;
+                }
+                volumeContainer.style.opacity = '1';
+                toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
+            });
+            _this.onDocumentFullscreenChange = function () {
+                if (document.fullscreenElement === rootEl || document.fullscreenElement === videoEl) {
+                    videoEl.dispatchEvent(new Event('fullscreen'));
+                    hideElement$1(enterFullscreenButton);
+                    showElement$1(exitFullscreenButton);
+                }
+                else {
+                    videoEl.dispatchEvent(new Event('exitFullscreen'));
+                    showElement$1(enterFullscreenButton);
+                    hideElement$1(exitFullscreenButton);
+                }
+            };
+            // @ts-expect-error
+            document.addEventListener('fullscreenchange', _this.onDocumentFullscreenChange);
+            // iOS Workarounds
+            videoEl.addEventListener('webkitendfullscreen', function () {
+                // @ts-expect-error
+                document.fullscreenElement = null;
+                showElement$1(enterFullscreenButton);
+                hideElement$1(exitFullscreenButton);
+            });
+            document.addEventListener('webkitfullscreenchange', function () {
+                if (document.webkitFullscreenElement !== null) {
+                    showElement$1(exitFullscreenButton);
+                    hideElement$1(enterFullscreenButton);
+                }
+                else {
+                    showElement$1(enterFullscreenButton);
+                    hideElement$1(exitFullscreenButton);
+                }
+            });
+            // IE11 workaround
+            document.addEventListener('MSFullscreenChange', function () {
+                if (document.msFullscreenElement !== null) {
+                    showElement$1(exitFullscreenButton);
+                    hideElement$1(enterFullscreenButton);
+                }
+                else {
+                    hideElement$1(exitFullscreenButton);
+                    showElement$1(enterFullscreenButton);
+                }
+            });
+        };
+        this.deinit = function (StroeerVideoplayer) {
+            var videoEl = StroeerVideoplayer.getVideoEl();
+            videoEl.setAttribute('controls', '');
+            var uiEl = StroeerVideoplayer.getUIEl();
+            var uiContainer = uiEl.firstChild;
+            if (uiContainer !== undefined && uiContainer.className === _this.uiContainerClassName) {
+                videoEl.removeEventListener('play', _this.onVideoElPlay);
+                videoEl.removeEventListener('pause', _this.onVideoElPause);
+                videoEl.removeEventListener('timeupdate', _this.onVideoElTimeupdate);
+                videoEl.removeEventListener('volumechange', _this.onVideoElVolumeChange);
+                document.body.removeEventListener('touchstart', _this.onDragStart);
+                document.body.removeEventListener('touchend', _this.onDragEnd);
+                document.body.removeEventListener('touchmove', _this.onDrag);
+                document.body.removeEventListener('mousedown', _this.onDragStart);
+                document.body.removeEventListener('mouseup', _this.onDragEnd);
+                document.body.removeEventListener('mousemove', _this.onDrag);
+                clearInterval(_this.toggleControlBarInterval);
+                clearInterval(_this.toggleVolumeBarInterval);
+                // @ts-expect-error
+                document.removeEventListener('fullscreenchange', _this.onDocumentFullscreenChange);
+                uiEl.removeChild(uiEl.firstChild);
+            }
+        };
+        this.uiContainerClassName = 'ima';
+        this.onDocumentFullscreenChange = noop$2;
+        this.onVideoElPlay = noop$2;
+        this.onVideoElPause = noop$2;
+        this.onVideoElTimeupdate = noop$2;
+        this.onVideoElVolumeChange = noop$2;
+        this.onLoadedMetaData = noop$2;
+        this.onDragStart = noop$2;
+        this.onDrag = noop$2;
+        this.onDragEnd = noop$2;
+        this.toggleControlBarInterval = setInterval(noop$2, 1000);
+        this.toggleVolumeBarInterval = setInterval(noop$2, 1000);
+        this.isMouseDown = false;
+        return this;
+    }
+    UI.version = version$2;
+    UI.uiName = 'ima';
+    return UI;
+}());
+
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
@@ -29064,10 +29679,10 @@ function __generator(thisArg, body) {
     }
 }
 
-var debugMode$1 = false;
+var debugMode$2 = false;
 if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
     if (window.localStorage.getItem('StroeerVideoplayerDebugMode') !== null) {
-        debugMode$1 = true;
+        debugMode$2 = true;
     }
 }
 var logger = {
@@ -29076,7 +29691,7 @@ var logger = {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        if (debugMode$1) {
+        if (debugMode$2) {
             console.log.apply(console, args);
         }
     }
@@ -29125,7 +29740,7 @@ var transformData = function (data, keyMap) {
     return data;
 };
 
-function noop$2() {
+function noop$3() {
     return false;
 }
 function noopData(data) {
@@ -29338,7 +29953,7 @@ var EndcardPlugin = /** @class */ (function () {
         };
         this.videoplayer = stroeervideoplayer;
         this.videoElement = stroeervideoplayer.getVideoEl();
-        this.dataKeyMap = opts.dataKeyMap !== undefined ? opts.dataKeyMap : noop$2;
+        this.dataKeyMap = opts.dataKeyMap !== undefined ? opts.dataKeyMap : noop$3;
         this.transformedData = [];
         this.showFallback =
             opts.showFallback !== undefined ? opts.showFallback : false;
@@ -29346,24 +29961,24 @@ var EndcardPlugin = /** @class */ (function () {
             opts.revolverplayTime !== undefined ? opts.revolverplayTime : 5;
         this.intervalTicker = null;
         this.onLoadedCallback =
-            opts.onLoadedCallback !== undefined ? opts.onLoadedCallback : noop$2;
+            opts.onLoadedCallback !== undefined ? opts.onLoadedCallback : noop$3;
         this.onClickToPlayCallback =
             opts.onClickToPlayCallback !== undefined
                 ? opts.onClickToPlayCallback
-                : noop$2;
+                : noop$3;
         this.onClickToReplayCallback =
             opts.onClickToReplayCallback !== undefined
                 ? opts.onClickToReplayCallback
-                : noop$2;
+                : noop$3;
         this.onRevolverplayCallback =
             opts.onRevolverplayCallback !== undefined
                 ? opts.onRevolverplayCallback
-                : noop$2;
+                : noop$3;
         this.onRevolverplayPauseCallback =
             opts.onRevolverplayPauseCallback !== undefined
                 ? opts.onRevolverplayPauseCallback
-                : noop$2;
-        this.onPlayCallback = opts.onPlayCallback !== undefined ? opts.onPlayCallback : noop$2;
+                : noop$3;
+        this.onPlayCallback = opts.onPlayCallback !== undefined ? opts.onPlayCallback : noop$3;
         this.transformApiData =
             opts.transformApiData !== undefined ? opts.transformApiData : noopData;
         this.isVideoFinished = false;
@@ -29381,7 +29996,7 @@ var EndcardPlugin = /** @class */ (function () {
     return EndcardPlugin;
 }());
 
-var version$2 = "2.0.1";
+var version$3 = "2.0.1";
 
 var Plugin = /** @class */ (function () {
     function Plugin() {
@@ -29415,19 +30030,19 @@ var Plugin = /** @class */ (function () {
                 endcardContainer.remove();
             }
         };
-        this.onVideoElPlay = noop$2;
-        this.onVideoElFirstQuartile = noop$2;
-        this.onVideoElEnd = noop$2;
+        this.onVideoElPlay = noop$3;
+        this.onVideoElFirstQuartile = noop$3;
+        this.onVideoElEnd = noop$3;
         return this;
     }
-    Plugin.version = version$2;
+    Plugin.version = version$3;
     Plugin.pluginName = 'endcard';
     return Plugin;
 }());
 
-var version$3 = "0.0.1";
+var version$4 = "0.0.1";
 
-var noop$3 = function () {
+var noop$4 = function () {
     return false;
 };
 
@@ -29440,24 +30055,25 @@ var eventWrapper = function (eventName, eventData) {
     return ev;
 };
 
-var debugMode$2 = false;
+var debugMode$3 = false;
 if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
     if (window.localStorage.getItem('StroeerVideoplayerDebugMode') !== null) {
-        debugMode$2 = true;
+        debugMode$3 = true;
     }
 }
-var Logger$1 = {
+var Logger$2 = {
     log: function () {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        if (debugMode$2) {
+        if (debugMode$3) {
             console.log.apply(console, args);
         }
     }
 };
 
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 var Plugin$1 = /** @class */ (function () {
     function Plugin() {
         var _this = this;
@@ -29473,9 +30089,119 @@ var Plugin$1 = /** @class */ (function () {
             var adContainer = document.createElement('div');
             adContainer.classList.add('ad-container');
             videoElement.after(adContainer);
+            var adsLoaded = false;
             var adsManager;
-            var adDisplayContainer;
-            var adsLoader;
+            var adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, videoElement);
+            var adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+            window.addEventListener('resize', function (event) {
+                if (adsManager) {
+                    var width = videoElement.clientWidth;
+                    var height = videoElement.clientHeight;
+                    adsManager.resize(width, height, google.ima.ViewMode.NORMAL);
+                }
+            });
+            adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, function (adsManagerLoadedEvent) {
+                console.log('ads manager loaded');
+                var adsRenderingSettings = new google.ima.AdsRenderingSettings();
+                adsRenderingSettings.restoreCustomPlaybackStateOnAdBreakComplete = false;
+                adsRenderingSettings.enablePreloading = false;
+                adsManager = adsManagerLoadedEvent.getAdsManager(videoElement);
+                adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, function (adErrorEvent) {
+                    var error = adErrorEvent.getError();
+                    videoElement.dispatchEvent(eventWrapper('ima:error', {
+                        errorCode: error.getVastErrorCode(),
+                        errorMessage: error.getMessage()
+                    }));
+                    Logger$2.log('Event', 'ima:error', {
+                        errorCode: error.getVastErrorCode(),
+                        errorMessage: error.getMessage()
+                    });
+                });
+                adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, function () {
+                    videoElement.pause();
+                });
+                adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, function () {
+                    console.log('>>>> resume');
+                    videoElement.play();
+                    adContainer.style.display = 'none';
+                });
+                adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, function () {
+                    Logger$2.log('>>> all ads complete');
+                });
+                adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, function () {
+                    Logger$2.log('>>> ad loaded');
+                });
+                adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, function () {
+                    StroeerVideoplayer.deinitUI('default');
+                    StroeerVideoplayer.initUI('ima');
+                    adContainer.style.display = 'block';
+                    Logger$2.log('Event', 'ima:impression');
+                    videoElement.dispatchEvent(eventWrapper('ima:impression'));
+                });
+                adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, function () {
+                    StroeerVideoplayer.deinitUI('ima');
+                    StroeerVideoplayer.initUI('default');
+                    adsLoaded = false;
+                    Logger$2.log('Event', 'ima:ended');
+                    videoElement.dispatchEvent(eventWrapper('ima:ended'));
+                });
+                adsManager.addEventListener(google.ima.AdEvent.Type.PAUSED, function () {
+                    Logger$2.log('Event', 'ima:pause');
+                    videoElement.dispatchEvent(eventWrapper('ima:pause'));
+                });
+                adsManager.addEventListener(google.ima.AdEvent.Type.CLICK, function () {
+                    Logger$2.log('Event', 'ima:click');
+                    videoElement.dispatchEvent(eventWrapper('ima:click'));
+                });
+                adsManager.addEventListener(google.ima.AdEvent.Type.FIRST_QUARTILE, function () {
+                    Logger$2.log('Event', 'ima:firstQuartile');
+                    videoElement.dispatchEvent(eventWrapper('ima:firstQuartile'));
+                });
+                adsManager.addEventListener(google.ima.AdEvent.Type.MIDPOINT, function () {
+                    Logger$2.log('Event', 'ima:midpoint');
+                    videoElement.dispatchEvent(eventWrapper('ima:midpoint'));
+                });
+                adsManager.addEventListener(google.ima.AdEvent.Type.THIRD_QUARTILE, function () {
+                    Logger$2.log('Event', 'ima:thirdQuartile');
+                    videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'));
+                });
+            }, { passive: false });
+            adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, function (adErrorEvent) {
+                console.log('>>> ads loader error');
+                if (adsManager) {
+                    adsManager.destroy();
+                }
+                var error = adErrorEvent.getError();
+                videoElement.dispatchEvent(eventWrapper('ima:error', {
+                    errorCode: error.getVastErrorCode(),
+                    errorMessage: error.getMessage()
+                }));
+                Logger$2.log('Event', 'ima:error', {
+                    errorCode: error.getVastErrorCode(),
+                    errorMessage: error.getMessage()
+                });
+            });
+            // Let the AdsLoader know when the video has ended
+            videoElement.addEventListener('contentVideoEnded', function () {
+                adsLoader.contentComplete();
+            });
+            var adsRequest = new google.ima.AdsRequest();
+            adsRequest.adTagUrl = 'https://pubads.g.doubleclick.net/gampad/ads?' +
+                'iu=/21775744923/external/single_ad_samples&sz=640x480&' +
+                'cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&' +
+                'gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=';
+            // videoElement.getAttribute('data-ivad-preroll-adtag')
+            // Specify the linear and nonlinear slot sizes. This helps the SDK to
+            // select the correct creative if multiple are returned.
+            adsRequest.linearAdSlotWidth = videoElement.clientWidth;
+            adsRequest.linearAdSlotHeight = videoElement.clientHeight;
+            adsRequest.nonLinearAdSlotWidth = videoElement.clientWidth;
+            adsRequest.nonLinearAdSlotHeight = videoElement.clientHeight / 3;
+            // Pass the request to the adsLoader to request ads
+            console.log('>>> request ads');
+            adsLoader.requestAds(adsRequest);
+            videoElementWidth = videoElement.clientWidth;
+            videoElementHeight = videoElement.clientHeight;
             _this.onVideoElPlay = function (event) {
                 var prerollAdTag = videoElement.getAttribute('data-ivad-preroll-adtag');
                 if (prerollAdTag !== null) {
@@ -29485,23 +30211,26 @@ var Plugin$1 = /** @class */ (function () {
                             errorCode: 301,
                             errorMessage: 'VAST redirect timeout reached'
                         }));
-                        Logger$1.log('event', 'ima:error', {
+                        Logger$2.log('event', 'ima:error', {
                             errorCode: 301,
                             errorMessage: 'VAST redirect timeout reached'
                         });
                     }
                     else {
-                        videoElement.pause();
+                        console.log('>>> play video with new adtag');
+                        if (adsLoaded) {
+                            return;
+                        }
+                        adsLoaded = true;
+                        // videoElement.pause() // TODO: needed??
                         videoElement.dispatchEvent(new CustomEvent('ima:adcall'));
                         event.preventDefault();
                         // Initialize the container. Must be done via a user action on mobile devices.
-                        videoElement.load();
                         adDisplayContainer.initialize();
-                        console.log('>>> init');
                         try {
                             adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL);
                             adsManager.start();
-                            console.log('>>> start');
+                            console.log('>>> ad start');
                         }
                         catch (adError) {
                             // play the video without the ads
@@ -29512,141 +30241,66 @@ var Plugin$1 = /** @class */ (function () {
                     }
                 }
             };
-            _this.requestAds = function () {
-                var adsRequest = new google.ima.AdsRequest();
-                adsRequest.adTagUrl = videoElement.getAttribute('data-ivad-preroll-adtag');
-                // Specify the linear and nonlinear slot sizes. This helps the SDK to
-                // select the correct creative if multiple are returned.
-                adsRequest.linearAdSlotWidth = videoElement.clientWidth;
-                adsRequest.linearAdSlotHeight = videoElement.clientHeight;
-                adsRequest.nonLinearAdSlotWidth = videoElement.clientWidth;
-                adsRequest.nonLinearAdSlotHeight = videoElement.clientHeight / 3;
-                // Pass the request to the adsLoader to request ads
-                adsLoader.requestAds(adsRequest);
-                videoElementWidth = videoElement.clientWidth;
-                videoElementHeight = videoElement.clientHeight;
-            };
-            _this.initIMA = function () {
-                adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, videoElement);
-                adsLoader = new google.ima.AdsLoader(adDisplayContainer);
-                adsManager = null;
-                window.addEventListener('resize', function (event) {
-                    console.log('window resized', adsManager);
-                    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-                    if (adsManager) {
-                        var width = videoElement.clientWidth;
-                        var height = videoElement.clientHeight;
-                        adsManager.resize(width, height, google.ima.ViewMode.NORMAL);
-                    }
-                });
-                console.log('Add loaded listener');
-                adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, function (adsManagerLoadedEvent) {
-                    console.log('ads manager loaded');
-                    adsManager = adsManagerLoadedEvent.getAdsManager(videoElement);
-                    adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, function (adErrorEvent) {
-                        var error = adErrorEvent.getError();
-                        videoElement.dispatchEvent(eventWrapper('ima:error', {
-                            errorCode: error.getVastErrorCode(),
-                            errorMessage: error.getMessage()
-                        }));
-                        Logger$1.log('Event', 'ima:error', {
-                            errorCode: error.getVastErrorCode(),
-                            errorMessage: error.getMessage()
-                        });
-                    });
-                    adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, function () {
-                        videoElement.pause();
-                    });
-                    adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, function () {
-                        videoElement.play();
-                        adContainer.style.display = 'none';
-                    });
-                    adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, function () {
-                        Logger$1.log('>>> all ads complete');
-                    });
-                    adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, function () {
-                        Logger$1.log('>>> ad loaded');
-                    });
-                    adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, function () {
-                        StroeerVideoplayer.deinitUI('default');
-                        // StroeerVideoplayer.initUI('ima')
-                        adContainer.style.display = 'block';
-                        Logger$1.log('Event', 'ima:impression');
-                        videoElement.dispatchEvent(eventWrapper('ima:impression'));
-                    });
-                    adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, function () {
-                        // StroeerVideoplayer.deinitUI('ima')
-                        StroeerVideoplayer.initUI('default');
-                        Logger$1.log('Event', 'ima:ended');
-                        videoElement.dispatchEvent(eventWrapper('ima:ended'));
-                    });
-                    adsManager.addEventListener(google.ima.AdEvent.Type.PAUSED, function () {
-                        Logger$1.log('Event', 'ima:pause');
-                        videoElement.dispatchEvent(eventWrapper('ima:pause'));
-                    });
-                    adsManager.addEventListener(google.ima.AdEvent.Type.CLICK, function () {
-                        Logger$1.log('Event', 'ima:click');
-                        videoElement.dispatchEvent(eventWrapper('ima:click'));
-                    });
-                    adsManager.addEventListener(google.ima.AdEvent.Type.FIRST_QUARTILE, function () {
-                        Logger$1.log('Event', 'ima:firstQuartile');
-                        videoElement.dispatchEvent(eventWrapper('ima:firstQuartile'));
-                    });
-                    adsManager.addEventListener(google.ima.AdEvent.Type.MIDPOINT, function () {
-                        Logger$1.log('Event', 'ima:midpoint');
-                        videoElement.dispatchEvent(eventWrapper('ima:midpoint'));
-                    });
-                    adsManager.addEventListener(google.ima.AdEvent.Type.THIRD_QUARTILE, function () {
-                        Logger$1.log('Event', 'ima:thirdQuartile');
-                        videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'));
-                    });
-                });
-                adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, function (adErrorEvent) {
-                    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-                    if (adsManager) {
-                        adsManager.destroy();
-                    }
-                    var error = adErrorEvent.getError();
-                    videoElement.dispatchEvent(eventWrapper('ima:error', {
-                        errorCode: error.getVastErrorCode(),
-                        errorMessage: error.getMessage()
-                    }));
-                    Logger$1.log('Event', 'ima:error', {
-                        errorCode: error.getVastErrorCode(),
-                        errorMessage: error.getMessage()
-                    });
-                });
-                // Let the AdsLoader know when the video has ended
-                videoElement.addEventListener('contentVideoEnded', function () {
-                    adsLoader.contentComplete();
-                });
-                console.log('>>> request ads');
-                _this.requestAds();
-            };
             _this.onVideoElContentVideoEnded = function () {
                 videoElement.addEventListener('play', _this.onVideoElPlay);
             };
             videoElement.addEventListener('play', _this.onVideoElPlay);
             videoElement.addEventListener('contentVideoEnded', _this.onVideoElContentVideoEnded);
-            videoElement.addEventListener('loadedmetadata', _this.initIMA());
+            /*
+            videoElement.addEventListener('uiima:mute', () => {
+              console.log('>>>> IMA MUTE')
+              if (adsManager) {
+                adsManager.setVolume(0)
+              }
+            })
+            videoElement.addEventListener('uiima:unmute', () => {
+              console.log('>>>> IMA UNMUTE')
+              if (adsManager) {
+                adsManager.setVolume(1)
+              }
+            })
+            videoElement.addEventListener('uiima:play', () => {
+              console.log('>>>> IMA PLAY')
+              if (adsManager) {
+                adsManager.resume()
+              }
+            })
+            videoElement.addEventListener('uiima:pause', () => {
+              console.log('>>>> IMA PAUSE')
+              if (adsManager) {
+                adsManager.pause()
+              }
+            })
+            videoElement.addEventListener('uiima:resume', () => {
+              console.log('>>>> IMA RESUME')
+              if (adsManager) {
+                adsManager.resume()
+              }
+            })
+        
+            // fullscreen listener ?
+            */
         };
         this.deinit = function (StroeerVideoplayer) {
             var videoElement = StroeerVideoplayer.getVideoEl();
+            videoElement.removeEventListener('loadedmetadata', _this.initIMA());
             videoElement.removeEventListener('play', _this.onVideoElPlay);
             videoElement.removeEventListener('contentVideoEnded', _this.onVideoElContentVideoEnded);
+            // remove uiima listener
         };
-        this.initIMA = noop$3;
-        this.requestAds = noop$3;
-        this.onVideoElPlay = noop$3;
-        this.onVideoElContentVideoEnded = noop$3;
+        this.initIMA = noop$4;
+        this.requestAds = noop$4;
+        this.onVideoElPlay = noop$4;
+        this.onVideoElContentVideoEnded = noop$4;
         return this;
     }
-    Plugin.version = version$3;
+    Plugin.version = version$4;
     Plugin.pluginName = 'ima';
     return Plugin;
 }());
 
 StroeerVideoplayer.registerUI(UI);
+StroeerVideoplayer.registerUI(UI$1);
 StroeerVideoplayer.registerPlugin(Plugin$1);
 StroeerVideoplayer.registerPlugin(Plugin);
 
@@ -29700,7 +30354,7 @@ video.addEventListener('contentVideoSixthOctile', function () {
 
 const myvideoplayer = new StroeerVideoplayer(video);
 myvideoplayer.loadStreamSource();
-myvideoplayer.loadFirstChunk();
+// myvideoplayer.loadFirstChunk()
 
 myvideoplayer.initPlugin('ima', {});
 myvideoplayer.initPlugin('endcard', {
@@ -29713,5 +30367,4 @@ myvideoplayer.initPlugin('endcard', {
     poster: 'preview_image'
   }
 });
-// console.log(myvideoplayer)
 //# sourceMappingURL=dev.esm.js.map
