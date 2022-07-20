@@ -30,7 +30,7 @@
   "@rollup/plugin-json": "^4.1.0",
   "@rollup/plugin-node-resolve": "^11.2.0",
   "@rollup/plugin-typescript": "^8.1.0",
-  "@stroeer/stroeer-videoplayer": "^1.0.1",
+  "@stroeer/stroeer-videoplayer": "^1.1.0",
   "@stroeer/stroeer-videoplayer-default-ui": "^1.0.0",
   "@stroeer/stroeer-videoplayer-ima-ui": "^0.0.2",
   "@stroeer/stroeer-videoplayer-plugin-endcard": "^2.0.1",

@@ -88,7 +88,7 @@ var noop = function () {
     return false;
 };
 
-var version = "1.0.1";
+var version = "1.1.0";
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -27747,13 +27747,13 @@ var StroeerVideoplayer = /** @class */ (function () {
         this.setContentVideo = function () {
             _this._dataStore.isContentVideo = true;
         };
-        this.initUI = function (uiName) {
+        this.initUI = function (uiName, opts) {
             if (_registeredUIs.has(uiName) && _this._dataStore.activeUI === undefined) {
                 var UI = _registeredUIs.get(uiName);
                 _this._dataStore.uiName = uiName;
                 _this._dataStore.activeUI = new UI();
                 if (_this._dataStore.activeUI !== undefined) {
-                    _this._dataStore.activeUI.init(_this);
+                    _this._dataStore.activeUI.init(_this, opts);
                 }
                 return true;
             }
@@ -27829,15 +27829,12 @@ var StroeerVideoplayer = /** @class */ (function () {
             if (hls === null)
                 return;
             var onLevelLoaded = function () {
-                console.log('first chunk loaded');
-                videoEl.dispatchEvent(new Event('stroeer-videoplayer:firstChunkLoaded'));
                 hls.off(HlsJs.Events.LEVEL_LOADED, onLevelLoaded);
                 hls.stopLoad();
             };
             hls.on(HlsJs.Events.LEVEL_LOADED, onLevelLoaded);
         };
         this.loadStreamSource = function () {
-            console.log('>>>> loadStreamSource');
             var videoEl = _this._dataStore.videoEl;
             var videoSource = videoEl.querySelector('source');
             var canPlayNativeHls = videoEl.canPlayType('application/vnd.apple.mpegurl') === 'probably' ||
@@ -27856,7 +27853,6 @@ var StroeerVideoplayer = /** @class */ (function () {
                 });
                 _this._dataStore.hls = hls_1;
                 hls_1.loadSource(videoSource.src);
-                console.log('>>>> hls - load source');
                 hls_1.attachMedia(videoEl);
                 hls_1.on(HlsJs.Events.ERROR, function (event, data) {
                     log('error')('HlsJs.Events.Error', event, data);
@@ -27867,7 +27863,6 @@ var StroeerVideoplayer = /** @class */ (function () {
                                 log('error')('fatal network error encountered, try to recover');
                                 videoEl.dispatchEvent(new CustomEvent('hlsNetworkError', { detail: data }));
                                 hls_1.startLoad();
-                                console.log('>>>> hls - network error');
                                 break;
                             case HlsJs.ErrorTypes.MEDIA_ERROR:
                                 // This seems to be a bit buggy, so we're going to ignore it for now
@@ -27875,11 +27870,10 @@ var StroeerVideoplayer = /** @class */ (function () {
                                 // even though it's stated in the docs that it's supposed to recover from this error and is best practice
                                 // log('error')('fatal media error encountered, try to recover')
                                 hls_1.recoverMediaError();
-                                console.log('>>>> hls - media error');
+                                videoEl.play();
                                 break;
                             default:
                                 log('error')('fatal error encountered, cannot recover', data.type);
-                                console.log('>>>> hls - fatal error');
                                 hls_1.destroy();
                                 break;
                         }
@@ -27927,7 +27921,10 @@ var StroeerVideoplayer = /** @class */ (function () {
             _this._dataStore.videoEl.setAttribute('poster', url);
         };
         this.setSrc = function (playlist) {
-            _this._dataStore.videoEl.innerHTML = "<source src=\"" + playlist + "\" type=\"application/x-mpegURL\">";
+            var videoEl = _this._dataStore.videoEl;
+            videoEl.innerHTML = "<source src=\"" + playlist + "\" type=\"application/x-mpegURL\">";
+            videoEl.load();
+            videoEl.currentTime = 0;
         };
         this.setMetaData = function (videoData) {
             _this._dataStore.videoEl.dataset.meta = JSON.stringify(videoData);
@@ -27966,6 +27963,7 @@ var StroeerVideoplayer = /** @class */ (function () {
             contentVideoSeventhOctile: false,
             contentVideoSixSecondsBeforeEnd: false,
             isContentVideo: true,
+            wasPlayingOnTabLeave: false,
             uiName: _dataStore.defaultUIName,
             activeUI: undefined,
             activePlugins: new Map(),
@@ -27979,6 +27977,23 @@ var StroeerVideoplayer = /** @class */ (function () {
         if (videoEl.getAttribute('data-stroeervp-initialized') === null) {
             videoEl.setAttribute('data-stroeervp-initialized', '1');
             videoEl.dispatchEvent(new Event('stroeer-videoplayer:initialized'));
+            var onVisibilityChangeCallback = function () {
+                if (document.hidden) {
+                    if (!videoEl.paused) {
+                        ds.wasPlayingOnTabLeave = true;
+                        videoEl.pause();
+                    }
+                }
+                else {
+                    if (ds.wasPlayingOnTabLeave) {
+                        ds.wasPlayingOnTabLeave = false;
+                        void videoEl.play();
+                    }
+                }
+            };
+            if (videoEl.getAttribute('data-disable-pause-on-tab-leave') === null) {
+                document.addEventListener('visibilitychange', onVisibilityChangeCallback, false);
+            }
             if (ds.videoEl.parentNode !== null) {
                 ds.videoEl.parentNode.insertBefore(ds.rootEl, ds.videoEl);
                 ds.containmentEl.appendChild(ds.uiEl);
@@ -27994,7 +28009,6 @@ var StroeerVideoplayer = /** @class */ (function () {
                     ds.videoFirstPlay = false;
                     this.dispatchEvent(new Event('firstPlay'));
                     if (HlsJs.isSupported() && ds.hls !== null) {
-                        console.log('>>>> hls - start load');
                         ds.hls.startLoad();
                     }
                 }
@@ -29115,18 +29129,21 @@ var UI$1 = /** @class */ (function () {
             buttonsContainer.appendChild(el);
             return el;
         };
-        this.setTimeDisp = function (timeDisp, current, total) {
-            var secondsLeft = Math.floor(total - current);
-            var secondsLeftString = String(secondsLeft);
-            if (isNaN(secondsLeft)) {
+        this.setTimeDisp = function (timeDisp, remainingTime) {
+            var secondsLeftString = String(Math.ceil(remainingTime));
+            if (isNaN(remainingTime)) {
                 timeDisp.innerHTML = 'Werbung';
             }
             else {
                 timeDisp.innerHTML = 'Werbung endet in ' + secondsLeftString + ' Sekunden';
             }
         };
-        this.init = function (StroeerVideoplayer) {
+        this.init = function (StroeerVideoplayer, opts) {
+            var _a;
             Logger$1.log('version', version$2);
+            opts = opts !== null && opts !== void 0 ? opts : {};
+            var adsManager = (_a = opts.adsManager) !== null && _a !== void 0 ? _a : null;
+            console.log('>>>> UI adsmanager ', adsManager);
             var rootEl = StroeerVideoplayer.getRootEl();
             var videoEl = StroeerVideoplayer.getVideoEl();
             videoEl.removeAttribute('controls');
@@ -29221,17 +29238,22 @@ var UI$1 = /** @class */ (function () {
             StroeerVideoplayer.loading = function (modus) {
                 showLoading(modus);
             };
+            // TODO change to adcontainer/adsmanager
             videoEl.addEventListener('waiting', function () {
                 showLoading(true);
             });
-            videoEl.addEventListener('canplay', function () {
+            /* videoEl.addEventListener('canplay', () => {
+              showLoading(false)
+            }) */
+            adsManager.addEventListener(google.ima.AdEvent.Type.AD_CAN_PLAY, function () {
                 showLoading(false);
             });
+            // TODO change to adcontainer/adsmanager
             videoEl.addEventListener('playing', function () {
                 showLoading(false);
             });
             // Create the Buttons
-            var playButton = _this.createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'Icon-Play', false, [
+            var playButton = _this.createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'Icon-Play', true, [
                 {
                     name: 'click',
                     callb: function () {
@@ -29240,40 +29262,43 @@ var UI$1 = /** @class */ (function () {
                         if (videoEl.currentTime > 0) {
                             dispatchEvent('uiima:resume', videoEl.currentTime);
                         }
-                        // videoEl.play()
+                        adsManager.resume();
                     }
                 }
             ]);
-            if (videoEl.paused === false) {
-                hideElement$1(playButton);
-            }
-            var pauseButton = _this.createButton(StroeerVideoplayer, 'button', 'pause', 'Pause', 'Icon-Pause', videoEl.paused, [
+            // TODO still needed
+            /* if (videoEl.paused === false) {
+              hideElement(playButton)
+            } */
+            var pauseButton = _this.createButton(StroeerVideoplayer, 'button', 'pause', 'Pause', 'Icon-Pause', false, [
                 {
                     name: 'click',
                     callb: function () {
                         dispatchEvent('UIPause', videoEl.currentTime);
                         dispatchEvent('uiima:pause', videoEl.currentTime);
-                        // videoEl.pause()
+                        adsManager.pause();
                     }
                 }
             ]);
-            var muteButton = _this.createButton(StroeerVideoplayer, 'button', 'mute', 'Mute', 'Icon-Volume', videoEl.muted, [
+            var muteButton = _this.createButton(StroeerVideoplayer, 'button', 'mute', 'Mute', 'Icon-Volume', false, [
                 {
                     name: 'click',
                     callb: function () {
+                        console.log('>>> ui mute');
                         dispatchEvent('UIMute', videoEl.currentTime);
                         dispatchEvent('uiima:mute', videoEl.currentTime);
-                        // videoEl.muted = true
+                        adsManager.setVolume(0);
                     }
                 }
             ]);
-            var unmuteButton = _this.createButton(StroeerVideoplayer, 'button', 'unmute', 'Unmute', 'Icon-Mute', videoEl.muted !== true, [
+            var unmuteButton = _this.createButton(StroeerVideoplayer, 'button', 'unmute', 'Unmute', 'Icon-Mute', true, [
                 {
                     name: 'click',
                     callb: function () {
+                        console.log('>>> ui unmute');
                         dispatchEvent('UIUnmute', videoEl.currentTime);
                         dispatchEvent('uiima:unmute', videoEl.currentTime);
-                        // videoEl.muted = false
+                        adsManager.setVolume(0.5);
                     }
                 }
             ]);
@@ -29281,76 +29306,75 @@ var UI$1 = /** @class */ (function () {
             var timeDisp = document.createElement('div');
             timeDisp.classList.add('time');
             controlBar.appendChild(timeDisp);
-            var isAlreadyInFullscreenMode = function () {
-                return (document.fullscreenElement === rootEl || document.fullscreenElement === videoEl);
-            };
-            StroeerVideoplayer.enterFullscreen = function () {
-                if (typeof rootEl.requestFullscreen === 'function') {
-                    rootEl.requestFullscreen();
+            /*
+            const isAlreadyInFullscreenMode = (): boolean => {
+              return (document.fullscreenElement === rootEl || document.fullscreenElement === videoEl)
+            }
+        
+            StroeerVideoplayer.enterFullscreen = (): void => {
+              if (typeof rootEl.requestFullscreen === 'function') {
+                rootEl.requestFullscreen()
+              } else if (typeof rootEl.webkitRequestFullscreen === 'function') {
+                if (navigator.userAgent.includes('iPad')) {
+                  videoEl.webkitRequestFullscreen()
+                } else {
+                  rootEl.webkitRequestFullscreen()
                 }
-                else if (typeof rootEl.webkitRequestFullscreen === 'function') {
-                    if (navigator.userAgent.includes('iPad')) {
-                        videoEl.webkitRequestFullscreen();
-                    }
-                    else {
-                        rootEl.webkitRequestFullscreen();
-                    }
-                }
-                else if (typeof rootEl.mozRequestFullScreen === 'function') {
-                    rootEl.mozRequestFullScreen();
-                }
-                else if (typeof rootEl.msRequestFullscreen === 'function') {
-                    rootEl.msRequestFullscreen();
-                }
-                else if (typeof rootEl.webkitEnterFullscreen === 'function') {
-                    rootEl.webkitEnterFullscreen();
-                }
-                else if (typeof videoEl.webkitEnterFullscreen === 'function') {
-                    videoEl.webkitEnterFullscreen();
-                }
-                else {
-                    console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found');
-                }
-            };
-            var enterFullscreenButtonIsHidden = isAlreadyInFullscreenMode();
+              } else if (typeof rootEl.mozRequestFullScreen === 'function') {
+                rootEl.mozRequestFullScreen()
+              } else if (typeof rootEl.msRequestFullscreen === 'function') {
+                rootEl.msRequestFullscreen()
+              } else if (typeof rootEl.webkitEnterFullscreen === 'function') {
+                rootEl.webkitEnterFullscreen()
+              } else if (typeof videoEl.webkitEnterFullscreen === 'function') {
+                videoEl.webkitEnterFullscreen()
+              } else {
+                console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
+              }
+            }
+        
+            const enterFullscreenButtonIsHidden = isAlreadyInFullscreenMode()
+        
             // Fullscreen Button
-            var enterFullscreenButton = _this.createButton(StroeerVideoplayer, 'button', 'enterFullscreen', 'Enter Fullscreen', 'Icon-Fullscreen', enterFullscreenButtonIsHidden, [{
-                    name: 'click',
-                    callb: function () {
-                        dispatchEvent('UIEnterFullscreen', videoEl.currentTime);
-                        dispatchEvent('uiima:enterFullscreen', videoEl.currentTime);
-                        // StroeerVideoplayer.enterFullscreen()
-                    }
-                }]);
-            StroeerVideoplayer.exitFullscreen = function () {
-                if (typeof document.exitFullscreen === 'function') {
-                    document.exitFullscreen().then(noop$2).catch(noop$2);
+            const enterFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'enterFullscreen',
+              'Enter Fullscreen', 'Icon-Fullscreen', enterFullscreenButtonIsHidden,
+              [{
+                name: 'click',
+                callb: () => {
+                  dispatchEvent('UIEnterFullscreen', videoEl.currentTime)
+                  dispatchEvent('uiima:enterFullscreen', videoEl.currentTime)
+                  StroeerVideoplayer.enterFullscreen()
                 }
-                else if (typeof document.webkitExitFullscreen === 'function') {
-                    document.webkitExitFullscreen();
+              }])
+        
+            StroeerVideoplayer.exitFullscreen = (): void => {
+              if (typeof document.exitFullscreen === 'function') {
+                document.exitFullscreen().then(noop).catch(noop)
+              } else if (typeof document.webkitExitFullscreen === 'function') {
+                document.webkitExitFullscreen()
+              } else if (typeof document.mozCancelFullScreen === 'function') {
+                document.mozCancelFullScreen().then(noop).catch(noop)
+              } else if (typeof document.msExitFullscreen === 'function') {
+                document.msExitFullscreen()
+              } else if (typeof videoEl.webkitExitFullscreen === 'function') {
+                videoEl.webkitExitFullscreen()
+              } else {
+                console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
+              }
+            }
+        
+            const exitFullscreenButtonIsHidden = !isAlreadyInFullscreenMode()
+        
+            const exitFullscreenButton = this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'Icon-FullscreenOff', exitFullscreenButtonIsHidden,
+              [{
+                name: 'click',
+                callb: () => {
+                  dispatchEvent('UIExitFullscreen', videoEl.currentTime)
+                  dispatchEvent('uiima:ExitFullscreen', videoEl.currentTime)
+                  StroeerVideoplayer.exitFullscreen()
                 }
-                else if (typeof document.mozCancelFullScreen === 'function') {
-                    document.mozCancelFullScreen().then(noop$2).catch(noop$2);
-                }
-                else if (typeof document.msExitFullscreen === 'function') {
-                    document.msExitFullscreen();
-                }
-                else if (typeof videoEl.webkitExitFullscreen === 'function') {
-                    videoEl.webkitExitFullscreen();
-                }
-                else {
-                    console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found');
-                }
-            };
-            var exitFullscreenButtonIsHidden = !isAlreadyInFullscreenMode();
-            var exitFullscreenButton = _this.createButton(StroeerVideoplayer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'Icon-FullscreenOff', exitFullscreenButtonIsHidden, [{
-                    name: 'click',
-                    callb: function () {
-                        dispatchEvent('UIExitFullscreen', videoEl.currentTime);
-                        dispatchEvent('uiima:ExitFullscreen', videoEl.currentTime);
-                        // StroeerVideoplayer.exitFullscreen()
-                    }
-                }]);
+              }])
+            */
             seekPreviewVideo.src = videoEl.querySelector('source').src;
             controlBar.appendChild(buttonsContainer);
             var controlBarContainer = document.createElement('div');
@@ -29361,6 +29385,7 @@ var UI$1 = /** @class */ (function () {
             var toggleControlbarInSeconds = 5;
             var toggleControlbarSecondsLeft = toggleControlbarInSeconds;
             var toggleControlbarTicker = function () {
+                // TODO change to adsManager
                 if (videoEl.paused === true) {
                     controlBarContainer.style.opacity = '1';
                     toggleControlbarSecondsLeft = toggleControlbarInSeconds;
@@ -29398,26 +29423,34 @@ var UI$1 = /** @class */ (function () {
                 hideElement$1(playButton);
                 showElement$1(pauseButton);
             };
-            videoEl.addEventListener('play', _this.onVideoElPlay);
+            adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, function () {
+                _this.onVideoElPlay();
+            });
+            adsManager.addEventListener(google.ima.AdEvent.Type.RESUMED, function () {
+                _this.onVideoElPlay();
+            });
             _this.onVideoElPause = function () {
                 showElement$1(playButton);
                 hideElement$1(pauseButton);
             };
-            videoEl.addEventListener('pause', _this.onVideoElPause);
-            videoEl.addEventListener('loadedmetadata', function () {
-                _this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration);
+            adsManager.addEventListener(google.ima.AdEvent.Type.PAUSED, function () {
+                _this.onVideoElPause();
             });
-            if (videoEl.paused === true && videoEl.currentTime === 0) {
-                videoEl.load();
-            }
+            adsManager.addEventListener(google.ima.AdEvent.Type.AD_METADATA, function () {
+                _this.setTimeDisp(timeDisp, adsManager.getRemainingTime());
+            });
+            // TODO preload still needed?
+            /* if (videoEl.paused === true && videoEl.currentTime === 0) {
+              videoEl.load()
+            } */
             _this.onVideoElTimeupdate = function () {
-                _this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration);
+                _this.setTimeDisp(timeDisp, adsManager.getRemainingTime());
             };
-            videoEl.addEventListener('timeupdate', _this.onVideoElTimeupdate);
+            adsManager.addEventListener(google.ima.AdEvent.Type.AD_PROGRESS, _this.onVideoElTimeupdate);
             // set initial value of volume bar
-            volumeLevel.style.height = String(videoEl.volume * 100) + '%';
-            if (videoEl.volume <= 0.9) {
-                volumeLevelBubble.style.bottom = String(videoEl.volume * 100) + '%';
+            volumeLevel.style.height = String(adsManager.getVolume() * 100) + '%';
+            if (adsManager.getVolume() <= 0.9) {
+                volumeLevelBubble.style.bottom = String(adsManager.getVolume() * 100) + '%';
             }
             var calulateVolumePercentageBasedOnYCoords = function (y) {
                 var percentage = (100 / volumeRange.offsetHeight) * y;
@@ -29458,7 +29491,7 @@ var UI$1 = /** @class */ (function () {
                     volumeLevelBubble.style.top = percentageYString + '%';
                 }
                 var volume = percentageHeight / 100;
-                videoEl.volume = volume;
+                adsManager.setVolume(volume);
             };
             var draggingWhat = '';
             _this.onDragStart = function (evt) {
@@ -29467,12 +29500,12 @@ var UI$1 = /** @class */ (function () {
                     case volumeLevel:
                     case volumeLevelBubble:
                         dispatchEvent('UIVolumeChangeStart', {
-                            volume: videoEl.volume,
-                            currentTime: videoEl.currentTime
+                            volume: adsManager.getVolume(),
+                            currentTime: adsManager.getRemainingTime()
                         });
                         dispatchEvent('uiima:VolumeChangeStart', {
-                            volume: videoEl.volume,
-                            currentTime: videoEl.currentTime
+                            volume: adsManager.getVolume(),
+                            currentTime: adsManager.getRemainingTime()
                         });
                         draggingWhat = 'volume';
                         break;
@@ -29483,12 +29516,12 @@ var UI$1 = /** @class */ (function () {
                     draggingWhat = '';
                     updateVolumeWhileDragging(evt);
                     dispatchEvent('UIVolumeChangeEnd', {
-                        volume: videoEl.volume,
-                        currentTime: videoEl.currentTime
+                        volume: adsManager.getVolume(),
+                        currentTime: adsManager.getRemainingTime()
                     });
                     dispatchEvent('uiima:VolumeChangeEnd', {
-                        volume: videoEl.volume,
-                        currentTime: videoEl.currentTime
+                        volume: adsManager.getVolume(),
+                        currentTime: adsManager.getRemainingTime()
                     });
                 }
             };
@@ -29516,16 +29549,18 @@ var UI$1 = /** @class */ (function () {
                 passive: true
             });
             _this.onVideoElVolumeChange = function () {
-                if (videoEl.muted === true) {
+                if (adsManager.getVolume() === 0) {
                     hideElement$1(muteButton);
                     showElement$1(unmuteButton);
+                    volumeLevelBubble.style.bottom = '0%';
                 }
                 else {
                     showElement$1(muteButton);
                     hideElement$1(unmuteButton);
+                    volumeLevelBubble.style.bottom = '50%';
                 }
             };
-            videoEl.addEventListener('volumechange', _this.onVideoElVolumeChange);
+            adsManager.addEventListener(google.ima.AdEvent.Type.VOLUME_CHANGED, _this.onVideoElVolumeChange);
             muteButton.addEventListener('mouseover', function () {
                 if (isTouchDevice$1()) {
                     return;
@@ -29540,48 +29575,50 @@ var UI$1 = /** @class */ (function () {
                 volumeContainer.style.opacity = '1';
                 toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
             });
-            _this.onDocumentFullscreenChange = function () {
-                if (document.fullscreenElement === rootEl || document.fullscreenElement === videoEl) {
-                    videoEl.dispatchEvent(new Event('fullscreen'));
-                    hideElement$1(enterFullscreenButton);
-                    showElement$1(exitFullscreenButton);
-                }
-                else {
-                    videoEl.dispatchEvent(new Event('exitFullscreen'));
-                    showElement$1(enterFullscreenButton);
-                    hideElement$1(exitFullscreenButton);
-                }
-            };
+            /* FULLSCREEN
+            this.onDocumentFullscreenChange = () => {
+              if (document.fullscreenElement === rootEl || document.fullscreenElement === videoEl) {
+                videoEl.dispatchEvent(new Event('fullscreen'))
+                hideElement(enterFullscreenButton)
+                showElement(exitFullscreenButton)
+              } else {
+                videoEl.dispatchEvent(new Event('exitFullscreen'))
+                showElement(enterFullscreenButton)
+                hideElement(exitFullscreenButton)
+              }
+            }
+        
             // @ts-expect-error
-            document.addEventListener('fullscreenchange', _this.onDocumentFullscreenChange);
+            document.addEventListener('fullscreenchange', this.onDocumentFullscreenChange)
+        
             // iOS Workarounds
             videoEl.addEventListener('webkitendfullscreen', function () {
-                // @ts-expect-error
-                document.fullscreenElement = null;
-                showElement$1(enterFullscreenButton);
-                hideElement$1(exitFullscreenButton);
-            });
+            // @ts-expect-error
+              document.fullscreenElement = null
+              showElement(enterFullscreenButton)
+              hideElement(exitFullscreenButton)
+            })
             document.addEventListener('webkitfullscreenchange', function () {
-                if (document.webkitFullscreenElement !== null) {
-                    showElement$1(exitFullscreenButton);
-                    hideElement$1(enterFullscreenButton);
-                }
-                else {
-                    showElement$1(enterFullscreenButton);
-                    hideElement$1(exitFullscreenButton);
-                }
-            });
+              if (document.webkitFullscreenElement !== null) {
+                showElement(exitFullscreenButton)
+                hideElement(enterFullscreenButton)
+              } else {
+                showElement(enterFullscreenButton)
+                hideElement(exitFullscreenButton)
+              }
+            })
+        
             // IE11 workaround
             document.addEventListener('MSFullscreenChange', function () {
-                if (document.msFullscreenElement !== null) {
-                    showElement$1(exitFullscreenButton);
-                    hideElement$1(enterFullscreenButton);
-                }
-                else {
-                    hideElement$1(exitFullscreenButton);
-                    showElement$1(enterFullscreenButton);
-                }
-            });
+              if (document.msFullscreenElement !== null) {
+                showElement(exitFullscreenButton)
+                hideElement(enterFullscreenButton)
+              } else {
+                hideElement(exitFullscreenButton)
+                showElement(enterFullscreenButton)
+              }
+            })
+            */
         };
         this.deinit = function (StroeerVideoplayer) {
             var videoEl = StroeerVideoplayer.getVideoEl();
@@ -29589,10 +29626,10 @@ var UI$1 = /** @class */ (function () {
             var uiEl = StroeerVideoplayer.getUIEl();
             var uiContainer = uiEl.firstChild;
             if (uiContainer !== undefined && uiContainer.className === _this.uiContainerClassName) {
-                videoEl.removeEventListener('play', _this.onVideoElPlay);
-                videoEl.removeEventListener('pause', _this.onVideoElPause);
-                videoEl.removeEventListener('timeupdate', _this.onVideoElTimeupdate);
-                videoEl.removeEventListener('volumechange', _this.onVideoElVolumeChange);
+                // videoEl.removeEventListener('play', this.onVideoElPlay)
+                // videoEl.removeEventListener('pause', this.onVideoElPause)
+                // videoEl.removeEventListener('timeupdate', this.onVideoElTimeupdate)
+                // videoEl.removeEventListener('volumechange', this.onVideoElVolumeChange)
                 document.body.removeEventListener('touchstart', _this.onDragStart);
                 document.body.removeEventListener('touchend', _this.onDragEnd);
                 document.body.removeEventListener('touchmove', _this.onDrag);
@@ -29601,8 +29638,7 @@ var UI$1 = /** @class */ (function () {
                 document.body.removeEventListener('mousemove', _this.onDrag);
                 clearInterval(_this.toggleControlBarInterval);
                 clearInterval(_this.toggleVolumeBarInterval);
-                // @ts-expect-error
-                document.removeEventListener('fullscreenchange', _this.onDocumentFullscreenChange);
+                // document.removeEventListener('fullscreenchange', this.onDocumentFullscreenChange)
                 uiEl.removeChild(uiEl.firstChild);
             }
         };
@@ -30078,11 +30114,6 @@ var Plugin$1 = /** @class */ (function () {
     function Plugin() {
         var _this = this;
         this.init = function (StroeerVideoplayer, opts) {
-            var _a, _b, _c;
-            opts = opts !== null && opts !== void 0 ? opts : {};
-            opts.numRedirects = (_a = opts.numRedirects) !== null && _a !== void 0 ? _a : 10;
-            opts.timeout = (_b = opts.timeout) !== null && _b !== void 0 ? _b : 5000;
-            opts.adLabel = (_c = opts.adLabel) !== null && _c !== void 0 ? _c : 'Advertisment ends in {{seconds}} seconds';
             var videoElement = StroeerVideoplayer.getVideoEl();
             var videoElementWidth = videoElement.clientWidth;
             var videoElementHeight = videoElement.clientHeight;
@@ -30101,11 +30132,19 @@ var Plugin$1 = /** @class */ (function () {
                 }
             });
             adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, function (adsManagerLoadedEvent) {
-                console.log('ads manager loaded');
-                var adsRenderingSettings = new google.ima.AdsRenderingSettings();
-                adsRenderingSettings.restoreCustomPlaybackStateOnAdBreakComplete = false;
-                adsRenderingSettings.enablePreloading = false;
+                console.log('AdsManager loaded');
                 adsManager = adsManagerLoadedEvent.getAdsManager(videoElement);
+                try {
+                    adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL);
+                    adsManager.start();
+                    console.log('>>> AdsManager start');
+                }
+                catch (adError) {
+                    // play the video without the ads
+                    console.log('AdsManager could not be started', adError);
+                    // eslint-disable-next-line
+                    videoElement.play();
+                }
                 adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, function (adErrorEvent) {
                     var error = adErrorEvent.getError();
                     videoElement.dispatchEvent(eventWrapper('ima:error', {
@@ -30121,51 +30160,40 @@ var Plugin$1 = /** @class */ (function () {
                     videoElement.pause();
                 });
                 adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, function () {
-                    console.log('>>>> resume');
                     videoElement.play();
-                    adContainer.style.display = 'none';
                 });
-                adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, function () {
-                    Logger$2.log('>>> all ads complete');
+                var events = [
+                    google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
+                    google.ima.AdEvent.Type.CLICK,
+                    google.ima.AdEvent.Type.VIDEO_CLICKED,
+                    google.ima.AdEvent.Type.VIDEO_ICON_CLICKED,
+                    google.ima.AdEvent.Type.AD_PROGRESS,
+                    google.ima.AdEvent.Type.AD_BUFFERING,
+                    google.ima.AdEvent.Type.IMPRESSION,
+                    google.ima.AdEvent.Type.DURATION_CHANGE,
+                    google.ima.AdEvent.Type.USER_CLOSE,
+                    google.ima.AdEvent.Type.LINEAR_CHANGED,
+                    google.ima.AdEvent.Type.SKIPPABLE_STATE_CHANGED,
+                    google.ima.AdEvent.Type.AD_METADATA,
+                    google.ima.AdEvent.Type.INTERACTION,
+                    google.ima.AdEvent.Type.COMPLETE,
+                    google.ima.AdEvent.Type.FIRST_QUARTILE,
+                    google.ima.AdEvent.Type.LOADED,
+                    google.ima.AdEvent.Type.MIDPOINT,
+                    google.ima.AdEvent.Type.PAUSED,
+                    google.ima.AdEvent.Type.RESUMED,
+                    google.ima.AdEvent.Type.USER_CLOSE,
+                    google.ima.AdEvent.Type.STARTED,
+                    google.ima.AdEvent.Type.THIRD_QUARTILE,
+                    google.ima.AdEvent.Type.SKIPPED,
+                    google.ima.AdEvent.Type.VOLUME_CHANGED,
+                    google.ima.AdEvent.Type.VOLUME_MUTED,
+                    google.ima.AdEvent.Type.LOG
+                ];
+                events.forEach(function (event) {
+                    adsManager.addEventListener(event, _this.assignEvent);
                 });
-                adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, function () {
-                    Logger$2.log('>>> ad loaded');
-                });
-                adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, function () {
-                    StroeerVideoplayer.deinitUI('default');
-                    StroeerVideoplayer.initUI('ima');
-                    adContainer.style.display = 'block';
-                    Logger$2.log('Event', 'ima:impression');
-                    videoElement.dispatchEvent(eventWrapper('ima:impression'));
-                });
-                adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, function () {
-                    StroeerVideoplayer.deinitUI('ima');
-                    StroeerVideoplayer.initUI('default');
-                    adsLoaded = false;
-                    Logger$2.log('Event', 'ima:ended');
-                    videoElement.dispatchEvent(eventWrapper('ima:ended'));
-                });
-                adsManager.addEventListener(google.ima.AdEvent.Type.PAUSED, function () {
-                    Logger$2.log('Event', 'ima:pause');
-                    videoElement.dispatchEvent(eventWrapper('ima:pause'));
-                });
-                adsManager.addEventListener(google.ima.AdEvent.Type.CLICK, function () {
-                    Logger$2.log('Event', 'ima:click');
-                    videoElement.dispatchEvent(eventWrapper('ima:click'));
-                });
-                adsManager.addEventListener(google.ima.AdEvent.Type.FIRST_QUARTILE, function () {
-                    Logger$2.log('Event', 'ima:firstQuartile');
-                    videoElement.dispatchEvent(eventWrapper('ima:firstQuartile'));
-                });
-                adsManager.addEventListener(google.ima.AdEvent.Type.MIDPOINT, function () {
-                    Logger$2.log('Event', 'ima:midpoint');
-                    videoElement.dispatchEvent(eventWrapper('ima:midpoint'));
-                });
-                adsManager.addEventListener(google.ima.AdEvent.Type.THIRD_QUARTILE, function () {
-                    Logger$2.log('Event', 'ima:thirdQuartile');
-                    videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'));
-                });
-            }, { passive: false });
+            });
             adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, function (adErrorEvent) {
                 console.log('>>> ads loader error');
                 if (adsManager) {
@@ -30181,27 +30209,46 @@ var Plugin$1 = /** @class */ (function () {
                     errorMessage: error.getMessage()
                 });
             });
-            // Let the AdsLoader know when the video has ended
-            videoElement.addEventListener('contentVideoEnded', function () {
-                adsLoader.contentComplete();
-            });
-            var adsRequest = new google.ima.AdsRequest();
-            adsRequest.adTagUrl = 'https://pubads.g.doubleclick.net/gampad/ads?' +
-                'iu=/21775744923/external/single_ad_samples&sz=640x480&' +
-                'cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&' +
-                'gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=';
-            // videoElement.getAttribute('data-ivad-preroll-adtag')
-            // Specify the linear and nonlinear slot sizes. This helps the SDK to
-            // select the correct creative if multiple are returned.
-            adsRequest.linearAdSlotWidth = videoElement.clientWidth;
-            adsRequest.linearAdSlotHeight = videoElement.clientHeight;
-            adsRequest.nonLinearAdSlotWidth = videoElement.clientWidth;
-            adsRequest.nonLinearAdSlotHeight = videoElement.clientHeight / 3;
-            // Pass the request to the adsLoader to request ads
-            console.log('>>> request ads');
-            adsLoader.requestAds(adsRequest);
-            videoElementWidth = videoElement.clientWidth;
-            videoElementHeight = videoElement.clientHeight;
+            _this.assignEvent = function (event) {
+                // console.log('>>>> event: ', event.type)
+                switch (event.type) {
+                    case google.ima.AdEvent.Type.STARTED:
+                        StroeerVideoplayer.deinitUI('default');
+                        StroeerVideoplayer.initUI('ima', { adsManager: adsManager });
+                        adContainer.style.display = 'block';
+                        Logger$2.log('Event', 'ima:impression');
+                        videoElement.dispatchEvent(eventWrapper('ima:impression'));
+                        break;
+                    case google.ima.AdEvent.Type.COMPLETE:
+                        StroeerVideoplayer.deinitUI('ima');
+                        StroeerVideoplayer.initUI('default');
+                        adContainer.style.display = 'none';
+                        adsLoaded = false;
+                        Logger$2.log('Event', 'ima:ended');
+                        videoElement.dispatchEvent(eventWrapper('ima:ended'));
+                        break;
+                    case google.ima.AdEvent.Type.PAUSED:
+                        Logger$2.log('Event', 'ima:pause');
+                        videoElement.dispatchEvent(eventWrapper('ima:pause'));
+                        break;
+                    case google.ima.AdEvent.Type.CLICK:
+                        Logger$2.log('Event', 'ima:click');
+                        videoElement.dispatchEvent(eventWrapper('ima:click'));
+                        break;
+                    case google.ima.AdEvent.Type.FIRST_QUARTILE:
+                        Logger$2.log('Event', 'ima:firstQuartile');
+                        videoElement.dispatchEvent(eventWrapper('ima:firstQuartile'));
+                        break;
+                    case google.ima.AdEvent.Type.MIDPOINT:
+                        Logger$2.log('Event', 'ima:midpoint');
+                        videoElement.dispatchEvent(eventWrapper('ima:midpoint'));
+                        break;
+                    case google.ima.AdEvent.Type.THIRD_QUARTILE:
+                        Logger$2.log('Event', 'ima:thirdQuartile');
+                        videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'));
+                        break;
+                }
+            };
             _this.onVideoElPlay = function (event) {
                 var prerollAdTag = videoElement.getAttribute('data-ivad-preroll-adtag');
                 if (prerollAdTag !== null) {
@@ -30217,27 +30264,32 @@ var Plugin$1 = /** @class */ (function () {
                         });
                     }
                     else {
-                        console.log('>>> play video with new adtag');
                         if (adsLoaded) {
                             return;
                         }
                         adsLoaded = true;
-                        // videoElement.pause() // TODO: needed??
-                        videoElement.dispatchEvent(new CustomEvent('ima:adcall'));
                         event.preventDefault();
-                        // Initialize the container. Must be done via a user action on mobile devices.
+                        videoElement.pause();
+                        videoElement.dispatchEvent(new CustomEvent('ima:adcall'));
+                        var adsRequest = new google.ima.AdsRequest();
+                        adsRequest.adTagUrl = 'https://pubads.g.doubleclick.net/gampad/ads?' +
+                            'iu=/21775744923/external/single_ad_samples&sz=640x480&' +
+                            'cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&' +
+                            'gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=';
+                        // videoElement.getAttribute('data-ivad-preroll-adtag')
+                        // Specify the linear and nonlinear slot sizes. This helps the SDK to
+                        // select the correct creative if multiple are returned.
+                        adsRequest.linearAdSlotWidth = videoElement.clientWidth;
+                        adsRequest.linearAdSlotHeight = videoElement.clientHeight;
+                        adsRequest.nonLinearAdSlotWidth = videoElement.clientWidth;
+                        adsRequest.nonLinearAdSlotHeight = videoElement.clientHeight / 3;
+                        // Pass the request to the adsLoader to request ads
+                        console.log('>>> request ads');
+                        adsLoader.requestAds(adsRequest);
+                        videoElementWidth = videoElement.clientWidth;
+                        videoElementHeight = videoElement.clientHeight;
+                        // TODO: Initialize the container Must be done via a user action on mobile devices.
                         adDisplayContainer.initialize();
-                        try {
-                            adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL);
-                            adsManager.start();
-                            console.log('>>> ad start');
-                        }
-                        catch (adError) {
-                            // play the video without the ads
-                            console.log('AdsManager could not be started', adError);
-                            // eslint-disable-next-line
-                            videoElement.play();
-                        }
                     }
                 }
             };
@@ -30245,53 +30297,21 @@ var Plugin$1 = /** @class */ (function () {
                 videoElement.addEventListener('play', _this.onVideoElPlay);
             };
             videoElement.addEventListener('play', _this.onVideoElPlay);
-            videoElement.addEventListener('contentVideoEnded', _this.onVideoElContentVideoEnded);
-            /*
-            videoElement.addEventListener('uiima:mute', () => {
-              console.log('>>>> IMA MUTE')
-              if (adsManager) {
-                adsManager.setVolume(0)
-              }
-            })
-            videoElement.addEventListener('uiima:unmute', () => {
-              console.log('>>>> IMA UNMUTE')
-              if (adsManager) {
-                adsManager.setVolume(1)
-              }
-            })
-            videoElement.addEventListener('uiima:play', () => {
-              console.log('>>>> IMA PLAY')
-              if (adsManager) {
-                adsManager.resume()
-              }
-            })
-            videoElement.addEventListener('uiima:pause', () => {
-              console.log('>>>> IMA PAUSE')
-              if (adsManager) {
-                adsManager.pause()
-              }
-            })
-            videoElement.addEventListener('uiima:resume', () => {
-              console.log('>>>> IMA RESUME')
-              if (adsManager) {
-                adsManager.resume()
-              }
-            })
-        
-            // fullscreen listener ?
-            */
+            videoElement.addEventListener('contentVideoEnded', function () {
+                // Let the AdsLoader know when the video has ended
+                adsLoader.contentComplete();
+                _this.onVideoElContentVideoEnded();
+            });
         };
         this.deinit = function (StroeerVideoplayer) {
             var videoElement = StroeerVideoplayer.getVideoEl();
-            videoElement.removeEventListener('loadedmetadata', _this.initIMA());
             videoElement.removeEventListener('play', _this.onVideoElPlay);
             videoElement.removeEventListener('contentVideoEnded', _this.onVideoElContentVideoEnded);
             // remove uiima listener
         };
-        this.initIMA = noop$4;
-        this.requestAds = noop$4;
         this.onVideoElPlay = noop$4;
         this.onVideoElContentVideoEnded = noop$4;
+        this.assignEvent = noop$4;
         return this;
     }
     Plugin.version = version$4;
@@ -30303,53 +30323,10 @@ StroeerVideoplayer.registerUI(UI);
 StroeerVideoplayer.registerUI(UI$1);
 StroeerVideoplayer.registerPlugin(Plugin$1);
 StroeerVideoplayer.registerPlugin(Plugin);
-
-let videoData;
 const video = document.getElementById('myvideo');
 
 video.addEventListener('error', function () {
   console.log('error', this.error.code, this.error.message);
-});
-
-video.addEventListener('firstPlay', function () {
-  console.log('firstPlay');
-});
-
-video.addEventListener('contentVideoSeeked', function () {
-  console.log('contentVideoSeeked');
-});
-
-video.addEventListener('contentVideoPause', function () {
-  console.log('contentVideoPause');
-});
-
-video.addEventListener('contentVideoResume', function () {
-  console.log('contentVideoResume');
-});
-
-video.addEventListener('replay', function () {
-  console.log('replay');
-});
-
-video.addEventListener('contentVideoStart', function () {
-  videoData = video.dataset.meta;
-  console.log('contentVideoStart', videoData);
-});
-
-video.addEventListener('contentVideoEnded', function () {
-  console.log('contentVideoEnded');
-});
-
-video.addEventListener('contentVideoSecondOctile', function () {
-  console.log('contentVideoSecondOctile');
-});
-
-video.addEventListener('contentVideoMidpoint', function () {
-  console.log('contentVideoMidpoint');
-});
-
-video.addEventListener('contentVideoSixthOctile', function () {
-  console.log('contentVideoSixthOctile');
 });
 
 const myvideoplayer = new StroeerVideoplayer(video);

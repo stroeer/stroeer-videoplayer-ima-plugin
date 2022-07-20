@@ -632,20 +632,21 @@
   "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer-default-ui/-/stroeer-videoplayer-default-ui-1.0.0.tgz"
   "version" "1.0.0"
 
-"@stroeer/stroeer-videoplayer-ima-ui@^0.0.2":
-  "integrity" "sha512-QtFN/a/dj3U9B7tUzoHYkUqfGeoF9z4kFMk9xnDozVhRHcB8Z4yBuTUfgfU6UCPdxk+0WZnijpd4ARU4NFKebQ=="
-  "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer-ima-ui/-/stroeer-videoplayer-ima-ui-0.0.2.tgz"
+"@stroeer/stroeer-videoplayer-ima-ui@file:../stroeer-videoplayer-ima-ui":
+  "resolved" "file:../stroeer-videoplayer-ima-ui"
   "version" "0.0.2"
+  dependencies:
+    "@alugha/ima" "^2.0.2"
 
 "@stroeer/stroeer-videoplayer-plugin-endcard@^2.0.1":
   "integrity" "sha512-8kN1uL06ZmjDDYHru3mupXhkiqIfiNFhwe2UDYaROFlroCYiNsLGy5LCjBfmB1i01SWA9mjr5J9NYBq6bIDKLw=="
   "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer-plugin-endcard/-/stroeer-videoplayer-plugin-endcard-2.0.1.tgz"
   "version" "2.0.1"
 
-"@stroeer/stroeer-videoplayer@^1.0.1":
-  "integrity" "sha512-IA3D/DNBQELGo7RxBIXrFbOILD7mxNMMGOlXBfOTNxMVd3twCrgHoxAfX/TlGfCRxuBcASejNQYGKpegK43Lig=="
-  "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer/-/stroeer-videoplayer-1.0.1.tgz"
-  "version" "1.0.1"
+"@stroeer/stroeer-videoplayer@^1.1.0":
+  "integrity" "sha512-M0kQvlDbAuotmjpIV+j+Py2WaKu03j/DcrUrtjIPaR+nS9wCeeuMVwX9VT6YZAPobF5m7EPl1jywQz2SMXo5aw=="
+  "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer/-/stroeer-videoplayer-1.1.0.tgz"
+  "version" "1.1.0"
   dependencies:
     "hls.js" "1.1.5"
 
