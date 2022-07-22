@@ -9,7 +9,6 @@ StroeerVideoplayer.registerUI(StroeerVideoplayerImaUI)
 StroeerVideoplayer.registerPlugin(StroeerVideoplayerIMAPlugin)
 StroeerVideoplayer.registerPlugin(StroeerVideoplayerEndcardPlugin)
 
-let videoData
 const video = document.getElementById('myvideo')
 
 video.addEventListener('error', function () {

@@ -4,6 +4,7 @@ import noop from './noop'
 import eventWrapper from './eventWrapper'
 import logger from './logger'
 import './ima.scss'
+// import { google } from '@alugha/ima/lib/typings/ima'
 
 interface IStroeerVideoplayer {
   getUIEl: Function
@@ -42,7 +43,6 @@ class Plugin {
     adContainer.classList.add('ad-container')
     videoElement.after(adContainer)
 
-    let adsLoaded: boolean = false
     let adsManager: any
 
     const adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, videoElement)
@@ -56,20 +56,57 @@ class Plugin {
       }
     })
 
+    this.assignEvent = (event: Event) => {
+      console.log('>>>> IMA: ', event.type)
+      switch (event.type) {
+        case google.ima.AdEvent.Type.STARTED:
+          StroeerVideoplayer.deinitUI('default')
+          StroeerVideoplayer.initUI('ima', { adsManager: adsManager })
+          adContainer.style.display = 'block'
+          logger.log('Event', 'ima:impression')
+          videoElement.dispatchEvent(eventWrapper('ima:impression'))
+          break
+        case google.ima.AdEvent.Type.COMPLETE:
+          StroeerVideoplayer.deinitUI('ima')
+          StroeerVideoplayer.initUI('default')
+          adContainer.style.display = 'none'
+          logger.log('Event', 'ima:ended')
+          videoElement.dispatchEvent(eventWrapper('ima:ended'))
+          break
+        case google.ima.AdEvent.Type.PAUSED:
+          logger.log('Event', 'ima:pause')
+          videoElement.dispatchEvent(eventWrapper('ima:pause'))
+          break
+        case google.ima.AdEvent.Type.CLICK:
+          logger.log('Event', 'ima:click')
+          videoElement.dispatchEvent(eventWrapper('ima:click'))
+          break
+        case google.ima.AdEvent.Type.FIRST_QUARTILE:
+          logger.log('Event', 'ima:firstQuartile')
+          videoElement.dispatchEvent(eventWrapper('ima:firstQuartile'))
+          break
+        case google.ima.AdEvent.Type.MIDPOINT:
+          logger.log('Event', 'ima:midpoint')
+          videoElement.dispatchEvent(eventWrapper('ima:midpoint'))
+          break
+        case google.ima.AdEvent.Type.THIRD_QUARTILE:
+          logger.log('Event', 'ima:thirdQuartile')
+          videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'))
+          break
+      }
+    }
+
     adsLoader.addEventListener(
       google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
       (adsManagerLoadedEvent: google.ima.AdsManagerLoadedEvent) => {
-        console.log('AdsManager loaded')
+        console.log('>>>> IMA: AdsManager loaded')
 
         adsManager = adsManagerLoadedEvent.getAdsManager(videoElement)
 
         try {
           adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL)
           adsManager.start()
-          console.log('>>> AdsManager start')
         } catch (adError) {
-          // play the video without the ads
-          console.log('AdsManager could not be started', adError)
           // eslint-disable-next-line
           videoElement.play()
         }
@@ -98,15 +135,12 @@ class Plugin {
         const events = [
           google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
           google.ima.AdEvent.Type.CLICK,
-          google.ima.AdEvent.Type.VIDEO_CLICKED,
-          google.ima.AdEvent.Type.VIDEO_ICON_CLICKED,
           google.ima.AdEvent.Type.AD_PROGRESS,
           google.ima.AdEvent.Type.AD_BUFFERING,
           google.ima.AdEvent.Type.IMPRESSION,
           google.ima.AdEvent.Type.DURATION_CHANGE,
           google.ima.AdEvent.Type.USER_CLOSE,
           google.ima.AdEvent.Type.LINEAR_CHANGED,
-          google.ima.AdEvent.Type.SKIPPABLE_STATE_CHANGED,
           google.ima.AdEvent.Type.AD_METADATA,
           google.ima.AdEvent.Type.INTERACTION,
           google.ima.AdEvent.Type.COMPLETE,
@@ -132,10 +166,14 @@ class Plugin {
     adsLoader.addEventListener(
       google.ima.AdErrorEvent.Type.AD_ERROR,
       (adErrorEvent: google.ima.AdErrorEvent) => {
-        console.log('>>> ads loader error')
+        console.log('>>>> IMA: AdsLoader error')
         if (adsManager) {
           adsManager.destroy()
         }
+        // eslint-disable-next-line
+        videoElement.play()
+
+        /*
         const error = adErrorEvent.getError()
         videoElement.dispatchEvent(eventWrapper('ima:error', {
           errorCode: error.getVastErrorCode(),
@@ -145,48 +183,17 @@ class Plugin {
           errorCode: error.getVastErrorCode(),
           errorMessage: error.getMessage()
         })
+        */
+        // lets homad take over
+        videoElement.dispatchEvent(eventWrapper('ima:error', {
+          errorCode: 301,
+          errorMessage: 'VAST redirect timeout reached'
+        }))
+        logger.log('event', 'ima:error', {
+          errorCode: 301,
+          errorMessage: 'VAST redirect timeout reached'
+        })
       })
-
-    this.assignEvent = (event: Event) => {
-      // console.log('>>>> event: ', event.type)
-      switch (event.type) {
-        case google.ima.AdEvent.Type.STARTED:
-          StroeerVideoplayer.deinitUI('default')
-          StroeerVideoplayer.initUI('ima', { adsManager: adsManager })
-          adContainer.style.display = 'block'
-          logger.log('Event', 'ima:impression')
-          videoElement.dispatchEvent(eventWrapper('ima:impression'))
-          break
-        case google.ima.AdEvent.Type.COMPLETE:
-          StroeerVideoplayer.deinitUI('ima')
-          StroeerVideoplayer.initUI('default')
-          adContainer.style.display = 'none'
-          adsLoaded = false
-          logger.log('Event', 'ima:ended')
-          videoElement.dispatchEvent(eventWrapper('ima:ended'))
-          break
-        case google.ima.AdEvent.Type.PAUSED:
-          logger.log('Event', 'ima:pause')
-          videoElement.dispatchEvent(eventWrapper('ima:pause'))
-          break
-        case google.ima.AdEvent.Type.CLICK:
-          logger.log('Event', 'ima:click')
-          videoElement.dispatchEvent(eventWrapper('ima:click'))
-          break
-        case google.ima.AdEvent.Type.FIRST_QUARTILE:
-          logger.log('Event', 'ima:firstQuartile')
-          videoElement.dispatchEvent(eventWrapper('ima:firstQuartile'))
-          break
-        case google.ima.AdEvent.Type.MIDPOINT:
-          logger.log('Event', 'ima:midpoint')
-          videoElement.dispatchEvent(eventWrapper('ima:midpoint'))
-          break
-        case google.ima.AdEvent.Type.THIRD_QUARTILE:
-          logger.log('Event', 'ima:thirdQuartile')
-          videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'))
-          break
-      }
-    }
 
     this.onVideoElPlay = (event: Event) => {
       const prerollAdTag = videoElement.getAttribute('data-ivad-preroll-adtag')
@@ -204,11 +211,6 @@ class Plugin {
             errorMessage: 'VAST redirect timeout reached'
           })
         } else {
-          if (adsLoaded) {
-            return
-          }
-          adsLoaded = true
-
           event.preventDefault()
           videoElement.pause()
           videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
@@ -224,7 +226,7 @@ class Plugin {
           adsRequest.nonLinearAdSlotHeight = videoElement.clientHeight / 3
 
           // Pass the request to the adsLoader to request ads
-          console.log('>>> request ads')
+          console.log('>>>> IMA: request ads')
           adsLoader.requestAds(adsRequest)
 
           videoElementWidth = videoElement.clientWidth

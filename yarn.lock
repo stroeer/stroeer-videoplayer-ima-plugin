@@ -572,6 +572,19 @@
     "@nodelib/fs.scandir" "2.1.4"
     "fastq" "^1.6.0"
 
+"@rollup/plugin-commonjs@21.0.2":
+  "integrity" "sha512-d/OmjaLVO4j/aQX69bwpWPpbvI3TJkQuxoAk7BH8ew1PyoMBLTOuvJTjzG8oEoW7drIIqB0KCJtfFLu/2GClWg=="
+  "resolved" "https://npm.stroeermediabrands.de/@rollup%2fplugin-commonjs/-/plugin-commonjs-21.0.2.tgz"
+  "version" "21.0.2"
+  dependencies:
+    "@rollup/pluginutils" "^3.1.0"
+    "commondir" "^1.0.1"
+    "estree-walker" "^2.0.1"
+    "glob" "^7.1.6"
+    "is-reference" "^1.2.1"
+    "magic-string" "^0.25.7"
+    "resolve" "^1.17.0"
+
 "@rollup/plugin-json@^4.1.0":
   "integrity" "sha512-yfLbTdNS6amI/2OpmbiBoW12vngr5NW2jCJVZSBEz+H5KfUJZ2M7sDjk0U6GOOdCWFVScShte29o9NezJ53TPw=="
   "resolved" "https://npm.stroeermediabrands.de/@rollup%2fplugin-json/-/plugin-json-4.1.0.tgz"
@@ -632,11 +645,10 @@
   "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer-default-ui/-/stroeer-videoplayer-default-ui-1.0.0.tgz"
   "version" "1.0.0"
 
-"@stroeer/stroeer-videoplayer-ima-ui@file:../stroeer-videoplayer-ima-ui":
-  "resolved" "file:../stroeer-videoplayer-ima-ui"
+"@stroeer/stroeer-videoplayer-ima-ui@^0.0.2":
+  "integrity" "sha512-QtFN/a/dj3U9B7tUzoHYkUqfGeoF9z4kFMk9xnDozVhRHcB8Z4yBuTUfgfU6UCPdxk+0WZnijpd4ARU4NFKebQ=="
+  "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer-ima-ui/-/stroeer-videoplayer-ima-ui-0.0.2.tgz"
   "version" "0.0.2"
-  dependencies:
-    "@alugha/ima" "^2.0.2"
 
 "@stroeer/stroeer-videoplayer-plugin-endcard@^2.0.1":
   "integrity" "sha512-8kN1uL06ZmjDDYHru3mupXhkiqIfiNFhwe2UDYaROFlroCYiNsLGy5LCjBfmB1i01SWA9mjr5J9NYBq6bIDKLw=="
@@ -708,7 +720,7 @@
   "resolved" "https://npm.stroeermediabrands.de/@types%2fcors/-/cors-2.8.12.tgz"
   "version" "2.8.12"
 
-"@types/estree@0.0.39":
+"@types/estree@*", "@types/estree@0.0.39":
   "integrity" "sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw=="
   "resolved" "https://npm.stroeermediabrands.de/@types%2festree/-/estree-0.0.39.tgz"
   "version" "0.0.39"
@@ -1479,7 +1491,7 @@
   "resolved" "https://npm.stroeermediabrands.de/char-regex/-/char-regex-1.0.2.tgz"
   "version" "1.0.2"
 
-"chokidar@^3.4.0", "chokidar@^3.5.1", "chokidar@>=2.0.0 <4.0.0":
+"chokidar@^3.4.0", "chokidar@^3.5.1", "chokidar@>=3.0.0 <4.0.0":
   "integrity" "sha512-9+s+Od+W0VJJzawDma/gvBNQqkTiqYTWLuZoyAsivsI4AaWTCzHG06/TMjsf1cYe9Cb97UCEhjz7HvnPk2p/tw=="
   "resolved" "https://npm.stroeermediabrands.de/chokidar/-/chokidar-3.5.1.tgz"
   "version" "3.5.1"
@@ -1581,6 +1593,11 @@
   "integrity" "sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA=="
   "resolved" "https://npm.stroeermediabrands.de/commander/-/commander-4.1.1.tgz"
   "version" "4.1.1"
+
+"commondir@^1.0.1":
+  "integrity" "sha1-3dgA2gxmEnOTzKWVDqloo6rxJTs="
+  "resolved" "https://npm.stroeermediabrands.de/commondir/-/commondir-1.0.1.tgz"
+  "version" "1.0.1"
 
 "component-emitter@^1.2.1", "component-emitter@~1.3.0":
   "integrity" "sha512-Rd3se6QB+sO1TwqZjscQrurpEPIfO0/yYnSin6Q/rD3mOutHvUrCAhJub3r90uNb+SESBuE0QYoB90YdfatsRg=="
@@ -2269,6 +2286,11 @@
   "resolved" "https://npm.stroeermediabrands.de/estree-walker/-/estree-walker-1.0.1.tgz"
   "version" "1.0.1"
 
+"estree-walker@^2.0.1":
+  "integrity" "sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w=="
+  "resolved" "https://npm.stroeermediabrands.de/estree-walker/-/estree-walker-2.0.2.tgz"
+  "version" "2.0.2"
+
 "esutils@^2.0.2":
   "integrity" "sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g=="
   "resolved" "https://npm.stroeermediabrands.de/esutils/-/esutils-2.0.3.tgz"
@@ -2535,15 +2557,10 @@
   "resolved" "https://npm.stroeermediabrands.de/fs.realpath/-/fs.realpath-1.0.0.tgz"
   "version" "1.0.0"
 
-"fsevents@^2.3.2", "fsevents@~2.3.1":
+"fsevents@^2.3.2", "fsevents@~2.3.1", "fsevents@~2.3.2":
   "integrity" "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA=="
   "resolved" "https://npm.stroeermediabrands.de/fsevents/-/fsevents-2.3.2.tgz"
   "version" "2.3.2"
-
-"fsevents@~2.1.2":
-  "integrity" "sha512-Auw9a4AxqWpa9GUfj370BMPzzyncfBABW8Mab7BGWBYDj4Isgq+cDKtx0i6u9jcX9pQDnswsaaOTgTmA5pEjuQ=="
-  "resolved" "https://npm.stroeermediabrands.de/fsevents/-/fsevents-2.1.3.tgz"
-  "version" "2.1.3"
 
 "function-bind@^1.1.1":
   "integrity" "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A=="
@@ -2623,7 +2640,7 @@
   dependencies:
     "is-glob" "^4.0.1"
 
-"glob@^7.0.0", "glob@^7.1.1", "glob@^7.1.2", "glob@^7.1.3", "glob@^7.1.4":
+"glob@^7.0.0", "glob@^7.1.1", "glob@^7.1.2", "glob@^7.1.3", "glob@^7.1.4", "glob@^7.1.6":
   "integrity" "sha512-LwaxwyZ72Lk7vZINtNNrywX0ZuLyStrdDtabefZKAY5ZGJhVtgdznluResxNmPitE0SAO+O26sWTHeKSI2wMBA=="
   "resolved" "https://npm.stroeermediabrands.de/glob/-/glob-7.1.6.tgz"
   "version" "7.1.6"
@@ -2824,6 +2841,11 @@
   "integrity" "sha1-wkOZUUVbs5kT2vKBN28VMOEErfM="
   "resolved" "https://npm.stroeermediabrands.de/immutable/-/immutable-3.8.2.tgz"
   "version" "3.8.2"
+
+"immutable@^4.0.0":
+  "integrity" "sha512-oNkuqVTA8jqG1Q6c+UglTOD1xhC1BtjKI7XkCXRkZHrN5m18/XsnUp8Q89GkQO/z+0WjonSvl0FLhDYftp46nQ=="
+  "resolved" "https://npm.stroeermediabrands.de/immutable/-/immutable-4.1.0.tgz"
+  "version" "4.1.0"
 
 "import-fresh@^3.0.0", "import-fresh@^3.2.1":
   "integrity" "sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw=="
@@ -3041,6 +3063,13 @@
   "integrity" "sha512-bCYeRA2rVibKZd+s2625gGnGF/t7DSqDs4dP7CrLA1m7jKWz6pps0LpYLJN8Q64HtmPKJ1hrN3nzPNKFEKOUiQ=="
   "resolved" "https://npm.stroeermediabrands.de/is-potential-custom-element-name/-/is-potential-custom-element-name-1.0.1.tgz"
   "version" "1.0.1"
+
+"is-reference@^1.2.1":
+  "integrity" "sha512-U82MsXXiFIrjCK4otLT+o2NA2Cd2g5MLoOVXUZjIOhLurrRxpEXzI8O0KZHr3IjLvlAH1kTPYSuqer5T9ZVBKQ=="
+  "resolved" "https://npm.stroeermediabrands.de/is-reference/-/is-reference-1.2.1.tgz"
+  "version" "1.2.1"
+  dependencies:
+    "@types/estree" "*"
 
 "is-regex@^1.1.1":
   "integrity" "sha512-1+QkEcxiLlB7VEyFtyBg94e08OAsvq7FUBgApTq/w2ymCLyKJgDPsybBENVtA7XCQEgEXxKPonG+mvYRxh/LIg=="
@@ -3830,6 +3859,13 @@
   "version" "6.0.0"
   dependencies:
     "yallist" "^4.0.0"
+
+"magic-string@^0.25.7":
+  "integrity" "sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ=="
+  "resolved" "https://npm.stroeermediabrands.de/magic-string/-/magic-string-0.25.9.tgz"
+  "version" "0.25.9"
+  dependencies:
+    "sourcemap-codec" "^1.4.8"
 
 "make-dir@^2.1.0":
   "integrity" "sha512-LS9X+dc8KLxXCb8dni79fLIIUA5VyZoyjSMCwTluaXA0o27cCK0bhXkpgw+sTXVpPy/lSO57ilRixqk0vDmtRA=="
@@ -4714,12 +4750,12 @@
   dependencies:
     "estree-walker" "^0.6.1"
 
-"rollup@^1.20.0 || ^2.0.0", "rollup@^1.20.0||^2.0.0", "rollup@^2.14.0", "rollup@^2.38.0":
-  "integrity" "sha512-ay9zDiNitZK/LNE/EM2+v5CZ7drkB2xyDljvb1fQJCGnq43ZWRkhxN145oV8GmoW1YNi4sA/1Jdkr2LfawJoXw=="
-  "resolved" "https://npm.stroeermediabrands.de/rollup/-/rollup-2.38.0.tgz"
-  "version" "2.38.0"
+"rollup@^1.20.0 || ^2.0.0", "rollup@^1.20.0||^2.0.0", "rollup@^2.14.0", "rollup@^2.38.0", "rollup@^2.38.3":
+  "integrity" "sha512-vL8xjY4yOQEw79DvyXLijhnhh+R/O9zpF/LEgkCebZFtb6ELeN9H3/2T0r8+mp+fFTBHZ5qGpOpW2ela2zRt3g=="
+  "resolved" "https://npm.stroeermediabrands.de/rollup/-/rollup-2.77.0.tgz"
+  "version" "2.77.0"
   optionalDependencies:
-    "fsevents" "~2.1.2"
+    "fsevents" "~2.3.2"
 
 "run-parallel@^1.1.9":
   "integrity" "sha512-zb/1OuZ6flOlH6tQyMPUrE3x3Ulxjlo9WIVXR4yVYi4H9UXQaeIsPbLn2R3O3vQCnDKkAl2qHiuocKKX4Tz/Sw=="
@@ -4755,12 +4791,14 @@
   "resolved" "https://npm.stroeermediabrands.de/safer-buffer/-/safer-buffer-2.1.2.tgz"
   "version" "2.1.2"
 
-"sass@^1.32.7":
-  "integrity" "sha512-C8Z4bjqGWnsYa11o8hpKAuoyFdRhrSHcYjCr+XAWVPSIQqC8mp2f5Dx4em0dKYehPzg5XSekmCjqJnEZbIls9A=="
-  "resolved" "https://npm.stroeermediabrands.de/sass/-/sass-1.32.7.tgz"
-  "version" "1.32.7"
+"sass@1.49.9":
+  "integrity" "sha512-YlYWkkHP9fbwaFRZQRXgDi3mXZShslVmmo+FVK3kHLUELHHEYrCmL1x6IUjC7wLS6VuJSAFXRQS/DxdsC4xL1A=="
+  "resolved" "https://npm.stroeermediabrands.de/sass/-/sass-1.49.9.tgz"
+  "version" "1.49.9"
   dependencies:
-    "chokidar" ">=2.0.0 <4.0.0"
+    "chokidar" ">=3.0.0 <4.0.0"
+    "immutable" "^4.0.0"
+    "source-map-js" ">=0.6.2 <2.0.0"
 
 "saxes@^5.0.1":
   "integrity" "sha512-5LBh1Tls8c9xgGjw3QrMwETmTMVk0oFgvrFSvWx62llR2hcEInrKNZ2GZCCuuy2lvWrdl5jhbpeqc5hRYKFOcw=="
@@ -5018,6 +5056,11 @@
     "socket.io-adapter" "~2.4.0"
     "socket.io-parser" "~4.0.4"
 
+"source-map-js@>=0.6.2 <2.0.0":
+  "integrity" "sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw=="
+  "resolved" "https://npm.stroeermediabrands.de/source-map-js/-/source-map-js-1.0.2.tgz"
+  "version" "1.0.2"
+
 "source-map-resolve@^0.5.0":
   "integrity" "sha512-Htz+RnsXWk5+P2slx5Jh3Q66vhQj1Cllm0zvnaY98+NFx+Dv2CF/f5O/t8x+KaNdrdIAsruNzoh/KpialbqAnw=="
   "resolved" "https://npm.stroeermediabrands.de/source-map-resolve/-/source-map-resolve-0.5.3.tgz"
@@ -5066,6 +5109,11 @@
   "integrity" "sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g=="
   "resolved" "https://npm.stroeermediabrands.de/source-map/-/source-map-0.6.1.tgz"
   "version" "0.6.1"
+
+"sourcemap-codec@^1.4.8":
+  "integrity" "sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA=="
+  "resolved" "https://npm.stroeermediabrands.de/sourcemap-codec/-/sourcemap-codec-1.4.8.tgz"
+  "version" "1.4.8"
 
 "spdx-correct@^3.0.0":
   "integrity" "sha512-cOYcUWwhCuHCXi49RhFRCyJEK3iPj1Ziz9DpViV3tbZOwXD49QzIN3MpOLJNxh2qwq2lJJZaKMVw9qNi4jTC0w=="
