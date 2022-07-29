@@ -4,7 +4,7 @@ import noop from './noop'
 import eventWrapper from './eventWrapper'
 import logger from './logger'
 import './ima.scss'
-// import { google } from '@alugha/ima/lib/typings/ima'
+import { loadScript } from './utils'
 
 interface IStroeerVideoplayer {
   getUIEl: Function
@@ -34,7 +34,27 @@ class Plugin {
 
   init = (StroeerVideoplayer: IStroeerVideoplayer, opts?: any): void => {
     opts = opts ?? {}
+    const videoElement = StroeerVideoplayer.getVideoEl()
 
+    // load sdk first
+    const promise = loadScript('//imasdk.googleapis.com/js/sdkloader/ima3.js')
+    promise
+      .then(() => {
+        this.load(StroeerVideoplayer)
+      })
+      .catch((erro) => {
+        videoElement.dispatchEvent(eventWrapper('ima:error', {
+          errorCode: 301,
+          errorMessage: 'IMA could not be loaded'
+        }))
+        logger.log('event', 'ima:error', {
+          errorCode: 301,
+          errorMessage: 'IMA could not be loaded'
+        })
+      })
+  }
+
+  load = (StroeerVideoplayer: IStroeerVideoplayer): void => {
     const videoElement = StroeerVideoplayer.getVideoEl()
     let videoElementWidth = videoElement.clientWidth
     let videoElementHeight = videoElement.clientHeight
@@ -50,14 +70,11 @@ class Plugin {
 
     window.addEventListener('resize', (event) => {
       if (adsManager) {
-        const width = videoElement.clientWidth
-        const height = videoElement.clientHeight
-        adsManager.resize(width, height, google.ima.ViewMode.NORMAL)
+        adsManager.resize(videoElement.clientWidth, videoElement.clientHeight, google.ima.ViewMode.NORMAL)
       }
     })
 
     this.assignEvent = (event: Event) => {
-      console.log('>>>> IMA: ', event.type)
       switch (event.type) {
         case google.ima.AdEvent.Type.STARTED:
           StroeerVideoplayer.deinitUI('default')
@@ -67,7 +84,7 @@ class Plugin {
           videoElement.dispatchEvent(eventWrapper('ima:impression'))
           break
         case google.ima.AdEvent.Type.COMPLETE:
-          StroeerVideoplayer.deinitUI('ima')
+          StroeerVideoplayer.deinitUI('ima', { adsManager: adsManager })
           StroeerVideoplayer.initUI('default')
           adContainer.style.display = 'none'
           logger.log('Event', 'ima:ended')
@@ -99,8 +116,6 @@ class Plugin {
     adsLoader.addEventListener(
       google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
       (adsManagerLoadedEvent: google.ima.AdsManagerLoadedEvent) => {
-        console.log('>>>> IMA: AdsManager loaded')
-
         adsManager = adsManagerLoadedEvent.getAdsManager(videoElement)
 
         try {
@@ -166,7 +181,6 @@ class Plugin {
     adsLoader.addEventListener(
       google.ima.AdErrorEvent.Type.AD_ERROR,
       (adErrorEvent: google.ima.AdErrorEvent) => {
-        console.log('>>>> IMA: AdsLoader error')
         if (adsManager) {
           adsManager.destroy()
         }
@@ -184,7 +198,7 @@ class Plugin {
           errorMessage: error.getMessage()
         })
         */
-        // lets homad take over
+        // let homad take over
         videoElement.dispatchEvent(eventWrapper('ima:error', {
           errorCode: 301,
           errorMessage: 'VAST redirect timeout reached'
@@ -215,8 +229,22 @@ class Plugin {
           videoElement.pause()
           videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
 
+          if (adsManager) {
+            adsManager.destroy()
+          }
+
+          // test adtag for better ad delivery
+          const referrerUrl = window.document.location.href
+          const cacheBuster = String(Math.floor(Math.random() * 100000000))
+          let adTag = 'https://vh.adscale.de/vah?sid=9781ea9a-d459-49ee-9690-f4724bd2a3e2&ref=%%REFERRER_URL%%&gdpr=%%GDPR%%&gdpr_consent=%%GDPR_CONSENT_STRING%%&bust=%%CACHEBUSTER%%'
+          adTag = adTag.replace('%%GDPR%%', '0')
+          adTag = adTag.replace('%%GDPR_CONSENT_STRING%%', '')
+          adTag = adTag.replace('%%REFERRER_URL%%', encodeURIComponent(referrerUrl))
+          adTag = adTag.replace('%%CACHEBUSTER%%', cacheBuster)
+
           const adsRequest = new google.ima.AdsRequest()
-          adsRequest.adTagUrl = videoElement.getAttribute('data-ivad-preroll-adtag')
+          adsRequest.adTagUrl = adTag
+          // videoElement.getAttribute('data-ivad-preroll-adtag')
 
           // Specify the linear and nonlinear slot sizes. This helps the SDK to
           // select the correct creative if multiple are returned.
@@ -226,7 +254,6 @@ class Plugin {
           adsRequest.nonLinearAdSlotHeight = videoElement.clientHeight / 3
 
           // Pass the request to the adsLoader to request ads
-          console.log('>>>> IMA: request ads')
           adsLoader.requestAds(adsRequest)
 
           videoElementWidth = videoElement.clientWidth
@@ -244,7 +271,6 @@ class Plugin {
 
     videoElement.addEventListener('play', this.onVideoElPlay)
     videoElement.addEventListener('contentVideoEnded', () => {
-      // Let the AdsLoader know when the video has ended
       adsLoader.contentComplete()
       this.onVideoElContentVideoEnded()
     })
@@ -254,7 +280,6 @@ class Plugin {
     const videoElement = StroeerVideoplayer.getVideoEl()
     videoElement.removeEventListener('play', this.onVideoElPlay)
     videoElement.removeEventListener('contentVideoEnded', this.onVideoElContentVideoEnded)
-    // remove uiima listener
   }
 }
 
