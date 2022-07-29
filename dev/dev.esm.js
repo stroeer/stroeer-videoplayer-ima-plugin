@@ -30257,7 +30257,6 @@ var Plugin = /** @class */ (function () {
                 }
             };
             adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, function (adsManagerLoadedEvent) {
-                console.log('>>>> IMA: AdsManager loaded');
                 adsManager = adsManagerLoadedEvent.getAdsManager(videoElement);
                 try {
                     adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL);

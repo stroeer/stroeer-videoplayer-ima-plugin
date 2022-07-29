@@ -4,17 +4,8 @@ import noop from './noop'
 import eventWrapper from './eventWrapper'
 import logger from './logger'
 import './ima.scss'
+import { IStroeerVideoplayer } from '../types/types'
 import { loadScript } from './utils'
-
-interface IStroeerVideoplayer {
-  getUIEl: Function
-  getRootEl: Function
-  getVideoEl: Function
-  getUIName: Function
-  initUI: Function
-  deinitUI: Function
-  getHls: Function
-}
 
 class Plugin {
   public static version: string = version
