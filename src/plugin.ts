@@ -33,7 +33,7 @@ class Plugin {
       .then(() => {
         this.load(StroeerVideoplayer)
       })
-      .catch(() => {
+      .catch((error) => {
         videoElement.dispatchEvent(eventWrapper('ima:error', {
           errorCode: 301,
           errorMessage: 'IMA could not be loaded'
@@ -181,7 +181,6 @@ class Plugin {
         // eslint-disable-next-line
         videoElement.play()
 
-        /*
         const error = adErrorEvent.getError()
         videoElement.dispatchEvent(eventWrapper('ima:error', {
           errorCode: error.getVastErrorCode(),
@@ -190,16 +189,6 @@ class Plugin {
         logger.log('Event', 'ima:error', {
           errorCode: error.getVastErrorCode(),
           errorMessage: error.getMessage()
-        })
-        */
-        // let homad take over
-        videoElement.dispatchEvent(eventWrapper('ima:error', {
-          errorCode: 301,
-          errorMessage: 'VAST redirect timeout reached'
-        }))
-        logger.log('event', 'ima:error', {
-          errorCode: 301,
-          errorMessage: 'VAST redirect timeout reached'
         })
       })
 
