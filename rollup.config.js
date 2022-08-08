@@ -7,7 +7,6 @@ import commonjs from '@rollup/plugin-commonjs'
 import scss from 'rollup-plugin-scss'
 
 const isDevMode = Boolean(process.env.ROLLUP_WATCH)
-console.log('is dev mode', isDevMode)
 
 export default [{
   input: 'src/plugin.ts',

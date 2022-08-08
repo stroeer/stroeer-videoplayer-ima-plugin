@@ -224,18 +224,8 @@ class Plugin {
             adsManager.destroy()
           }
 
-          // test adtag for better ad delivery
-          const referrerUrl = window.document.location.href
-          const cacheBuster = String(Math.floor(Math.random() * 100000000))
-          let adTag = 'https://vh.adscale.de/vah?sid=9781ea9a-d459-49ee-9690-f4724bd2a3e2&ref=%%REFERRER_URL%%&gdpr=%%GDPR%%&gdpr_consent=%%GDPR_CONSENT_STRING%%&bust=%%CACHEBUSTER%%'
-          adTag = adTag.replace('%%GDPR%%', '0')
-          adTag = adTag.replace('%%GDPR_CONSENT_STRING%%', '')
-          adTag = adTag.replace('%%REFERRER_URL%%', encodeURIComponent(referrerUrl))
-          adTag = adTag.replace('%%CACHEBUSTER%%', cacheBuster)
-
           const adsRequest = new google.ima.AdsRequest()
-          adsRequest.adTagUrl = adTag
-          // videoElement.getAttribute('data-ivad-preroll-adtag')
+          adsRequest.adTagUrl = videoElement.getAttribute('data-ivad-preroll-adtag')
 
           // Specify the linear and nonlinear slot sizes. This helps the SDK to
           // select the correct creative if multiple are returned.
