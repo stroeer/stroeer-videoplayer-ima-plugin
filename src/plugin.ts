@@ -33,7 +33,7 @@ class Plugin {
       .then(() => {
         this.load(StroeerVideoplayer)
       })
-      .catch((erro) => {
+      .catch(() => {
         videoElement.dispatchEvent(eventWrapper('ima:error', {
           errorCode: 301,
           errorMessage: 'IMA could not be loaded'
@@ -109,6 +109,8 @@ class Plugin {
       (adsManagerLoadedEvent: google.ima.AdsManagerLoadedEvent) => {
         adsManager = adsManagerLoadedEvent.getAdsManager(videoElement)
 
+        console.log('AdsManager loaded')
+
         try {
           adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL)
           adsManager.start()
@@ -172,6 +174,7 @@ class Plugin {
     adsLoader.addEventListener(
       google.ima.AdErrorEvent.Type.AD_ERROR,
       (adErrorEvent: google.ima.AdErrorEvent) => {
+        console.log('AdsManager error')
         if (adsManager) {
           adsManager.destroy()
         }
