@@ -2,11 +2,6 @@
 # yarn lockfile v1
 
 
-"@alugha/ima@^2.0.2":
-  "integrity" "sha512-39gvoSzRKDB0iEc04nhbQy4oMOVFkBF0WXlNA0NktqfBm+KGH/n5kb4bCCT4qNcX/jO18ktVoXLh2afY6/SyfQ=="
-  "resolved" "https://npm.stroeermediabrands.de/@alugha%2fima/-/ima-2.0.2.tgz"
-  "version" "2.0.2"
-
 "@babel/cli@^7.12.10":
   "integrity" "sha512-+y4ZnePpvWs1fc/LhZRTHkTesbXkyBYuOB+5CyodZqrEuETXi3zOVfpAQIdgC3lXbHLTDG9dQosxR9BhvLKDLQ=="
   "resolved" "https://npm.stroeermediabrands.de/@babel%2fcli/-/cli-7.12.10.tgz"
@@ -645,11 +640,10 @@
   "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer-default-ui/-/stroeer-videoplayer-default-ui-1.0.0.tgz"
   "version" "1.0.0"
 
-"@stroeer/stroeer-videoplayer-ima-ui@file:../stroeer-videoplayer-ima-ui":
-  "resolved" "file:../stroeer-videoplayer-ima-ui"
+"@stroeer/stroeer-videoplayer-ima-ui@^0.0.2":
+  "integrity" "sha512-QtFN/a/dj3U9B7tUzoHYkUqfGeoF9z4kFMk9xnDozVhRHcB8Z4yBuTUfgfU6UCPdxk+0WZnijpd4ARU4NFKebQ=="
+  "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer-ima-ui/-/stroeer-videoplayer-ima-ui-0.0.2.tgz"
   "version" "0.0.2"
-  dependencies:
-    "@alugha/ima" "^2.0.2"
 
 "@stroeer/stroeer-videoplayer-plugin-endcard@^2.0.1":
   "integrity" "sha512-8kN1uL06ZmjDDYHru3mupXhkiqIfiNFhwe2UDYaROFlroCYiNsLGy5LCjBfmB1i01SWA9mjr5J9NYBq6bIDKLw=="
