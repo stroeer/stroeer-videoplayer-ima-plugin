@@ -33,7 +33,7 @@ class Plugin {
       .then(() => {
         this.load(StroeerVideoplayer)
       })
-      .catch((error) => {
+      .catch(() => {
         videoElement.dispatchEvent(eventWrapper('ima:error', {
           errorCode: 301,
           errorMessage: 'IMA could not be loaded'
