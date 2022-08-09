@@ -3,7 +3,7 @@ on:
     tags:
       - 'v*'
 
-name: Publish
+name: Publish to NPM
 
 jobs:
   npm:
