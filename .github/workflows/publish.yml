@@ -1,7 +1,7 @@
 on:
   push:
     tags:
-    - 'v*'
+      - 'v*'
 
 name: Publish to NPM
 
@@ -17,13 +17,13 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: yarn install --frozen-lockfile || exit 1
-      - run: yarn run lint || exit 2
-      - run: yarn run test || exit 3
-      - run: yarn run build || exit 4
+      - run: yarn lint || exit 2
+      - run: yarn test || exit 3
+      - run: yarn build || exit 4
       - name: publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish
+        run: npm publish --access public
 
   github:
     runs-on: ubuntu-20.04
@@ -36,9 +36,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: yarn install --frozen-lockfile || exit 1
-      - run: yarn run lint || exit 2
-      - run: yarn run test || exit 3
-      - run: yarn run build || exit 4
+      - run: yarn lint || exit 2
+      - run: yarn test || exit 3
+      - run: yarn build || exit 4
       - name: publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
