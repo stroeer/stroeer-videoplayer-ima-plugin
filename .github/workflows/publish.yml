@@ -22,7 +22,7 @@ jobs:
       - run: yarn build || exit 4
       - name: publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: npm publish --access public
 
   github:
