@@ -14,11 +14,13 @@ class Plugin {
   onVideoElPlay: Function
   onVideoElContentVideoEnded: Function
   assignEvent: Function
+  initialUI: String
 
   constructor () {
     this.onVideoElPlay = noop
     this.onVideoElContentVideoEnded = noop
     this.assignEvent = noop
+    this.initialUI = 'default'
 
     return this
   }
@@ -31,7 +33,7 @@ class Plugin {
     const promise = loadScript('//imasdk.googleapis.com/js/sdkloader/ima3.js')
     promise
       .then(() => {
-        this.load(StroeerVideoplayer)
+        this.requestAds(StroeerVideoplayer)
       })
       .catch(() => {
         videoElement.dispatchEvent(eventWrapper('ima:error', {
@@ -45,7 +47,7 @@ class Plugin {
       })
   }
 
-  load = (StroeerVideoplayer: IStroeerVideoplayer): void => {
+  requestAds = (StroeerVideoplayer: IStroeerVideoplayer): void => {
     const videoElement = StroeerVideoplayer.getVideoEl()
     let videoElementWidth = videoElement.clientWidth
     let videoElementHeight = videoElement.clientHeight
@@ -53,6 +55,7 @@ class Plugin {
     const adContainer = document.createElement('div')
     adContainer.classList.add('ad-container')
     videoElement.after(adContainer)
+    this.initialUI = StroeerVideoplayer.getUIName()
 
     let adsManager: any
 
@@ -68,15 +71,13 @@ class Plugin {
     this.assignEvent = (event: Event) => {
       switch (event.type) {
         case google.ima.AdEvent.Type.STARTED:
-          StroeerVideoplayer.deinitUI('default')
-          StroeerVideoplayer.initUI('ima', { adsManager: adsManager })
           adContainer.style.display = 'block'
           logger.log('Event', 'ima:impression')
           videoElement.dispatchEvent(eventWrapper('ima:impression'))
           break
         case google.ima.AdEvent.Type.COMPLETE:
-          StroeerVideoplayer.deinitUI('ima', { adsManager: adsManager })
-          StroeerVideoplayer.initUI('default')
+          StroeerVideoplayer.deinitUI('ima', { adsLoader: adsLoader, adsManager: adsManager })
+          StroeerVideoplayer.initUI(this.initialUI)
           adContainer.style.display = 'none'
           logger.log('Event', 'ima:ended')
           videoElement.dispatchEvent(eventWrapper('ima:ended'))
@@ -109,8 +110,6 @@ class Plugin {
       (adsManagerLoadedEvent: google.ima.AdsManagerLoadedEvent) => {
         adsManager = adsManagerLoadedEvent.getAdsManager(videoElement)
 
-        console.log('AdsManager loaded')
-
         try {
           adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL)
           adsManager.start()
@@ -121,7 +120,11 @@ class Plugin {
 
         adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,
           (adErrorEvent: google.ima.AdErrorEvent) => {
+            StroeerVideoplayer.deinitUI('ima', { adsManager: adsManager, adsLoader: adsLoader })
+            StroeerVideoplayer.initUI(this.initialUI)
+
             const error = adErrorEvent.getError()
+            console.log('AdsManager Error ', error.getVastErrorCode(), error.getMessage())
             videoElement.dispatchEvent(eventWrapper('ima:error', {
               errorCode: error.getVastErrorCode(),
               errorMessage: error.getMessage()
@@ -174,7 +177,11 @@ class Plugin {
     adsLoader.addEventListener(
       google.ima.AdErrorEvent.Type.AD_ERROR,
       (adErrorEvent: google.ima.AdErrorEvent) => {
-        console.log('AdsManager error')
+        console.log('adsLoader error')
+
+        StroeerVideoplayer.deinitUI('ima', { adsLoader: adsLoader })
+        StroeerVideoplayer.initUI(this.initialUI)
+
         if (adsManager) {
           adsManager.destroy()
         }
@@ -193,6 +200,9 @@ class Plugin {
       })
 
     this.onVideoElPlay = (event: Event) => {
+      StroeerVideoplayer.deinitUI(StroeerVideoplayer.getUIName())
+      StroeerVideoplayer.initUI('ima', { adsLoader: adsLoader })
+
       const prerollAdTag = videoElement.getAttribute('data-ivad-preroll-adtag')
 
       if (prerollAdTag !== null) {
