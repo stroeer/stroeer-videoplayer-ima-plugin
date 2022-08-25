@@ -742,9 +742,10 @@
   "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer-default-ui/-/stroeer-videoplayer-default-ui-1.0.0.tgz"
   "version" "1.0.0"
 
-"@stroeer/stroeer-videoplayer-ima-ui@file:../stroeer-videoplayer-ima-ui":
-  "resolved" "file:../stroeer-videoplayer-ima-ui"
-  "version" "0.1.0"
+"@stroeer/stroeer-videoplayer-ima-ui@^1.0.1":
+  "integrity" "sha512-EW7IxdjZlGUkYaFRAh0vMNaA6xDah5aG4Cq4nxoHbDtUnXEDOvzYdHGdPOk4peldjj2Exi7ZFQQDzw+DXp2+rA=="
+  "resolved" "https://npm.stroeermediabrands.de/@stroeer%2fstroeer-videoplayer-ima-ui/-/stroeer-videoplayer-ima-ui-1.0.1.tgz"
+  "version" "1.0.1"
 
 "@stroeer/stroeer-videoplayer-plugin-endcard@^2.0.1":
   "integrity" "sha512-8kN1uL06ZmjDDYHru3mupXhkiqIfiNFhwe2UDYaROFlroCYiNsLGy5LCjBfmB1i01SWA9mjr5J9NYBq6bIDKLw=="

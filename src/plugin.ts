@@ -109,6 +109,7 @@ class Plugin {
       google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
       (adsManagerLoadedEvent: google.ima.AdsManagerLoadedEvent) => {
         adsManager = adsManagerLoadedEvent.getAdsManager(videoElement)
+        logger.log('IMA AdsManager loaded')
 
         try {
           adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL)
@@ -124,12 +125,11 @@ class Plugin {
             StroeerVideoplayer.initUI(this.initialUI)
 
             const error = adErrorEvent.getError()
-            console.log('AdsManager Error ', error.getVastErrorCode(), error.getMessage())
             videoElement.dispatchEvent(eventWrapper('ima:error', {
               errorCode: error.getVastErrorCode(),
               errorMessage: error.getMessage()
             }))
-            logger.log('Event', 'ima:error', {
+            logger.log('adsManager ', 'ima:error', {
               errorCode: error.getVastErrorCode(),
               errorMessage: error.getMessage()
             })
@@ -177,8 +177,6 @@ class Plugin {
     adsLoader.addEventListener(
       google.ima.AdErrorEvent.Type.AD_ERROR,
       (adErrorEvent: google.ima.AdErrorEvent) => {
-        console.log('adsLoader error')
-
         StroeerVideoplayer.deinitUI('ima', { adsLoader: adsLoader })
         StroeerVideoplayer.initUI(this.initialUI)
 
@@ -193,7 +191,7 @@ class Plugin {
           errorCode: error.getVastErrorCode(),
           errorMessage: error.getMessage()
         }))
-        logger.log('Event', 'ima:error', {
+        logger.log('adsLoader ', 'ima:error', {
           errorCode: error.getVastErrorCode(),
           errorMessage: error.getMessage()
         })
