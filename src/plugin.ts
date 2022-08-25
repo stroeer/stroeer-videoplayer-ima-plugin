@@ -76,7 +76,7 @@ class Plugin {
           videoElement.dispatchEvent(eventWrapper('ima:impression'))
           break
         case google.ima.AdEvent.Type.COMPLETE:
-          StroeerVideoplayer.deinitUI('ima', { adsLoader: adsLoader, adsManager: adsManager })
+          StroeerVideoplayer.deinitUI('ima', { adsLoader, adsManager })
           StroeerVideoplayer.initUI(this.initialUI)
           adContainer.style.display = 'none'
           logger.log('Event', 'ima:ended')
@@ -121,7 +121,7 @@ class Plugin {
 
         adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,
           (adErrorEvent: google.ima.AdErrorEvent) => {
-            StroeerVideoplayer.deinitUI('ima', { adsManager: adsManager, adsLoader: adsLoader })
+            StroeerVideoplayer.deinitUI('ima', { adsManager, adsLoader })
             StroeerVideoplayer.initUI(this.initialUI)
 
             const error = adErrorEvent.getError()
@@ -177,7 +177,7 @@ class Plugin {
     adsLoader.addEventListener(
       google.ima.AdErrorEvent.Type.AD_ERROR,
       (adErrorEvent: google.ima.AdErrorEvent) => {
-        StroeerVideoplayer.deinitUI('ima', { adsLoader: adsLoader })
+        StroeerVideoplayer.deinitUI('ima', { adsLoader })
         StroeerVideoplayer.initUI(this.initialUI)
 
         if (adsManager) {
@@ -199,7 +199,7 @@ class Plugin {
 
     this.onVideoElPlay = (event: Event) => {
       StroeerVideoplayer.deinitUI(StroeerVideoplayer.getUIName())
-      StroeerVideoplayer.initUI('ima', { adsLoader: adsLoader })
+      StroeerVideoplayer.initUI('ima', { adsLoader })
 
       const prerollAdTag = videoElement.getAttribute('data-ivad-preroll-adtag')
 
