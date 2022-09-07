@@ -16,4 +16,8 @@ export default {
   "transformIgnorePatterns": [
     "node_modules/(?!variables/.*)"
    ],
+  "moduleNameMapper": {
+    '^.+\\.(css|scss)$': '<rootDir>/config/CSSStub.js'
+  }
+
 };
