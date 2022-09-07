@@ -1,5 +1,5 @@
 let debugMode = false
-if (window.localStorage?.getItem?.('StroeerVideoplayerDebugMode') !== null) {
+if (window.localStorage?.getItem?.('StroeerVideoplayerLoggingEnabled') !== null) {
   debugMode = true
 }
 const Logger = {
