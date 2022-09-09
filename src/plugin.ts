@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { version } from '../package.json'
+import './ima.scss'
 import noop from './noop'
 import eventWrapper from './eventWrapper'
 import logger from './logger'
-import './ima.scss'
 import { IStroeerVideoplayer } from '../types/types'
-import { loadScript } from './utils'
+import * as utils from './utils'
 
+declare const google: any
 class Plugin {
   public static version: string = version
   public static pluginName: string = 'ima'
@@ -30,7 +31,7 @@ class Plugin {
     const videoElement = StroeerVideoplayer.getVideoEl()
 
     // load sdk first
-    const promise = loadScript('//imasdk.googleapis.com/js/sdkloader/ima3.js')
+    const promise = utils.loadScript('//imasdk.googleapis.com/js/sdkloader/ima3.js')
     promise
       .then(() => {
         this.requestAds(StroeerVideoplayer)
@@ -107,7 +108,7 @@ class Plugin {
 
     adsLoader.addEventListener(
       google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
-      (adsManagerLoadedEvent: google.ima.AdsManagerLoadedEvent) => {
+      (adsManagerLoadedEvent: any) => {
         adsManager = adsManagerLoadedEvent.getAdsManager(videoElement)
         logger.log('IMA AdsManager loaded')
 
@@ -120,7 +121,7 @@ class Plugin {
         }
 
         adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,
-          (adErrorEvent: google.ima.AdErrorEvent) => {
+          (adErrorEvent: any) => {
             StroeerVideoplayer.deinitUI('ima', { adsManager, adsLoader })
             StroeerVideoplayer.initUI(this.initialUI)
 
@@ -176,7 +177,7 @@ class Plugin {
 
     adsLoader.addEventListener(
       google.ima.AdErrorEvent.Type.AD_ERROR,
-      (adErrorEvent: google.ima.AdErrorEvent) => {
+      (adErrorEvent: any) => {
         StroeerVideoplayer.deinitUI('ima', { adsLoader })
         StroeerVideoplayer.initUI(this.initialUI)
 
