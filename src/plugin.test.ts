@@ -50,20 +50,11 @@ class StroeerVideoplayer {
   }
 
   initUI = (): void => {}
-
   deinitUI = (): void => {}
-
-  loading = (): void => {
-  }
-
-  showBigPlayButton = (): void => {
-  }
-
-  enterFullscreen = (): void => {
-  }
-
-  exitFullscreen = (): void => {
-  }
+  loading = (): void => {}
+  showBigPlayButton = (): void => {}
+  enterFullscreen = (): void => {}
+  exitFullscreen = (): void => {}
 
   getHls = (): any => {
     const mock = (): any => {
