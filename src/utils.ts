@@ -5,12 +5,10 @@ export async function loadScript (url: string): Promise<void> {
     script.className = 'loaded-script'
     script.async = true
     script.onload = (): void => {
-      console.log('onload')
       script.remove()
       resolve()
     }
     script.onerror = (): void => {
-      console.log('onerror')
       script.remove()
       reject(new Error(`${url} could not be loaded`))
     }
