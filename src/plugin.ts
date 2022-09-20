@@ -7,6 +7,8 @@ import './ima.scss'
 import { IStroeerVideoplayer } from '../types/types'
 import { loadScript } from './utils'
 
+declare const google: any
+
 class Plugin {
   public static version: string = version
   public static pluginName: string = 'ima'
@@ -49,8 +51,6 @@ class Plugin {
 
   requestAds = (StroeerVideoplayer: IStroeerVideoplayer): void => {
     const videoElement = StroeerVideoplayer.getVideoEl()
-    let videoElementWidth = videoElement.clientWidth
-    let videoElementHeight = videoElement.clientHeight
 
     const adContainer = document.createElement('div')
     adContainer.classList.add('ad-container')
@@ -59,7 +59,7 @@ class Plugin {
 
     let adsManager: any
 
-    const adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, videoElement)
+    const adDisplayContainer = new google.ima.AdDisplayContainer(adContainer)
     const adsLoader = new google.ima.AdsLoader(adDisplayContainer)
 
     window.addEventListener('resize', (event) => {
@@ -112,7 +112,7 @@ class Plugin {
         logger.log('IMA AdsManager loaded')
 
         try {
-          adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL)
+          adsManager.init(videoElement.clientWidth, videoElement.clientHeight, google.ima.ViewMode.NORMAL)
           adsManager.start()
         } catch (adError) {
           // eslint-disable-next-line
@@ -198,14 +198,9 @@ class Plugin {
       })
 
     this.onVideoElPlay = (event: Event) => {
-      StroeerVideoplayer.deinitUI(StroeerVideoplayer.getUIName())
-      StroeerVideoplayer.initUI('ima', { adsLoader })
-
       const prerollAdTag = videoElement.getAttribute('data-ivad-preroll-adtag')
-
       if (prerollAdTag !== null) {
         videoElement.removeEventListener('play', this.onVideoElPlay)
-
         if (prerollAdTag === 'adblocked') {
           videoElement.dispatchEvent(eventWrapper('ima:error', {
             errorCode: 301,
@@ -217,6 +212,10 @@ class Plugin {
           })
         } else {
           event.preventDefault()
+
+          StroeerVideoplayer.deinitUI(StroeerVideoplayer.getUIName())
+          StroeerVideoplayer.initUI('ima', { adsLoader })
+
           videoElement.pause()
           videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
 
@@ -227,6 +226,9 @@ class Plugin {
           const adsRequest = new google.ima.AdsRequest()
           adsRequest.adTagUrl = videoElement.getAttribute('data-ivad-preroll-adtag')
 
+          adsRequest.omidAccessModeRules = {}
+          adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.GOOGLE] = google.ima.OmidAccessMode.FULL
+
           // Specify the linear and nonlinear slot sizes. This helps the SDK to
           // select the correct creative if multiple are returned.
           adsRequest.linearAdSlotWidth = videoElement.clientWidth
@@ -236,9 +238,6 @@ class Plugin {
 
           // Pass the request to the adsLoader to request ads
           adsLoader.requestAds(adsRequest)
-
-          videoElementWidth = videoElement.clientWidth
-          videoElementHeight = videoElement.clientHeight
 
           // TODO: Initialize the container Must be done via a user action on mobile devices.
           adDisplayContainer.initialize()
