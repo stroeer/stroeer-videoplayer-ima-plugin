@@ -8,6 +8,7 @@ import { IStroeerVideoplayer } from '../types/types'
 import * as utils from './utils'
 
 declare const google: any
+
 class Plugin {
   public static version: string = version
   public static pluginName: string = 'ima'
