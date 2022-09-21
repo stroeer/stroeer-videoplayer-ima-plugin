@@ -57,6 +57,8 @@ class Plugin {
     videoElement.after(adContainer)
     this.initialUI = StroeerVideoplayer.getUIName()
 
+    google.ima.settings.setNumRedirects(10)
+
     let adsManager: any
 
     const adDisplayContainer = new google.ima.AdDisplayContainer(adContainer)
@@ -144,29 +146,13 @@ class Plugin {
         })
 
         const events = [
-          google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
           google.ima.AdEvent.Type.CLICK,
-          google.ima.AdEvent.Type.AD_PROGRESS,
-          google.ima.AdEvent.Type.AD_BUFFERING,
-          google.ima.AdEvent.Type.IMPRESSION,
-          google.ima.AdEvent.Type.DURATION_CHANGE,
-          google.ima.AdEvent.Type.USER_CLOSE,
-          google.ima.AdEvent.Type.LINEAR_CHANGED,
-          google.ima.AdEvent.Type.AD_METADATA,
-          google.ima.AdEvent.Type.INTERACTION,
           google.ima.AdEvent.Type.COMPLETE,
           google.ima.AdEvent.Type.FIRST_QUARTILE,
-          google.ima.AdEvent.Type.LOADED,
           google.ima.AdEvent.Type.MIDPOINT,
           google.ima.AdEvent.Type.PAUSED,
-          google.ima.AdEvent.Type.RESUMED,
-          google.ima.AdEvent.Type.USER_CLOSE,
           google.ima.AdEvent.Type.STARTED,
-          google.ima.AdEvent.Type.THIRD_QUARTILE,
-          google.ima.AdEvent.Type.SKIPPED,
-          google.ima.AdEvent.Type.VOLUME_CHANGED,
-          google.ima.AdEvent.Type.VOLUME_MUTED,
-          google.ima.AdEvent.Type.LOG
+          google.ima.AdEvent.Type.THIRD_QUARTILE
         ]
 
         events.forEach((event) => {
@@ -248,12 +234,10 @@ class Plugin {
     this.onVideoElContentVideoEnded = () => {
       videoElement.addEventListener('play', this.onVideoElPlay)
     }
-
-    videoElement.addEventListener('play', this.onVideoElPlay)
     videoElement.addEventListener('contentVideoEnded', () => {
-      adsLoader.contentComplete()
       this.onVideoElContentVideoEnded()
     })
+    videoElement.addEventListener('play', this.onVideoElPlay)
   }
 
   deinit = (StroeerVideoplayer: IStroeerVideoplayer): void => {
