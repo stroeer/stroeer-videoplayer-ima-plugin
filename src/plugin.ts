@@ -7,8 +7,6 @@ import './ima.scss'
 import { IStroeerVideoplayer } from '../types/types'
 import { loadScript } from './utils'
 
-declare const google: any
-
 class Plugin {
   public static version: string = version
   public static pluginName: string = 'ima'
