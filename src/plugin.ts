@@ -51,17 +51,17 @@ class Plugin {
 
   requestAds = (StroeerVideoplayer: IStroeerVideoplayer): void => {
     const videoElement = StroeerVideoplayer.getVideoEl()
-    let videoElementWidth = videoElement.clientWidth
-    let videoElementHeight = videoElement.clientHeight
 
     const adContainer = document.createElement('div')
     adContainer.classList.add('ad-container')
     videoElement.after(adContainer)
     this.initialUI = StroeerVideoplayer.getUIName()
 
+    google.ima.settings.setNumRedirects(10)
+
     let adsManager: any
 
-    const adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, videoElement)
+    const adDisplayContainer = new google.ima.AdDisplayContainer(adContainer)
     const adsLoader = new google.ima.AdsLoader(adDisplayContainer)
 
     window.addEventListener('resize', (event) => {
@@ -114,7 +114,7 @@ class Plugin {
         logger.log('IMA AdsManager loaded')
 
         try {
-          adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL)
+          adsManager.init(videoElement.clientWidth, videoElement.clientHeight, google.ima.ViewMode.NORMAL)
           adsManager.start()
         } catch (adError) {
           // eslint-disable-next-line
@@ -146,29 +146,13 @@ class Plugin {
         })
 
         const events = [
-          google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
           google.ima.AdEvent.Type.CLICK,
-          google.ima.AdEvent.Type.AD_PROGRESS,
-          google.ima.AdEvent.Type.AD_BUFFERING,
-          google.ima.AdEvent.Type.IMPRESSION,
-          google.ima.AdEvent.Type.DURATION_CHANGE,
-          google.ima.AdEvent.Type.USER_CLOSE,
-          google.ima.AdEvent.Type.LINEAR_CHANGED,
-          google.ima.AdEvent.Type.AD_METADATA,
-          google.ima.AdEvent.Type.INTERACTION,
           google.ima.AdEvent.Type.COMPLETE,
           google.ima.AdEvent.Type.FIRST_QUARTILE,
-          google.ima.AdEvent.Type.LOADED,
           google.ima.AdEvent.Type.MIDPOINT,
           google.ima.AdEvent.Type.PAUSED,
-          google.ima.AdEvent.Type.RESUMED,
-          google.ima.AdEvent.Type.USER_CLOSE,
           google.ima.AdEvent.Type.STARTED,
-          google.ima.AdEvent.Type.THIRD_QUARTILE,
-          google.ima.AdEvent.Type.SKIPPED,
-          google.ima.AdEvent.Type.VOLUME_CHANGED,
-          google.ima.AdEvent.Type.VOLUME_MUTED,
-          google.ima.AdEvent.Type.LOG
+          google.ima.AdEvent.Type.THIRD_QUARTILE
         ]
 
         events.forEach((event) => {
@@ -200,14 +184,9 @@ class Plugin {
       })
 
     this.onVideoElPlay = (event: Event) => {
-      StroeerVideoplayer.deinitUI(StroeerVideoplayer.getUIName())
-      StroeerVideoplayer.initUI('ima', { adsLoader })
-
       const prerollAdTag = videoElement.getAttribute('data-ivad-preroll-adtag')
-
       if (prerollAdTag !== null) {
         videoElement.removeEventListener('play', this.onVideoElPlay)
-
         if (prerollAdTag === 'adblocked') {
           videoElement.dispatchEvent(eventWrapper('ima:error', {
             errorCode: 301,
@@ -219,6 +198,10 @@ class Plugin {
           })
         } else {
           event.preventDefault()
+
+          StroeerVideoplayer.deinitUI(StroeerVideoplayer.getUIName())
+          StroeerVideoplayer.initUI('ima', { adsLoader })
+
           videoElement.pause()
           videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
 
@@ -228,6 +211,9 @@ class Plugin {
 
           const adsRequest = new google.ima.AdsRequest()
           adsRequest.adTagUrl = videoElement.getAttribute('data-ivad-preroll-adtag')
+
+          adsRequest.omidAccessModeRules = {}
+          adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.GOOGLE] = google.ima.OmidAccessMode.FULL
 
           // Specify the linear and nonlinear slot sizes. This helps the SDK to
           // select the correct creative if multiple are returned.
@@ -239,9 +225,6 @@ class Plugin {
           // Pass the request to the adsLoader to request ads
           adsLoader.requestAds(adsRequest)
 
-          videoElementWidth = videoElement.clientWidth
-          videoElementHeight = videoElement.clientHeight
-
           // TODO: Initialize the container Must be done via a user action on mobile devices.
           adDisplayContainer.initialize()
         }
@@ -251,12 +234,10 @@ class Plugin {
     this.onVideoElContentVideoEnded = () => {
       videoElement.addEventListener('play', this.onVideoElPlay)
     }
-
-    videoElement.addEventListener('play', this.onVideoElPlay)
     videoElement.addEventListener('contentVideoEnded', () => {
-      adsLoader.contentComplete()
       this.onVideoElContentVideoEnded()
     })
+    videoElement.addEventListener('play', this.onVideoElPlay)
   }
 
   deinit = (StroeerVideoplayer: IStroeerVideoplayer): void => {
