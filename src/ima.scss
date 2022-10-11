@@ -2,10 +2,41 @@
   position: relative;
 }
 
-.ad-container {
+.ima-ad-container {
+  display: none;
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
+  z-index: 110;
+
+  .ui-elements {
+    display: flex;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 5px 10px;
+    color: #fff
+  }
+  
+  .play-button {
+    width: 0; 
+    height: 0; 
+    border-top: 30px solid transparent;
+    border-bottom: 30px solid transparent;
+    border-left: 30px solid #fff;
+    margin-right: 10px;
+  }
+  .pause-button {
+    border-style: double;
+    border-width: 0px 0px 0px 30px;
+  }
+
+  .videoAdUiAttribution {
+    font-family: Roboto, Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #fff;
+    margin-left: 30px;
+  }
 }

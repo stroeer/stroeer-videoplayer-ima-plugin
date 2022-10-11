@@ -1,4 +1,4 @@
-var version = "0.0.1";
+var version = "1.1.0";
 
 var noop = function () {
     return false;
@@ -13,11 +13,10 @@ var eventWrapper = function (eventName, eventData) {
     return ev;
 };
 
+var _a, _b;
 var debugMode = false;
-if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-    if (window.localStorage.getItem('StroeerVideoplayerDebugMode') !== null) {
-        debugMode = true;
-    }
+if (((_b = (_a = window.localStorage) === null || _a === void 0 ? void 0 : _a.getItem) === null || _b === void 0 ? void 0 : _b.call(_a, 'StroeerVideoplayerLoggingEnabled')) !== null) {
+    debugMode = true;
 }
 var Logger = {
     log: function () {
@@ -91,6 +90,7 @@ function loadScript(url) {
                 case 0: return [4 /*yield*/, new Promise(function (resolve, reject) {
                         var script = document.createElement('script');
                         script.src = url;
+                        script.className = 'loaded-script';
                         script.async = true;
                         script.onload = function () {
                             script.remove();
@@ -113,6 +113,7 @@ function loadScript(url) {
 
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 var Plugin = /** @class */ (function () {
+    // initialUI: String
     function Plugin() {
         var _this = this;
         this.init = function (StroeerVideoplayer, opts) {
@@ -121,9 +122,9 @@ var Plugin = /** @class */ (function () {
             var promise = loadScript('//imasdk.googleapis.com/js/sdkloader/ima3.js');
             promise
                 .then(function () {
-                _this.load(StroeerVideoplayer);
+                _this.requestAds(StroeerVideoplayer);
             })
-                .catch(function (erro) {
+                .catch(function () {
                 videoElement.dispatchEvent(eventWrapper('ima:error', {
                     errorCode: 301,
                     errorMessage: 'IMA could not be loaded'
@@ -134,33 +135,51 @@ var Plugin = /** @class */ (function () {
                 });
             });
         };
-        this.load = function (StroeerVideoplayer) {
+        this.requestAds = function (StroeerVideoplayer) {
             var videoElement = StroeerVideoplayer.getVideoEl();
-            var videoElementWidth = videoElement.clientWidth;
-            var videoElementHeight = videoElement.clientHeight;
             var adContainer = document.createElement('div');
-            adContainer.classList.add('ad-container');
+            adContainer.classList.add('ima-ad-container');
             videoElement.after(adContainer);
+            // this.initialUI = StroeerVideoplayer.getUIName()
+            var uiElements = document.createElement('div');
+            uiElements.classList.add('ui-elements');
+            adContainer.appendChild(uiElements);
+            var playButton = document.createElement('div');
+            playButton.classList.add('play-button');
+            uiElements.appendChild(playButton);
+            var pauseButton = document.createElement('div');
+            pauseButton.classList.add('pause-button');
+            uiElements.appendChild(pauseButton);
+            google.ima.settings.setNumRedirects(10);
+            google.ima.settings.setLocale('de');
             var adsManager;
-            var adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, videoElement);
+            var adDisplayContainer = new google.ima.AdDisplayContainer(adContainer);
             var adsLoader = new google.ima.AdsLoader(adDisplayContainer);
             window.addEventListener('resize', function (event) {
                 if (adsManager) {
                     adsManager.resize(videoElement.clientWidth, videoElement.clientHeight, google.ima.ViewMode.NORMAL);
                 }
             });
+            playButton.addEventListener('click', function () {
+                if (adsManager) {
+                    adsManager.resume();
+                }
+            });
+            pauseButton.addEventListener('click', function () {
+                if (adsManager) {
+                    adsManager.pause();
+                }
+            });
             _this.assignEvent = function (event) {
                 switch (event.type) {
                     case google.ima.AdEvent.Type.STARTED:
-                        StroeerVideoplayer.deinitUI('default');
-                        StroeerVideoplayer.initUI('ima', { adsManager: adsManager });
                         adContainer.style.display = 'block';
                         Logger.log('Event', 'ima:impression');
                         videoElement.dispatchEvent(eventWrapper('ima:impression'));
                         break;
                     case google.ima.AdEvent.Type.COMPLETE:
-                        StroeerVideoplayer.deinitUI('ima', { adsManager: adsManager });
-                        StroeerVideoplayer.initUI('default');
+                        // StroeerVideoplayer.deinitUI('ima', { adsLoader, adsManager })
+                        // StroeerVideoplayer.initUI(this.initialUI)
                         adContainer.style.display = 'none';
                         Logger.log('Event', 'ima:ended');
                         videoElement.dispatchEvent(eventWrapper('ima:ended'));
@@ -188,9 +207,13 @@ var Plugin = /** @class */ (function () {
                 }
             };
             adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, function (adsManagerLoadedEvent) {
-                adsManager = adsManagerLoadedEvent.getAdsManager(videoElement);
+                var adsRenderingSettings = new google.ima.AdsRenderingSettings();
+                adsRenderingSettings.loadVideoTimeout = -1;
+                adsRenderingSettings.uiElements = [google.ima.UiElements.AD_ATTRIBUTION, google.ima.UiElements.COUNTDOWN];
+                adsManager = adsManagerLoadedEvent.getAdsManager(videoElement, adsRenderingSettings);
+                Logger.log('IMA AdsManager loaded');
                 try {
-                    adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL);
+                    adsManager.init(videoElement.clientWidth, videoElement.clientHeight, google.ima.ViewMode.NORMAL);
                     adsManager.start();
                 }
                 catch (adError) {
@@ -198,12 +221,14 @@ var Plugin = /** @class */ (function () {
                     videoElement.play();
                 }
                 adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, function (adErrorEvent) {
+                    // StroeerVideoplayer.deinitUI('ima', { adsManager, adsLoader })
+                    // StroeerVideoplayer.initUI(this.initialUI)
                     var error = adErrorEvent.getError();
                     videoElement.dispatchEvent(eventWrapper('ima:error', {
                         errorCode: error.getVastErrorCode(),
                         errorMessage: error.getMessage()
                     }));
-                    Logger.log('Event', 'ima:error', {
+                    Logger.log('adsManager ', 'ima:error', {
                         errorCode: error.getVastErrorCode(),
                         errorMessage: error.getMessage()
                     });
@@ -215,59 +240,34 @@ var Plugin = /** @class */ (function () {
                     videoElement.play();
                 });
                 var events = [
-                    google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
                     google.ima.AdEvent.Type.CLICK,
-                    google.ima.AdEvent.Type.AD_PROGRESS,
-                    google.ima.AdEvent.Type.AD_BUFFERING,
-                    google.ima.AdEvent.Type.IMPRESSION,
-                    google.ima.AdEvent.Type.DURATION_CHANGE,
-                    google.ima.AdEvent.Type.USER_CLOSE,
-                    google.ima.AdEvent.Type.LINEAR_CHANGED,
-                    google.ima.AdEvent.Type.AD_METADATA,
-                    google.ima.AdEvent.Type.INTERACTION,
                     google.ima.AdEvent.Type.COMPLETE,
                     google.ima.AdEvent.Type.FIRST_QUARTILE,
-                    google.ima.AdEvent.Type.LOADED,
                     google.ima.AdEvent.Type.MIDPOINT,
                     google.ima.AdEvent.Type.PAUSED,
-                    google.ima.AdEvent.Type.RESUMED,
-                    google.ima.AdEvent.Type.USER_CLOSE,
                     google.ima.AdEvent.Type.STARTED,
-                    google.ima.AdEvent.Type.THIRD_QUARTILE,
-                    google.ima.AdEvent.Type.SKIPPED,
-                    google.ima.AdEvent.Type.VOLUME_CHANGED,
-                    google.ima.AdEvent.Type.VOLUME_MUTED,
-                    google.ima.AdEvent.Type.LOG
+                    google.ima.AdEvent.Type.THIRD_QUARTILE
                 ];
                 events.forEach(function (event) {
                     adsManager.addEventListener(event, _this.assignEvent);
                 });
             });
             adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, function (adErrorEvent) {
+                // StroeerVideoplayer.deinitUI('ima', { adsLoader })
+                // StroeerVideoplayer.initUI(this.initialUI)
                 if (adsManager) {
                     adsManager.destroy();
                 }
                 // eslint-disable-next-line
                 videoElement.play();
-                /*
-                const error = adErrorEvent.getError()
+                var error = adErrorEvent.getError();
                 videoElement.dispatchEvent(eventWrapper('ima:error', {
-                  errorCode: error.getVastErrorCode(),
-                  errorMessage: error.getMessage()
-                }))
-                logger.log('Event', 'ima:error', {
-                  errorCode: error.getVastErrorCode(),
-                  errorMessage: error.getMessage()
-                })
-                */
-                // let homad take over
-                videoElement.dispatchEvent(eventWrapper('ima:error', {
-                    errorCode: 301,
-                    errorMessage: 'VAST redirect timeout reached'
+                    errorCode: error.getVastErrorCode(),
+                    errorMessage: error.getMessage()
                 }));
-                Logger.log('event', 'ima:error', {
-                    errorCode: 301,
-                    errorMessage: 'VAST redirect timeout reached'
+                Logger.log('adsLoader ', 'ima:error', {
+                    errorCode: error.getVastErrorCode(),
+                    errorMessage: error.getMessage()
                 });
             });
             _this.onVideoElPlay = function (event) {
@@ -286,22 +286,17 @@ var Plugin = /** @class */ (function () {
                     }
                     else {
                         event.preventDefault();
+                        // StroeerVideoplayer.deinitUI(StroeerVideoplayer.getUIName())
+                        // StroeerVideoplayer.initUI('ima', { adsLoader })
                         videoElement.pause();
                         videoElement.dispatchEvent(new CustomEvent('ima:adcall'));
                         if (adsManager) {
                             adsManager.destroy();
                         }
-                        // test adtag for better ad delivery
-                        var referrerUrl = window.document.location.href;
-                        var cacheBuster = String(Math.floor(Math.random() * 100000000));
-                        var adTag = 'https://vh.adscale.de/vah?sid=9781ea9a-d459-49ee-9690-f4724bd2a3e2&ref=%%REFERRER_URL%%&gdpr=%%GDPR%%&gdpr_consent=%%GDPR_CONSENT_STRING%%&bust=%%CACHEBUSTER%%';
-                        adTag = adTag.replace('%%GDPR%%', '0');
-                        adTag = adTag.replace('%%GDPR_CONSENT_STRING%%', '');
-                        adTag = adTag.replace('%%REFERRER_URL%%', encodeURIComponent(referrerUrl));
-                        adTag = adTag.replace('%%CACHEBUSTER%%', cacheBuster);
                         var adsRequest = new google.ima.AdsRequest();
-                        adsRequest.adTagUrl = adTag;
-                        // videoElement.getAttribute('data-ivad-preroll-adtag')
+                        adsRequest.adTagUrl = videoElement.getAttribute('data-ivad-preroll-adtag');
+                        adsRequest.omidAccessModeRules = {};
+                        adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.GOOGLE] = google.ima.OmidAccessMode.FULL;
                         // Specify the linear and nonlinear slot sizes. This helps the SDK to
                         // select the correct creative if multiple are returned.
                         adsRequest.linearAdSlotWidth = videoElement.clientWidth;
@@ -310,8 +305,6 @@ var Plugin = /** @class */ (function () {
                         adsRequest.nonLinearAdSlotHeight = videoElement.clientHeight / 3;
                         // Pass the request to the adsLoader to request ads
                         adsLoader.requestAds(adsRequest);
-                        videoElementWidth = videoElement.clientWidth;
-                        videoElementHeight = videoElement.clientHeight;
                         // TODO: Initialize the container Must be done via a user action on mobile devices.
                         adDisplayContainer.initialize();
                     }
@@ -320,11 +313,10 @@ var Plugin = /** @class */ (function () {
             _this.onVideoElContentVideoEnded = function () {
                 videoElement.addEventListener('play', _this.onVideoElPlay);
             };
-            videoElement.addEventListener('play', _this.onVideoElPlay);
             videoElement.addEventListener('contentVideoEnded', function () {
-                adsLoader.contentComplete();
                 _this.onVideoElContentVideoEnded();
             });
+            videoElement.addEventListener('play', _this.onVideoElPlay);
         };
         this.deinit = function (StroeerVideoplayer) {
             var videoElement = StroeerVideoplayer.getVideoEl();
@@ -334,6 +326,7 @@ var Plugin = /** @class */ (function () {
         this.onVideoElPlay = noop;
         this.onVideoElContentVideoEnded = noop;
         this.assignEvent = noop;
+        // this.initialUI = 'default'
         return this;
     }
     Plugin.version = version;

@@ -16,13 +16,13 @@ class Plugin {
   onVideoElPlay: Function
   onVideoElContentVideoEnded: Function
   assignEvent: Function
-  initialUI: String
+  // initialUI: String
 
   constructor () {
     this.onVideoElPlay = noop
     this.onVideoElContentVideoEnded = noop
     this.assignEvent = noop
-    this.initialUI = 'default'
+    // this.initialUI = 'default'
 
     return this
   }
@@ -53,11 +53,24 @@ class Plugin {
     const videoElement = StroeerVideoplayer.getVideoEl()
 
     const adContainer = document.createElement('div')
-    adContainer.classList.add('ad-container')
+    adContainer.classList.add('ima-ad-container')
     videoElement.after(adContainer)
-    this.initialUI = StroeerVideoplayer.getUIName()
+    // this.initialUI = StroeerVideoplayer.getUIName()
+
+    const uiElements = document.createElement('div')
+    uiElements.classList.add('ui-elements')
+    adContainer.appendChild(uiElements)
+
+    const playButton = document.createElement('div')
+    playButton.classList.add('play-button')
+    uiElements.appendChild(playButton)
+
+    const pauseButton = document.createElement('div')
+    pauseButton.classList.add('pause-button')
+    uiElements.appendChild(pauseButton)
 
     google.ima.settings.setNumRedirects(10)
+    google.ima.settings.setLocale('de')
 
     let adsManager: any
 
@@ -70,6 +83,18 @@ class Plugin {
       }
     })
 
+    playButton.addEventListener('click', () => {
+      if (adsManager) {
+        adsManager.resume()
+      }
+    })
+
+    pauseButton.addEventListener('click', () => {
+      if (adsManager) {
+        adsManager.pause()
+      }
+    })
+
     this.assignEvent = (event: Event) => {
       switch (event.type) {
         case google.ima.AdEvent.Type.STARTED:
@@ -78,8 +103,8 @@ class Plugin {
           videoElement.dispatchEvent(eventWrapper('ima:impression'))
           break
         case google.ima.AdEvent.Type.COMPLETE:
-          StroeerVideoplayer.deinitUI('ima', { adsLoader, adsManager })
-          StroeerVideoplayer.initUI(this.initialUI)
+          // StroeerVideoplayer.deinitUI('ima', { adsLoader, adsManager })
+          // StroeerVideoplayer.initUI(this.initialUI)
           adContainer.style.display = 'none'
           logger.log('Event', 'ima:ended')
           videoElement.dispatchEvent(eventWrapper('ima:ended'))
@@ -110,7 +135,11 @@ class Plugin {
     adsLoader.addEventListener(
       google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
       (adsManagerLoadedEvent: any) => {
-        adsManager = adsManagerLoadedEvent.getAdsManager(videoElement)
+        const adsRenderingSettings = new google.ima.AdsRenderingSettings()
+        adsRenderingSettings.loadVideoTimeout = -1
+        adsRenderingSettings.uiElements = [google.ima.UiElements.AD_ATTRIBUTION, google.ima.UiElements.COUNTDOWN]
+
+        adsManager = adsManagerLoadedEvent.getAdsManager(videoElement, adsRenderingSettings)
         logger.log('IMA AdsManager loaded')
 
         try {
@@ -123,8 +152,8 @@ class Plugin {
 
         adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,
           (adErrorEvent: any) => {
-            StroeerVideoplayer.deinitUI('ima', { adsManager, adsLoader })
-            StroeerVideoplayer.initUI(this.initialUI)
+            // StroeerVideoplayer.deinitUI('ima', { adsManager, adsLoader })
+            // StroeerVideoplayer.initUI(this.initialUI)
 
             const error = adErrorEvent.getError()
             videoElement.dispatchEvent(eventWrapper('ima:error', {
@@ -163,8 +192,8 @@ class Plugin {
     adsLoader.addEventListener(
       google.ima.AdErrorEvent.Type.AD_ERROR,
       (adErrorEvent: any) => {
-        StroeerVideoplayer.deinitUI('ima', { adsLoader })
-        StroeerVideoplayer.initUI(this.initialUI)
+        // StroeerVideoplayer.deinitUI('ima', { adsLoader })
+        // StroeerVideoplayer.initUI(this.initialUI)
 
         if (adsManager) {
           adsManager.destroy()
@@ -199,8 +228,8 @@ class Plugin {
         } else {
           event.preventDefault()
 
-          StroeerVideoplayer.deinitUI(StroeerVideoplayer.getUIName())
-          StroeerVideoplayer.initUI('ima', { adsLoader })
+          // StroeerVideoplayer.deinitUI(StroeerVideoplayer.getUIName())
+          // StroeerVideoplayer.initUI('ima', { adsLoader })
 
           videoElement.pause()
           videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
