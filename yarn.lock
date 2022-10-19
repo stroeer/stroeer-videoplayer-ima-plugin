@@ -928,7 +928,20 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@typescript-eslint/eslint-plugin@^4.0.1", "@typescript-eslint/eslint-plugin@^4.26.1":
+"@typescript-eslint/eslint-plugin@^4.0.1", "@typescript-eslint/eslint-plugin@4.0.1":
+  "integrity" "sha512-pQZtXupCn11O4AwpYVUX4PDFfmIJl90ZgrEBg0CEcqlwvPiG0uY81fimr1oMFblZnpKAq6prrT9a59pj1x58rw=="
+  "resolved" "https://npm.stroeermediabrands.de/@typescript-eslint%2feslint-plugin/-/eslint-plugin-4.0.1.tgz"
+  "version" "4.0.1"
+  dependencies:
+    "@typescript-eslint/experimental-utils" "4.0.1"
+    "@typescript-eslint/scope-manager" "4.0.1"
+    "debug" "^4.1.1"
+    "functional-red-black-tree" "^1.0.1"
+    "regexpp" "^3.0.0"
+    "semver" "^7.3.2"
+    "tsutils" "^3.17.1"
+
+"@typescript-eslint/eslint-plugin@^4.26.1":
   "integrity" "sha512-aINiAxGVdOl1eJyVjaWn/YcVAq4Gi/Yo35qHGCnqbWVz61g39D0h23veY/MA0rFFGfxK7TySg2uwDeNv+JgVpg=="
   "resolved" "https://npm.stroeermediabrands.de/@typescript-eslint%2feslint-plugin/-/eslint-plugin-4.33.0.tgz"
   "version" "4.33.0"
@@ -941,19 +954,6 @@
     "regexpp" "^3.1.0"
     "semver" "^7.3.5"
     "tsutils" "^3.21.0"
-
-"@typescript-eslint/eslint-plugin@>=4.0.1", "@typescript-eslint/eslint-plugin@4.0.1":
-  "integrity" "sha512-pQZtXupCn11O4AwpYVUX4PDFfmIJl90ZgrEBg0CEcqlwvPiG0uY81fimr1oMFblZnpKAq6prrT9a59pj1x58rw=="
-  "resolved" "https://npm.stroeermediabrands.de/@typescript-eslint%2feslint-plugin/-/eslint-plugin-4.0.1.tgz"
-  "version" "4.0.1"
-  dependencies:
-    "@typescript-eslint/experimental-utils" "4.0.1"
-    "@typescript-eslint/scope-manager" "4.0.1"
-    "debug" "^4.1.1"
-    "functional-red-black-tree" "^1.0.1"
-    "regexpp" "^3.0.0"
-    "semver" "^7.3.2"
-    "tsutils" "^3.17.1"
 
 "@typescript-eslint/experimental-utils@4.0.1":
   "integrity" "sha512-gAqOjLiHoED79iYTt3F4uSHrYmg/GPz/zGezdB0jAdr6S6gwNiR/j7cTZ8nREKVzMVKLd9G3xbg1sV9GClW3sw=="
@@ -2095,15 +2095,7 @@
   "resolved" "https://npm.stroeermediabrands.de/eslint-config-standard-jsx/-/eslint-config-standard-jsx-10.0.0.tgz"
   "version" "10.0.0"
 
-"eslint-config-standard-with-typescript@^20.0.0":
-  "integrity" "sha512-IoySf3r0a2+P3Z6GMjv8p1HuOQ6GWQbMpdt9G8uEbkGpnNWAGBXpgaiutbZHbaQAvG5pkVtYepCfHUxYbVDLCA=="
-  "resolved" "https://npm.stroeermediabrands.de/eslint-config-standard-with-typescript/-/eslint-config-standard-with-typescript-20.0.0.tgz"
-  "version" "20.0.0"
-  dependencies:
-    "@typescript-eslint/parser" "^4.0.0"
-    "eslint-config-standard" "^16.0.0"
-
-"eslint-config-standard-with-typescript@^21.0.1":
+"eslint-config-standard-with-typescript@^21.0.1", "eslint-config-standard-with-typescript@21.0.1":
   "integrity" "sha512-FeiMHljEJ346Y0I/HpAymNKdrgKEpHpcg/D93FvPHWfCzbT4QyUJba/0FwntZeGLXfUiWDSeKmdJD597d9wwiw=="
   "resolved" "https://npm.stroeermediabrands.de/eslint-config-standard-with-typescript/-/eslint-config-standard-with-typescript-21.0.1.tgz"
   "version" "21.0.1"
@@ -2146,7 +2138,7 @@
     "eslint-utils" "^2.0.0"
     "regexpp" "^3.0.0"
 
-"eslint-plugin-import@^2.22.1", "eslint-plugin-import@^2.23.4", "eslint-plugin-import@>=2.22.1", "eslint-plugin-import@2":
+"eslint-plugin-import@^2.22.1", "eslint-plugin-import@^2.23.4", "eslint-plugin-import@2":
   "integrity" "sha512-hYfi3FXaM8WPLf4S1cikh/r4IxnO6zrhZbEGz2b660EJRbuxgpDS5gkCuYgGWg2xxh2rBuIr4Pvhve/7c31koA=="
   "resolved" "https://npm.stroeermediabrands.de/eslint-plugin-import/-/eslint-plugin-import-2.26.0.tgz"
   "version" "2.26.0"
@@ -2165,7 +2157,7 @@
     "resolve" "^1.22.0"
     "tsconfig-paths" "^3.14.1"
 
-"eslint-plugin-node@^11.1.0", "eslint-plugin-node@>=11.1.0", "eslint-plugin-node@11":
+"eslint-plugin-node@^11.1.0", "eslint-plugin-node@11":
   "integrity" "sha512-oUwtPJ1W0SKD0Tr+wqu92c5xuCeQqB3hSCHasn/ZgjFdA9iDGNkNf2Zi9ztY7X+hNuMib23LNGRm6+uN+KLE3g=="
   "resolved" "https://npm.stroeermediabrands.de/eslint-plugin-node/-/eslint-plugin-node-11.1.0.tgz"
   "version" "11.1.0"
@@ -2177,7 +2169,7 @@
     "resolve" "^1.10.1"
     "semver" "^6.1.0"
 
-"eslint-plugin-promise@^4.2.1 || ^5.0.0", "eslint-plugin-promise@>=4.2.1", "eslint-plugin-promise@4":
+"eslint-plugin-promise@^4.2.1 || ^5.0.0", "eslint-plugin-promise@4":
   "integrity" "sha512-VoM09vT7bfA7D+upt+FjeBO5eHIJQBUWki1aPvB+vbNiHS3+oGIJGIeyBtKQTME6UPXXy3vV07OL1tHd3ANuDw=="
   "resolved" "https://npm.stroeermediabrands.de/eslint-plugin-promise/-/eslint-plugin-promise-4.2.1.tgz"
   "version" "4.2.1"
@@ -2244,7 +2236,7 @@
   "resolved" "https://npm.stroeermediabrands.de/eslint-visitor-keys/-/eslint-visitor-keys-2.0.0.tgz"
   "version" "2.0.0"
 
-"eslint@*", "eslint@^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8", "eslint@^3 || ^4 || ^5 || ^6 || ^7 || ^8", "eslint@^5.0.0 || ^6.0.0 || ^7.0.0", "eslint@^7.0.0", "eslint@^7.12.1", "eslint@^7.28.0", "eslint@>= 3.2.1", "eslint@>=4.19.1", "eslint@>=5", "eslint@>=5.16.0", "eslint@>=7.12.1", "eslint@7":
+"eslint@*", "eslint@^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8", "eslint@^3 || ^4 || ^5 || ^6 || ^7 || ^8", "eslint@^5.0.0 || ^6.0.0 || ^7.0.0", "eslint@^7.0.0", "eslint@^7.12.1", "eslint@^7.28.0", "eslint@>= 3.2.1", "eslint@>=4.19.1", "eslint@>=5", "eslint@>=5.16.0", "eslint@7":
   "integrity" "sha512-VHZ8gX+EDfz+97jGcgyGCyRia/dPOd6Xh9yPv8Bl1+SoaIwD+a/vlrOmGRUyOYu7MwUhc7CxqeaDZU13S4+EpA=="
   "resolved" "https://npm.stroeermediabrands.de/eslint/-/eslint-7.32.0.tgz"
   "version" "7.32.0"
@@ -5164,10 +5156,15 @@
   dependencies:
     "is-typedarray" "^1.0.0"
 
-"typescript@^3.9 || ^4.0.0", "typescript@^4.0.8", "typescript@^4.6.2", "typescript@>=2.7", "typescript@>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta", "typescript@>=3.7.0", "typescript@>=3.8", "typescript@>=3.8 <5.0", "typescript@>=3.9":
-  "integrity" "sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ=="
-  "resolved" "https://npm.stroeermediabrands.de/typescript/-/typescript-4.7.4.tgz"
-  "version" "4.7.4"
+"typescript@^3.9 || ^4.0.0", "typescript@>=2.7", "typescript@>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta", "typescript@>=3.7.0", "typescript@>=3.8", "typescript@>=3.8 <5.0", "typescript@4.0.8":
+  "integrity" "sha512-oz1765PN+imfz1MlZzSZPtC/tqcwsCyIYA8L47EkRnRW97ztRk83SzMiWLrnChC0vqoYxSU1fcFUDA5gV/ZiPg=="
+  "resolved" "https://npm.stroeermediabrands.de/typescript/-/typescript-4.0.8.tgz"
+  "version" "4.0.8"
+
+"typescript@^4.6.2":
+  "integrity" "sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ=="
+  "resolved" "https://npm.stroeermediabrands.de/typescript/-/typescript-4.8.4.tgz"
+  "version" "4.8.4"
 
 "ua-parser-js@1.0.2":
   "integrity" "sha512-00y/AXhx0/SsnI51fTc0rLRmafiGOM4/O+ny10Ps7f+j/b8p/ZY11ytMgznXkOVo4GQ+KwQG5UQLkLGirsACRg=="
