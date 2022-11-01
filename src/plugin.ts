@@ -426,6 +426,16 @@ class Plugin {
           hideElement(playButton)
           showElement(pauseButton)
 
+          if (this.isMuted) {
+            adsManager.setVolume(0)
+            hideElement(muteButton)
+            showElement(unmuteButton)
+          } else {
+            adsManager.setVolume(this.volume)
+            showElement(muteButton)
+            hideElement(unmuteButton)
+          }
+
           logger.log('Event', 'ima:impression')
           videoElement.dispatchEvent(eventWrapper('ima:impression'))
           break
