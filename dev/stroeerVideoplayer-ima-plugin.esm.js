@@ -496,8 +496,6 @@ var Plugin = /** @class */ (function () {
                 }
             });
             var updateVolumeWhileDragging = function (evt) {
-                if (!evt.srcElement.classList.contains('volume-level-bubble') && !evt.srcElement.classList.contains('volume-container'))
-                    return;
                 var clientY = evt.clientY;
                 if (clientY === undefined) {
                     if ('touches' in evt && evt.touches.length > 0) {
@@ -511,7 +509,7 @@ var Plugin = /** @class */ (function () {
                     return;
                 var volumeRangeBoundingClientRect = volumeRange.getBoundingClientRect();
                 var volumeContainerOffsetY = 0;
-                if ('x' in volumeRangeBoundingClientRect) {
+                if ('y' in volumeRangeBoundingClientRect) {
                     volumeContainerOffsetY = volumeRangeBoundingClientRect.y;
                 }
                 else {
@@ -667,14 +665,6 @@ var Plugin = /** @class */ (function () {
                             dispatchEvent(videoElement, 'uiima:unmute', adsManager.getRemainingTime());
                         }
                         window.localStorage.setItem('StroeerVideoplayerMuted', _this.isMuted ? '1' : '0');
-                        if (_this.isMuted) {
-                            hideElement(muteButton);
-                            showElement(unmuteButton);
-                        }
-                        else {
-                            showElement(muteButton);
-                            hideElement(unmuteButton);
-                        }
                         break;
                     case google.ima.AdEvent.Type.VOLUME_MUTED:
                         window.localStorage.setItem('StroeerVideoplayerMuted', '1');
