@@ -320,7 +320,6 @@ class Plugin {
       this.volume = volume
       window.localStorage.setItem('StroeerVideoplayerVolume', this.volume.toFixed(2))
       if (!this.isMuted) {
-        console.log('set volume ', volume)
         adsManager.setVolume(volume)
       }
     }
@@ -458,7 +457,6 @@ class Plugin {
           videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'))
           break
         case google.ima.AdEvent.Type.VOLUME_CHANGED:
-          console.log('CHANGED')
           if (!this.isMuted) {
             this.volume = adsManager.getVolume()
             window.localStorage.setItem('StroeerVideoplayerVolume', this.volume.toFixed(2))
