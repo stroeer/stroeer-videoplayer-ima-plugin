@@ -144,47 +144,33 @@ class Plugin {
     this.toggleVolumeBarInterval = setInterval(toggleVolumeSliderTicker, 1000)
 
     window.addEventListener('resize', (event) => {
-      if (adsManager) {
-        adsManager.resize(videoElement.clientWidth, videoElement.clientHeight, google.ima.ViewMode.NORMAL)
-      }
+      adsManager?.resize(videoElement.clientWidth, videoElement.clientHeight, google.ima.ViewMode.NORMAL)
     })
 
     playButton.addEventListener('click', () => {
-      if (adsManager) {
-        dispatchEvent(videoElement, 'UIPlay', videoElement.currentTime)
-        dispatchEvent(videoElement, 'uiima:play', videoElement.currentTime)
-
-        /* if (adsManager.getRemainingTime() > 0) {
-          dispatchEvent(videoElement, 'uiima:resume', videoElement.currentTime)
-        } */
-        adsManager.resume()
-      }
+      adsManager?.resume()
     })
 
     pauseButton.addEventListener('click', () => {
-      if (adsManager) {
-        dispatchEvent(videoElement, 'UIPause', adsManager.getRemainingTime())
-        dispatchEvent(videoElement, 'uiima:pause', adsManager.getRemainingTime())
-        adsManager.pause()
-      }
+      adsManager?.pause()
     })
 
     muteButton.addEventListener('click', () => {
       if (adsManager) {
-        dispatchEvent(videoElement, 'UIMute', adsManager.getRemainingTime())
-        dispatchEvent(videoElement, 'uiima:mute', adsManager.getRemainingTime())
-        this.volume = adsManager.getVolume()
+        this.volume = adsManager.getVolume() || this.volume
         this.isMuted = true
         adsManager.setVolume(0)
+        hideElement(muteButton)
+        showElement(unmuteButton)
       }
     })
 
     unmuteButton.addEventListener('click', () => {
       if (adsManager) {
-        dispatchEvent(videoElement, 'UIUnmute', adsManager.getRemainingTime())
-        dispatchEvent(videoElement, 'uiima:unmute', adsManager.getRemainingTime())
         adsManager.setVolume(this.volume)
         this.isMuted = false
+        hideElement(unmuteButton)
+        showElement(muteButton)
       }
     })
 
@@ -298,6 +284,7 @@ class Plugin {
     })
 
     const updateVolumeWhileDragging = (evt: any): void => {
+      if (!evt.srcElement.classList.contains('volume-level-bubble') && !evt.srcElement.classList.contains('volume-container')) return
       let clientY = evt.clientY
       if (clientY === undefined) {
         if ('touches' in evt && evt.touches.length > 0) {
@@ -314,10 +301,14 @@ class Plugin {
       } else {
         volumeContainerOffsetY = volumeRangeBoundingClientRect.top
       }
-      let y = clientY - volumeContainerOffsetY
-      if (y < 0) y = 0
-      if (y > volumeRangeBoundingClientRect.height) { y = volumeRangeBoundingClientRect.height }
 
+      let y = clientY - volumeContainerOffsetY
+      if (y < 0) {
+        y = 0
+      }
+      if (y > volumeRangeBoundingClientRect.height) {
+        y = volumeRangeBoundingClientRect.height
+      }
       const percentageY = calculateVolumePercentageBasedOnYCoords(y, volumeRange.offsetHeight)
       const percentageHeight = 100 - percentageY
       const percentageHeightString = String(percentageHeight)
@@ -330,6 +321,7 @@ class Plugin {
       this.volume = volume
       window.localStorage.setItem('StroeerVideoplayerVolume', this.volume.toFixed(2))
       if (!this.isMuted) {
+        console.log('set volume ', volume)
         adsManager.setVolume(volume)
       }
     }
@@ -377,24 +369,12 @@ class Plugin {
       }
     }
 
-    document.body.addEventListener('touchstart', this.onDragStart, {
-      passive: true
-    })
-    document.body.addEventListener('touchend', this.onDragEnd, {
-      passive: true
-    })
-    document.body.addEventListener('touchmove', this.onDrag, {
-      passive: true
-    })
-    document.body.addEventListener('mousedown', this.onDragStart, {
-      passive: true
-    })
-    document.body.addEventListener('mouseup', this.onDragEnd, {
-      passive: true
-    })
-    document.body.addEventListener('mousemove', this.onDrag, {
-      passive: true
-    })
+    document.body.addEventListener('touchstart', this.onDragStart, { passive: true })
+    document.body.addEventListener('touchend', this.onDragEnd, { passive: true })
+    document.body.addEventListener('touchmove', this.onDrag, { passive: true })
+    document.body.addEventListener('mousedown', this.onDragStart, { passive: true })
+    document.body.addEventListener('mouseup', this.onDragEnd, { passive: true })
+    document.body.addEventListener('mousemove', this.onDrag, { passive: true })
 
     // ima settings
 
@@ -438,10 +418,13 @@ class Plugin {
 
           logger.log('Event', 'ima:impression')
           videoElement.dispatchEvent(eventWrapper('ima:impression'))
+          dispatchEvent(videoElement, 'UIPlay', adsManager.getRemainingTime())
+          dispatchEvent(videoElement, 'uiima:play', adsManager.getRemainingTime())
           break
         case google.ima.AdEvent.Type.RESUMED:
           hideElement(playButton)
           showElement(pauseButton)
+          dispatchEvent(videoElement, 'uiima:resume', adsManager.getRemainingTime())
           break
         case google.ima.AdEvent.Type.SKIPPED:
         case google.ima.AdEvent.Type.COMPLETE:
@@ -456,6 +439,8 @@ class Plugin {
 
           logger.log('Event', 'ima:pause')
           videoElement.dispatchEvent(eventWrapper('ima:pause'))
+          dispatchEvent(videoElement, 'UIPause', adsManager.getRemainingTime())
+          dispatchEvent(videoElement, 'uiima:pause', adsManager.getRemainingTime())
           break
         case google.ima.AdEvent.Type.CLICK:
           logger.log('Event', 'ima:click')
@@ -474,9 +459,14 @@ class Plugin {
           videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'))
           break
         case google.ima.AdEvent.Type.VOLUME_CHANGED:
+          console.log('CHANGED')
           if (!this.isMuted) {
             this.volume = adsManager.getVolume()
+            window.localStorage.setItem('StroeerVideoplayerVolume', this.volume.toFixed(2))
+            dispatchEvent(videoElement, 'UIUnmute', adsManager.getRemainingTime())
+            dispatchEvent(videoElement, 'uiima:unmute', adsManager.getRemainingTime())
           }
+          window.localStorage.setItem('StroeerVideoplayerMuted', this.isMuted ? '1' : '0')
           if (this.isMuted) {
             hideElement(muteButton)
             showElement(unmuteButton)
@@ -484,10 +474,12 @@ class Plugin {
             showElement(muteButton)
             hideElement(unmuteButton)
           }
-          window.localStorage.setItem('StroeerVideoplayerMuted', this.isMuted ? '1' : '0')
-          if (!this.isMuted) {
-            window.localStorage.setItem('StroeerVideoplayerVolume', this.volume.toFixed(2))
-          }
+
+          break
+        case google.ima.AdEvent.Type.VOLUME_MUTED:
+          window.localStorage.setItem('StroeerVideoplayerMuted', '1')
+          dispatchEvent(videoElement, 'UIMute', adsManager.getRemainingTime())
+          dispatchEvent(videoElement, 'uiima:mute', adsManager.getRemainingTime())
           break
         case google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED:
           videoElement.pause()
@@ -550,6 +542,7 @@ class Plugin {
           google.ima.AdEvent.Type.STARTED,
           google.ima.AdEvent.Type.THIRD_QUARTILE,
           google.ima.AdEvent.Type.VOLUME_CHANGED,
+          google.ima.AdEvent.Type.VOLUME_MUTED,
           google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
           google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED
         ]

@@ -1,4 +1,4 @@
-var version = "1.1.0";
+var version = "2.0.0";
 
 var noop = function () {
     return false;
@@ -358,42 +358,29 @@ var Plugin = /** @class */ (function () {
             clearInterval(_this.toggleVolumeBarInterval);
             _this.toggleVolumeBarInterval = setInterval(toggleVolumeSliderTicker, 1000);
             window.addEventListener('resize', function (event) {
-                if (adsManager) {
-                    adsManager.resize(videoElement.clientWidth, videoElement.clientHeight, google.ima.ViewMode.NORMAL);
-                }
+                adsManager === null || adsManager === void 0 ? void 0 : adsManager.resize(videoElement.clientWidth, videoElement.clientHeight, google.ima.ViewMode.NORMAL);
             });
             playButton.addEventListener('click', function () {
-                if (adsManager) {
-                    dispatchEvent(videoElement, 'UIPlay', videoElement.currentTime);
-                    dispatchEvent(videoElement, 'uiima:play', videoElement.currentTime);
-                    /* if (adsManager.getRemainingTime() > 0) {
-                      dispatchEvent(videoElement, 'uiima:resume', videoElement.currentTime)
-                    } */
-                    adsManager.resume();
-                }
+                adsManager === null || adsManager === void 0 ? void 0 : adsManager.resume();
             });
             pauseButton.addEventListener('click', function () {
-                if (adsManager) {
-                    dispatchEvent(videoElement, 'UIPause', adsManager.getRemainingTime());
-                    dispatchEvent(videoElement, 'uiima:pause', adsManager.getRemainingTime());
-                    adsManager.pause();
-                }
+                adsManager === null || adsManager === void 0 ? void 0 : adsManager.pause();
             });
             muteButton.addEventListener('click', function () {
                 if (adsManager) {
-                    dispatchEvent(videoElement, 'UIMute', adsManager.getRemainingTime());
-                    dispatchEvent(videoElement, 'uiima:mute', adsManager.getRemainingTime());
-                    _this.volume = adsManager.getVolume();
+                    _this.volume = adsManager.getVolume() || _this.volume;
                     _this.isMuted = true;
                     adsManager.setVolume(0);
+                    hideElement(muteButton);
+                    showElement(unmuteButton);
                 }
             });
             unmuteButton.addEventListener('click', function () {
                 if (adsManager) {
-                    dispatchEvent(videoElement, 'UIUnmute', adsManager.getRemainingTime());
-                    dispatchEvent(videoElement, 'uiima:unmute', adsManager.getRemainingTime());
                     adsManager.setVolume(_this.volume);
                     _this.isMuted = false;
+                    hideElement(unmuteButton);
+                    showElement(muteButton);
                 }
             });
             muteButton.addEventListener('mouseover', function () {
@@ -509,6 +496,8 @@ var Plugin = /** @class */ (function () {
                 }
             });
             var updateVolumeWhileDragging = function (evt) {
+                if (!evt.srcElement.classList.contains('volume-level-bubble') && !evt.srcElement.classList.contains('volume-container'))
+                    return;
                 var clientY = evt.clientY;
                 if (clientY === undefined) {
                     if ('touches' in evt && evt.touches.length > 0) {
@@ -529,8 +518,9 @@ var Plugin = /** @class */ (function () {
                     volumeContainerOffsetY = volumeRangeBoundingClientRect.top;
                 }
                 var y = clientY - volumeContainerOffsetY;
-                if (y < 0)
+                if (y < 0) {
                     y = 0;
+                }
                 if (y > volumeRangeBoundingClientRect.height) {
                     y = volumeRangeBoundingClientRect.height;
                 }
@@ -546,6 +536,7 @@ var Plugin = /** @class */ (function () {
                 _this.volume = volume;
                 window.localStorage.setItem('StroeerVideoplayerVolume', _this.volume.toFixed(2));
                 if (!_this.isMuted) {
+                    console.log('set volume ', volume);
                     adsManager.setVolume(volume);
                 }
             };
@@ -586,24 +577,12 @@ var Plugin = /** @class */ (function () {
                     updateVolumeWhileDragging(evt);
                 }
             };
-            document.body.addEventListener('touchstart', _this.onDragStart, {
-                passive: true
-            });
-            document.body.addEventListener('touchend', _this.onDragEnd, {
-                passive: true
-            });
-            document.body.addEventListener('touchmove', _this.onDrag, {
-                passive: true
-            });
-            document.body.addEventListener('mousedown', _this.onDragStart, {
-                passive: true
-            });
-            document.body.addEventListener('mouseup', _this.onDragEnd, {
-                passive: true
-            });
-            document.body.addEventListener('mousemove', _this.onDrag, {
-                passive: true
-            });
+            document.body.addEventListener('touchstart', _this.onDragStart, { passive: true });
+            document.body.addEventListener('touchend', _this.onDragEnd, { passive: true });
+            document.body.addEventListener('touchmove', _this.onDrag, { passive: true });
+            document.body.addEventListener('mousedown', _this.onDragStart, { passive: true });
+            document.body.addEventListener('mouseup', _this.onDragEnd, { passive: true });
+            document.body.addEventListener('mousemove', _this.onDrag, { passive: true });
             // ima settings
             google.ima.settings.setNumRedirects(10);
             google.ima.settings.setLocale('de');
@@ -629,12 +608,25 @@ var Plugin = /** @class */ (function () {
                         adContainer.style.display = 'block';
                         hideElement(playButton);
                         showElement(pauseButton);
+                        if (_this.isMuted) {
+                            adsManager.setVolume(0);
+                            hideElement(muteButton);
+                            showElement(unmuteButton);
+                        }
+                        else {
+                            adsManager.setVolume(_this.volume);
+                            showElement(muteButton);
+                            hideElement(unmuteButton);
+                        }
                         Logger.log('Event', 'ima:impression');
                         videoElement.dispatchEvent(eventWrapper('ima:impression'));
+                        dispatchEvent(videoElement, 'UIPlay', adsManager.getRemainingTime());
+                        dispatchEvent(videoElement, 'uiima:play', adsManager.getRemainingTime());
                         break;
                     case google.ima.AdEvent.Type.RESUMED:
                         hideElement(playButton);
                         showElement(pauseButton);
+                        dispatchEvent(videoElement, 'uiima:resume', adsManager.getRemainingTime());
                         break;
                     case google.ima.AdEvent.Type.SKIPPED:
                     case google.ima.AdEvent.Type.COMPLETE:
@@ -647,6 +639,8 @@ var Plugin = /** @class */ (function () {
                         hideElement(pauseButton);
                         Logger.log('Event', 'ima:pause');
                         videoElement.dispatchEvent(eventWrapper('ima:pause'));
+                        dispatchEvent(videoElement, 'UIPause', adsManager.getRemainingTime());
+                        dispatchEvent(videoElement, 'uiima:pause', adsManager.getRemainingTime());
                         break;
                     case google.ima.AdEvent.Type.CLICK:
                         Logger.log('Event', 'ima:click');
@@ -665,9 +659,14 @@ var Plugin = /** @class */ (function () {
                         videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'));
                         break;
                     case google.ima.AdEvent.Type.VOLUME_CHANGED:
+                        console.log('CHANGED');
                         if (!_this.isMuted) {
                             _this.volume = adsManager.getVolume();
+                            window.localStorage.setItem('StroeerVideoplayerVolume', _this.volume.toFixed(2));
+                            dispatchEvent(videoElement, 'UIUnmute', adsManager.getRemainingTime());
+                            dispatchEvent(videoElement, 'uiima:unmute', adsManager.getRemainingTime());
                         }
+                        window.localStorage.setItem('StroeerVideoplayerMuted', _this.isMuted ? '1' : '0');
                         if (_this.isMuted) {
                             hideElement(muteButton);
                             showElement(unmuteButton);
@@ -676,10 +675,11 @@ var Plugin = /** @class */ (function () {
                             showElement(muteButton);
                             hideElement(unmuteButton);
                         }
-                        window.localStorage.setItem('StroeerVideoplayerMuted', _this.isMuted ? '1' : '0');
-                        if (!_this.isMuted) {
-                            window.localStorage.setItem('StroeerVideoplayerVolume', _this.volume.toFixed(2));
-                        }
+                        break;
+                    case google.ima.AdEvent.Type.VOLUME_MUTED:
+                        window.localStorage.setItem('StroeerVideoplayerMuted', '1');
+                        dispatchEvent(videoElement, 'UIMute', adsManager.getRemainingTime());
+                        dispatchEvent(videoElement, 'uiima:mute', adsManager.getRemainingTime());
                         break;
                     case google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED:
                         videoElement.pause();
@@ -735,6 +735,7 @@ var Plugin = /** @class */ (function () {
                     google.ima.AdEvent.Type.STARTED,
                     google.ima.AdEvent.Type.THIRD_QUARTILE,
                     google.ima.AdEvent.Type.VOLUME_CHANGED,
+                    google.ima.AdEvent.Type.VOLUME_MUTED,
                     google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
                     google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED
                 ];
