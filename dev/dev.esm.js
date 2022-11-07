@@ -31798,46 +31798,50 @@ var Plugin = /** @class */ (function () {
                 }
             });
             var updateVolumeWhileDragging = function (evt) {
-                var clientY = evt.clientY;
-                if (clientY === undefined) {
-                    if ('touches' in evt && evt.touches.length > 0) {
-                        clientY = evt.touches[0].clientY;
+                if (evt.target === volumeContainer ||
+                    evt.target === volumeLevel ||
+                    evt.target === volumeLevelBubble ||
+                    evt.target === volumeRange) {
+                    var clientY = evt.clientY;
+                    if (clientY === undefined) {
+                        if ('touches' in evt && evt.touches.length > 0) {
+                            clientY = evt.touches[0].clientY;
+                        }
+                        else {
+                            clientY = false;
+                        }
+                    }
+                    if (clientY === false)
+                        return;
+                    var volumeRangeBoundingClientRect = volumeRange.getBoundingClientRect();
+                    var volumeContainerOffsetY = 0;
+                    if ('y' in volumeRangeBoundingClientRect) {
+                        volumeContainerOffsetY = volumeRangeBoundingClientRect.y;
                     }
                     else {
-                        clientY = false;
+                        volumeContainerOffsetY = volumeRangeBoundingClientRect.top;
                     }
-                }
-                if (clientY === false)
-                    return;
-                var volumeRangeBoundingClientRect = volumeRange.getBoundingClientRect();
-                var volumeContainerOffsetY = 0;
-                if ('y' in volumeRangeBoundingClientRect) {
-                    volumeContainerOffsetY = volumeRangeBoundingClientRect.y;
-                }
-                else {
-                    volumeContainerOffsetY = volumeRangeBoundingClientRect.top;
-                }
-                var y = clientY - volumeContainerOffsetY;
-                if (y < 0) {
-                    y = 0;
-                }
-                if (y > volumeRangeBoundingClientRect.height) {
-                    y = volumeRangeBoundingClientRect.height;
-                }
-                var percentageY = calculateVolumePercentageBasedOnYCoords(y, volumeRange.offsetHeight);
-                var percentageHeight = 100 - percentageY;
-                var percentageHeightString = String(percentageHeight);
-                var percentageYString = String(percentageY);
-                volumeLevel.style.height = percentageHeightString + '%';
-                if (percentageY < 90) {
-                    volumeLevelBubble.style.top = percentageYString + '%';
-                }
-                var volume = percentageHeight / 100;
-                _this.volume = volume;
-                window.localStorage.setItem('StroeerVideoplayerVolume', _this.volume.toFixed(2));
-                if (!_this.isMuted) {
-                    console.log('set volume ', volume);
-                    adsManager.setVolume(volume);
+                    var y = clientY - volumeContainerOffsetY;
+                    if (y < 0) {
+                        y = 0;
+                    }
+                    if (y > volumeRangeBoundingClientRect.height) {
+                        y = volumeRangeBoundingClientRect.height;
+                    }
+                    var percentageY = calculateVolumePercentageBasedOnYCoords(y, volumeRange.offsetHeight);
+                    var percentageHeight = 100 - percentageY;
+                    var percentageHeightString = String(percentageHeight);
+                    var percentageYString = String(percentageY);
+                    volumeLevel.style.height = percentageHeightString + '%';
+                    if (percentageY < 90) {
+                        volumeLevelBubble.style.top = percentageYString + '%';
+                    }
+                    var volume = percentageHeight / 100;
+                    _this.volume = volume;
+                    window.localStorage.setItem('StroeerVideoplayerVolume', _this.volume.toFixed(2));
+                    if (!_this.isMuted) {
+                        adsManager.setVolume(volume);
+                    }
                 }
             };
             var draggingWhat = '';
@@ -31959,7 +31963,6 @@ var Plugin = /** @class */ (function () {
                         videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'));
                         break;
                     case google.ima.AdEvent.Type.VOLUME_CHANGED:
-                        console.log('CHANGED');
                         if (!_this.isMuted) {
                             _this.volume = adsManager.getVolume();
                             window.localStorage.setItem('StroeerVideoplayerVolume', _this.volume.toFixed(2));

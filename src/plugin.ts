@@ -284,43 +284,49 @@ class Plugin {
     })
 
     const updateVolumeWhileDragging = (evt: any): void => {
-      let clientY = evt.clientY
-      if (clientY === undefined) {
-        if ('touches' in evt && evt.touches.length > 0) {
-          clientY = evt.touches[0].clientY
-        } else {
-          clientY = false
+      if (evt.target === volumeContainer ||
+          evt.target === volumeLevel ||
+          evt.target === volumeLevelBubble ||
+          evt.target === volumeRange
+      ) {
+        let clientY = evt.clientY
+        if (clientY === undefined) {
+          if ('touches' in evt && evt.touches.length > 0) {
+            clientY = evt.touches[0].clientY
+          } else {
+            clientY = false
+          }
         }
-      }
-      if (clientY === false) return
-      const volumeRangeBoundingClientRect: any = volumeRange.getBoundingClientRect()
-      let volumeContainerOffsetY = 0
-      if ('y' in volumeRangeBoundingClientRect) {
-        volumeContainerOffsetY = volumeRangeBoundingClientRect.y
-      } else {
-        volumeContainerOffsetY = volumeRangeBoundingClientRect.top
-      }
+        if (clientY === false) return
+        const volumeRangeBoundingClientRect: any = volumeRange.getBoundingClientRect()
+        let volumeContainerOffsetY = 0
+        if ('y' in volumeRangeBoundingClientRect) {
+          volumeContainerOffsetY = volumeRangeBoundingClientRect.y
+        } else {
+          volumeContainerOffsetY = volumeRangeBoundingClientRect.top
+        }
 
-      let y = clientY - volumeContainerOffsetY
-      if (y < 0) {
-        y = 0
-      }
-      if (y > volumeRangeBoundingClientRect.height) {
-        y = volumeRangeBoundingClientRect.height
-      }
-      const percentageY = calculateVolumePercentageBasedOnYCoords(y, volumeRange.offsetHeight)
-      const percentageHeight = 100 - percentageY
-      const percentageHeightString = String(percentageHeight)
-      const percentageYString = String(percentageY)
-      volumeLevel.style.height = percentageHeightString + '%'
-      if (percentageY < 90) {
-        volumeLevelBubble.style.top = percentageYString + '%'
-      }
-      const volume = percentageHeight / 100
-      this.volume = volume
-      window.localStorage.setItem('StroeerVideoplayerVolume', this.volume.toFixed(2))
-      if (!this.isMuted) {
-        adsManager.setVolume(volume)
+        let y = clientY - volumeContainerOffsetY
+        if (y < 0) {
+          y = 0
+        }
+        if (y > volumeRangeBoundingClientRect.height) {
+          y = volumeRangeBoundingClientRect.height
+        }
+        const percentageY = calculateVolumePercentageBasedOnYCoords(y, volumeRange.offsetHeight)
+        const percentageHeight = 100 - percentageY
+        const percentageHeightString = String(percentageHeight)
+        const percentageYString = String(percentageY)
+        volumeLevel.style.height = percentageHeightString + '%'
+        if (percentageY < 90) {
+          volumeLevelBubble.style.top = percentageYString + '%'
+        }
+        const volume = percentageHeight / 100
+        this.volume = volume
+        window.localStorage.setItem('StroeerVideoplayerVolume', this.volume.toFixed(2))
+        if (!this.isMuted) {
+          adsManager.setVolume(volume)
+        }
       }
     }
 
