@@ -6,10 +6,10 @@ $controlsHeight: 37px !default;
 $progressHeight: 5px !default;
 
 @function primaryColorAlpha($alphaValue) {
-	@return rgba($primaryColor1, $alphaValue);
+  @return rgba($primaryColor1, $alphaValue);
 }
 
 @function primaryBgColorAlpha($alphaValue) {
-	@return rgba($primaryColor2, $alphaValue);
+  @return rgba($primaryColor2, $alphaValue);
 }
 
