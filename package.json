@@ -17,6 +17,8 @@
   "watch:js": "rollup -c -w",
   "watch:css": "sass --watch src/ima.scss ./dist/StroeerVideoplayer-ima-plugin.css",
   "lint": "eslint src/*.ts src/**/*.ts",
+  "stylelint": "stylelint 'src/*.scss'",
+  "stylelint:fix": "stylelint --fix 'src/*.scss'",
   "test": "jest src",
   "test:coverage": "jest src --coverage"
  },
@@ -65,5 +67,7 @@
   "whatwg-fetch": "^3.6.2"
  },
  "dependencies": {
+  "stylelint": "^14.15.0",
+  "stylelint-config-standard-scss": "^6.1.0"
  }
 }

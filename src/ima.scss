@@ -1,11 +1,12 @@
-@import 'variables';
-@import 'loading-spinner';
+@import "variables";
+@import "loading-spinner";
 
 .stroeer-videoplayer-containment {
   position: relative;
 }
 
 .ima-ad-container {
+  background: #000;
   display: none;
   position: absolute;
   top: 0;
@@ -15,7 +16,7 @@
   z-index: 110;
   margin: auto;
 
-  > div:not(.ima) {
+  >div:not(.ima) {
     top: 0;
     left: 0;
     right: 0;
@@ -24,88 +25,85 @@
   }
 
   .hidden {
-		display: none !important;
-	}
+    display: none !important;
+  }
 
-  .ima {
-    .controlbar-container {
-      background: rgb(0,0,0);
-      background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
-      bottom: 0;
-      height: 40px;
-      padding-bottom: 5px;
+  .controlbar-container {
+    background: #000;
+    background: linear-gradient(0deg, rgb(0 0 0 / 100%) 0%, rgba(0 0 0 / 0%) 100%);
+    bottom: 0;
+    height: 40px;
+    padding-bottom: 5px;
+    position: absolute;
+    transition: all ease-in .2s;
+    width: 100%;
+    z-index: 300;
+  }
+
+  .controlbar {
+    margin: 0 auto;
+    position: relative;
+    width: 95%;
+
+    .time {
       position: absolute;
-      transition: all ease-in 0.2s;
-      width: 100%;
-      z-index: 300;
+      left: 96px;
+      bottom: 4px;
+      color: #fff;
+      font-size: 12px;
+      font-family: Roboto, Arial, Helvetica, sans-serif;
+
+      >div {
+        display: inline-block;
+        margin: 0 2px;
+      }
     }
 
-    .controlbar {
-      margin: 0 auto;
-      position: relative;
-      width: 95%;
-      
-      .time {
-        position: absolute;
-        left: 96px;
-        bottom: 4px;
-        color: #fff;
-        font-size: 12px;
-        font-family: Roboto, Arial, Helvetica, sans-serif;
-                      
-        > div {
-          display: inline-block;
-          margin: 0 2px;
-        }
-      }
-        
-      .buttons {
-        display: block;
-        height: 32px;
-        
-        button {
-          border: 0 none;
-          margin: 4px 0;
-          padding: 4px 8px;
-          background-color: transparent;
-          
-          &:hover {
-            svg {
-              fill: $primaryColor1;
-              stroke: $primaryColor1;
-            }
-          }
-          
-          &.hidden {
-            display: none;
-          }
-          
-          svg {
-            fill: #fff;
-            stroke: #fff;
-            height: 24px;
-            width: 24px;
-          }
+    .buttons {
+      display: block;
+      height: 32px;
+
+      button {
+        border: 0 none;
+        margin: 4px 0;
+        padding: 4px 8px;
+        background-color: transparent;
+
+        &:hover svg {
+          fill: $primaryColor1;
+          stroke: $primaryColor1;
         }
 
-        .enterFullscreen,
-        .exitFullscreen {
-          position: absolute;
-          right: 0;
+        /* stylelint-disable selector-no-qualifying-type */
+        &.hidden {
+          display: none;
         }
+
+        svg {
+          fill: #fff;
+          stroke: #fff;
+          height: 24px;
+          width: 24px;
+        }
+      }
+
+      .enterFullscreen,
+      .exitFullscreen {
+        position: absolute;
+        right: 0;
       }
     }
 
     .volume-container {
-      transition: opacity 0.2s ease-in;
+      transition: opacity .2s ease-in;
       position: absolute;
       bottom: 44px;
       left: 48px;
       height: 80px;
       width: 24px;
       border-radius: 8px;
-      background: rgba(23, 27, 38, 0.9);
-    
+      background: rgb(23 27 38 / 90%);
+
       .volume-range {
         user-select: none;
         position: relative;
@@ -113,7 +111,7 @@
         height: 64px;
         width: 3px;
         background: #666;
-    
+
         .volume-level-bubble {
           user-select: none;
           position: absolute;
@@ -123,7 +121,7 @@
           width: 9px;
           height: 9px;
         }
-    
+
         .volume-level {
           user-select: none;
           position: absolute;
@@ -134,5 +132,5 @@
         }
       }
     }
-	}
+  }
 }

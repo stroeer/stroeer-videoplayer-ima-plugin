@@ -21,12 +21,12 @@ export const createUI = (videoElement: HTMLVideoElement, isMuted: boolean, isFul
   buttonsContainer.className = 'buttons'
   controlBar.appendChild(buttonsContainer)
 
-  createButton(buttonsContainer, 'button', 'play', 'Play', 'Icon-Play', true)
-  createButton(buttonsContainer, 'button', 'pause', 'Pause', 'Icon-Pause', false)
-  createButton(buttonsContainer, 'button', 'mute', 'Mute', 'Icon-Volume', isMuted)
-  createButton(buttonsContainer, 'button', 'unmute', 'Unmute', 'Icon-Mute', !isMuted)
-  createButton(buttonsContainer, 'button', 'enterFullscreen', 'Enter Fullscreen', 'Icon-Fullscreen', isFullscreen)
-  createButton(buttonsContainer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'Icon-FullscreenOff', !isFullscreen)
+  createButton(buttonsContainer, 'play', 'Play', 'Icon-Play', true)
+  createButton(buttonsContainer, 'pause', 'Pause', 'Icon-Pause', false)
+  createButton(buttonsContainer, 'mute', 'Mute', 'Icon-Volume', isMuted)
+  createButton(buttonsContainer, 'unmute', 'Unmute', 'Icon-Mute', !isMuted)
+  createButton(buttonsContainer, 'enterFullscreen', 'Enter Fullscreen', 'Icon-Fullscreen', isFullscreen)
+  createButton(buttonsContainer, 'exitFullscreen', 'Exit Fullscreen', 'Icon-FullscreenOff', !isFullscreen)
 
   const volumeContainer = document.createElement('div')
   volumeContainer.className = 'volume-container'

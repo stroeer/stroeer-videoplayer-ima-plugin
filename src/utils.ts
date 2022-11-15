@@ -63,8 +63,8 @@ export const showElement = (element: HTMLElement): void => {
   element.removeAttribute('aria-hidden')
 }
 
-export const createButton = (container: HTMLElement, tag: string, cls: string, aria: string, svgid: string, ishidden: boolean): HTMLElement => {
-  const el = document.createElement(tag)
+export const createButton = (container: HTMLElement, cls: string, aria: string, svgid: string, ishidden: boolean): HTMLElement => {
+  const el = document.createElement('button')
   el.classList.add(cls)
   el.setAttribute('aria-label', aria)
   el.appendChild(SVGHelper(svgid))
@@ -84,11 +84,10 @@ export const calculateVolumePercentageBasedOnYCoords = (y: number, offsetHeight:
 }
 
 export const setTimeDisp = (timeDisp: HTMLElement, remainingTime: number): void => {
-  const secondsLeftString = String(Math.floor(remainingTime))
   if (isNaN(remainingTime)) {
     timeDisp.innerHTML = 'Werbung'
   } else {
-    timeDisp.innerHTML = 'Werbung endet in ' + secondsLeftString + ' Sekunden'
+    timeDisp.innerHTML = 'Werbung endet in ' + String(Math.floor(remainingTime)) + ' Sekunden'
   }
 }
 

@@ -595,6 +595,7 @@ class Plugin {
 
           adsRequest.omidAccessModeRules = {}
           adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.GOOGLE] = google.ima.OmidAccessMode.FULL
+          adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.OTHER] = google.ima.OmidAccessMode.FULL
 
           // Specify the linear and nonlinear slot sizes. This helps the SDK to
           // select the correct creative if multiple are returned.
