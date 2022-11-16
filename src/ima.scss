@@ -1,11 +1,136 @@
+@import "variables";
+@import "loading-spinner";
+
 .stroeer-videoplayer-containment {
   position: relative;
 }
 
-.ad-container {
+.ima-ad-container {
+  background: #000;
+  display: none;
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
+  z-index: 110;
+  margin: auto;
+
+  >div:not(.ima) {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .controlbar-container {
+    background: #000;
+    background: linear-gradient(0deg, rgb(0 0 0 / 100%) 0%, rgba(0 0 0 / 0%) 100%);
+    bottom: 0;
+    height: 40px;
+    padding-bottom: 5px;
+    position: absolute;
+    transition: all ease-in .2s;
+    width: 100%;
+    z-index: 300;
+  }
+
+  .controlbar {
+    margin: 0 auto;
+    position: relative;
+    width: 95%;
+
+    .time {
+      position: absolute;
+      left: 96px;
+      bottom: 4px;
+      color: #fff;
+      font-size: 12px;
+      font-family: Roboto, Arial, Helvetica, sans-serif;
+
+      >div {
+        display: inline-block;
+        margin: 0 2px;
+      }
+    }
+
+    .buttons {
+      display: block;
+      height: 32px;
+
+      button {
+        border: 0 none;
+        margin: 4px 0;
+        padding: 4px 8px;
+        background-color: transparent;
+
+        &:hover svg {
+          fill: $primaryColor1;
+          stroke: $primaryColor1;
+        }
+
+        /* stylelint-disable selector-no-qualifying-type */
+        &.hidden {
+          display: none;
+        }
+
+        svg {
+          fill: #fff;
+          stroke: #fff;
+          height: 24px;
+          width: 24px;
+        }
+      }
+
+      .enterFullscreen,
+      .exitFullscreen {
+        position: absolute;
+        right: 0;
+      }
+    }
+
+    .volume-container {
+      transition: opacity .2s ease-in;
+      position: absolute;
+      bottom: 44px;
+      left: 48px;
+      height: 80px;
+      width: 24px;
+      border-radius: 8px;
+      background: rgb(23 27 38 / 90%);
+
+      .volume-range {
+        user-select: none;
+        position: relative;
+        margin: 8px auto;
+        height: 64px;
+        width: 3px;
+        background: #666;
+
+        .volume-level-bubble {
+          user-select: none;
+          position: absolute;
+          left: -3px;
+          background: #fff;
+          border-radius: 50%;
+          width: 9px;
+          height: 9px;
+        }
+
+        .volume-level {
+          user-select: none;
+          position: absolute;
+          bottom: 0;
+          background: #fff;
+          height: 100%;
+          width: 3px;
+        }
+      }
+    }
+  }
 }

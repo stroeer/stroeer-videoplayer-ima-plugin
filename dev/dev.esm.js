@@ -33,7 +33,7 @@ function __spreadArrays() {
     return r;
 }
 
-var convertLocalStorageIntegerToBoolean = function (key) {
+var convertLocalStorageIntegerToBoolean$3 = function (key) {
     // 📌 Info:
     // `window` is undefined via SSR
     if (typeof window !== 'undefined') {
@@ -88,7 +88,7 @@ var noop$4 = function () {
     return false;
 };
 
-var version$4 = "1.1.0";
+var version$4 = "1.2.1";
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -548,8 +548,8 @@ EventEmitter.EventEmitter = EventEmitter;
 
 (function (root) {
   var URL_REGEX =
-    /^((?:[a-zA-Z0-9+\-.]+:)?)(\/\/[^\/?#]*)?((?:[^\/?#]*\/)*[^;?#]*)?(;[^?#]*)?(\?[^#]*)?(#[^]*)?$/;
-  var FIRST_SEGMENT_REGEX = /^([^\/?#]*)([^]*)$/;
+    /^(?=((?:[a-zA-Z0-9+\-.]+:)?))\1(?=((?:\/\/[^\/?#]*)?))\2(?=((?:(?:[^?#\/]*\/)*[^;?#\/]*)?))\3((?:;[^?#]*)?)(\?[^#]*)?(#[^]*)?$/;
+  var FIRST_SEGMENT_REGEX = /^(?=([^\/?#]*))\1([^]*)$/;
   var SLASH_DOT_REGEX = /(?:\/|^)\.(?=\/)/g;
   var SLASH_DOT_DOT_REGEX = /(?:\/|^)\.\.\/(?!\.\.\/)[^\/]*(?=\/)/g;
 
@@ -954,11 +954,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_cues__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./utils/cues */ "./src/utils/cues.ts");
 /* harmony import */ var _utils_mediakeys_helper__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./utils/mediakeys-helper */ "./src/utils/mediakeys-helper.ts");
 /* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./utils/logger */ "./src/utils/logger.ts");
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -993,6 +993,8 @@ var hlsDefaultConfig = _objectSpread(_objectSpread({
   capLevelOnFPSDrop: false,
   // used by fps-controller
   capLevelToPlayerSize: false,
+  // used by cap-level-controller
+  ignoreDevicePixelRatio: false,
   // used by cap-level-controller
   initialLiveManifestSize: 1,
   // used by stream-controller
@@ -1121,7 +1123,10 @@ var hlsDefaultConfig = _objectSpread(_objectSpread({
   testBandwidth: true,
   progressive: false,
   lowLatencyMode: true,
-  cmcd: undefined
+  cmcd: undefined,
+  enableDateRangeMetadataCues: true,
+  enableEmsgMetadataCues: true,
+  enableID3MetadataCues: true
 }, timelineConfig()), {}, {
   subtitleStreamController:  _controller_subtitle_stream_controller__WEBPACK_IMPORTED_MODULE_3__["SubtitleStreamController"] ,
   subtitleTrackController:  _controller_subtitle_track_controller__WEBPACK_IMPORTED_MODULE_4__["default"] ,
@@ -1136,11 +1141,11 @@ function timelineConfig() {
   return {
     cueHandler: _utils_cues__WEBPACK_IMPORTED_MODULE_13__["default"],
     // used by timeline-controller
-    enableCEA708Captions: true,
-    // used by timeline-controller
     enableWebVTT: true,
     // used by timeline-controller
     enableIMSC1: true,
+    // used by timeline-controller
+    enableCEA708Captions: true,
     // used by timeline-controller
     captionsTextTrack1Label: 'English',
     // used by timeline-controller
@@ -1208,17 +1213,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/polyfills/number */ "./src/polyfills/number.ts");
 /* harmony import */ var _utils_ewma_bandwidth_estimator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/ewma-bandwidth-estimator */ "./src/utils/ewma-bandwidth-estimator.ts");
 /* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../events */ "./src/events.ts");
-/* harmony import */ var _utils_buffer_helper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/buffer-helper */ "./src/utils/buffer-helper.ts");
-/* harmony import */ var _errors__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../errors */ "./src/errors.ts");
-/* harmony import */ var _types_loader__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../types/loader */ "./src/types/loader.ts");
-/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
+/* harmony import */ var _errors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../errors */ "./src/errors.ts");
+/* harmony import */ var _types_loader__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../types/loader */ "./src/types/loader.ts");
+/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
+
 
 
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 
 
@@ -1274,7 +1278,7 @@ var AbrController = /*#__PURE__*/function () {
   _proto.onFragLoading = function onFragLoading(event, data) {
     var frag = data.frag;
 
-    if (frag.type === _types_loader__WEBPACK_IMPORTED_MODULE_5__["PlaylistLevelType"].MAIN) {
+    if (frag.type === _types_loader__WEBPACK_IMPORTED_MODULE_4__["PlaylistLevelType"].MAIN) {
       if (!this.timer) {
         var _data$part;
 
@@ -1304,19 +1308,18 @@ var AbrController = /*#__PURE__*/function () {
     var frag = this.fragCurrent,
         part = this.partCurrent,
         hls = this.hls;
-    var autoLevelEnabled = hls.autoLevelEnabled,
-        config = hls.config,
-        media = hls.media;
+    var autoLevelEnabled = hls.autoLevelEnabled;
+        hls.config;
+        var media = hls.media;
 
     if (!frag || !media) {
       return;
     }
 
     var stats = part ? part.stats : frag.stats;
-    var duration = part ? part.duration : frag.duration; // If loading has been aborted and not in lowLatencyMode, stop timer and return
+    var duration = part ? part.duration : frag.duration; // If frag loading is aborted, complete, or from lowest level, stop timer and return
 
-    if (stats.aborted) {
-      _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].warn('frag loader destroy or aborted, disarm abandonRules');
+    if (stats.aborted || stats.loaded && stats.loaded === stats.total || frag.level === 0) {
       this.clearTimer(); // reset forced auto level value so that next level will be selected
 
       this._nextAutoLevel = -1;
@@ -1328,6 +1331,12 @@ var AbrController = /*#__PURE__*/function () {
       return;
     }
 
+    var bufferInfo = hls.mainForwardBufferInfo;
+
+    if (bufferInfo === null) {
+      return;
+    }
+
     var requestDelay = performance.now() - stats.loading.start;
     var playbackRate = Math.abs(media.playbackRate); // In order to work with a stable bandwidth, only begin monitoring bandwidth after half of the fragment has been loaded
 
@@ -1335,19 +1344,19 @@ var AbrController = /*#__PURE__*/function () {
       return;
     }
 
+    var loadedFirstByte = stats.loaded && stats.loading.first;
+    var bwEstimate = this.bwEstimator.getEstimate();
     var levels = hls.levels,
         minAutoLevel = hls.minAutoLevel;
     var level = levels[frag.level];
     var expectedLen = stats.total || Math.max(stats.loaded, Math.round(duration * level.maxBitrate / 8));
-    var loadRate = Math.max(1, stats.bwEstimate ? stats.bwEstimate / 8 : stats.loaded * 1000 / requestDelay); // fragLoadDelay is an estimate of the time (in seconds) it will take to buffer the entire fragment
+    var loadRate = loadedFirstByte ? stats.loaded * 1000 / requestDelay : 0; // fragLoadDelay is an estimate of the time (in seconds) it will take to buffer the remainder of the fragment
 
-    var fragLoadedDelay = (expectedLen - stats.loaded) / loadRate;
-    var pos = media.currentTime; // bufferStarvationDelay is an estimate of the amount time (in seconds) it will take to exhaust the buffer
+    var fragLoadedDelay = loadRate ? (expectedLen - stats.loaded) / loadRate : expectedLen * 8 / bwEstimate; // bufferStarvationDelay is an estimate of the amount time (in seconds) it will take to exhaust the buffer
 
-    var bufferStarvationDelay = (_utils_buffer_helper__WEBPACK_IMPORTED_MODULE_3__["BufferHelper"].bufferInfo(media, pos, config.maxBufferHole).end - pos) / playbackRate; // Attempt an emergency downswitch only if less than 2 fragment lengths are buffered, and the time to finish loading
-    // the current fragment is greater than the amount of buffer we have left
+    var bufferStarvationDelay = bufferInfo.len / playbackRate; // Only downswitch if the time to finish loading the current fragment is greater than the amount of buffer left
 
-    if (bufferStarvationDelay >= 2 * duration / playbackRate || fragLoadedDelay <= bufferStarvationDelay) {
+    if (fragLoadedDelay <= bufferStarvationDelay) {
       return;
     }
 
@@ -1359,7 +1368,7 @@ var AbrController = /*#__PURE__*/function () {
       // 0.8 : consider only 80% of current bw to be conservative
       // 8 = bits per byte (bps/Bps)
       var levelNextBitrate = levels[nextLoadLevel].maxBitrate;
-      fragLevelNextLoadedDelay = duration * levelNextBitrate / (8 * 0.8 * loadRate);
+      fragLevelNextLoadedDelay = loadRate ? duration * levelNextBitrate / (8 * 0.8 * loadRate) : duration * levelNextBitrate / bwEstimate;
 
       if (fragLevelNextLoadedDelay < bufferStarvationDelay) {
         break;
@@ -1372,10 +1381,14 @@ var AbrController = /*#__PURE__*/function () {
       return;
     }
 
-    var bwEstimate = this.bwEstimator.getEstimate();
-    _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].warn("Fragment " + frag.sn + (part ? ' part ' + part.index : '') + " of level " + frag.level + " is loading too slowly and will cause an underbuffer; aborting and switching to level " + nextLoadLevel + "\n      Current BW estimate: " + (Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(bwEstimate) ? (bwEstimate / 1024).toFixed(3) : 'Unknown') + " Kb/s\n      Estimated load time for current fragment: " + fragLoadedDelay.toFixed(3) + " s\n      Estimated load time for the next fragment: " + fragLevelNextLoadedDelay.toFixed(3) + " s\n      Time to underbuffer: " + bufferStarvationDelay.toFixed(3) + " s");
+    _utils_logger__WEBPACK_IMPORTED_MODULE_5__["logger"].warn("Fragment " + frag.sn + (part ? ' part ' + part.index : '') + " of level " + frag.level + " is loading too slowly and will cause an underbuffer; aborting and switching to level " + nextLoadLevel + "\n      Current BW estimate: " + (Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(bwEstimate) ? (bwEstimate / 1024).toFixed(3) : 'Unknown') + " Kb/s\n      Estimated load time for current fragment: " + fragLoadedDelay.toFixed(3) + " s\n      Estimated load time for the next fragment: " + fragLevelNextLoadedDelay.toFixed(3) + " s\n      Time to underbuffer: " + bufferStarvationDelay.toFixed(3) + " s");
     hls.nextLoadLevel = nextLoadLevel;
-    this.bwEstimator.sample(requestDelay, stats.loaded);
+
+    if (loadedFirstByte) {
+      // If there has been loading progress, sample bandwidth
+      this.bwEstimator.sample(requestDelay, stats.loaded);
+    }
+
     this.clearTimer();
 
     if (frag.loader) {
@@ -1394,7 +1407,7 @@ var AbrController = /*#__PURE__*/function () {
     var frag = _ref.frag,
         part = _ref.part;
 
-    if (frag.type === _types_loader__WEBPACK_IMPORTED_MODULE_5__["PlaylistLevelType"].MAIN && Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(frag.sn)) {
+    if (frag.type === _types_loader__WEBPACK_IMPORTED_MODULE_4__["PlaylistLevelType"].MAIN && Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(frag.sn)) {
       var stats = part ? part.stats : frag.stats;
       var duration = part ? part.duration : frag.duration; // stop monitoring bw once frag loaded
 
@@ -1423,7 +1436,6 @@ var AbrController = /*#__PURE__*/function () {
           id: frag.type
         };
         this.onFragBuffered(_events__WEBPACK_IMPORTED_MODULE_2__["Events"].FRAG_BUFFERED, fragBufferedData);
-        frag.bitrateTest = false;
       }
     }
   };
@@ -1438,7 +1450,7 @@ var AbrController = /*#__PURE__*/function () {
     } // Only count non-alt-audio frags which were actually buffered in our BW calculations
 
 
-    if (frag.type !== _types_loader__WEBPACK_IMPORTED_MODULE_5__["PlaylistLevelType"].MAIN || frag.sn === 'initSegment') {
+    if (frag.type !== _types_loader__WEBPACK_IMPORTED_MODULE_4__["PlaylistLevelType"].MAIN || frag.sn === 'initSegment') {
       return;
     } // Use the difference between parsing and request instead of buffering and request to compute fragLoadingProcessing;
     // rationale is that buffer appending only happens once media is attached. This can happen when config.startFragPrefetch
@@ -1459,8 +1471,8 @@ var AbrController = /*#__PURE__*/function () {
   _proto.onError = function onError(event, data) {
     // stop timer in case of frag loading error
     switch (data.details) {
-      case _errors__WEBPACK_IMPORTED_MODULE_4__["ErrorDetails"].FRAG_LOAD_ERROR:
-      case _errors__WEBPACK_IMPORTED_MODULE_4__["ErrorDetails"].FRAG_LOAD_TIMEOUT:
+      case _errors__WEBPACK_IMPORTED_MODULE_3__["ErrorDetails"].FRAG_LOAD_ERROR:
+      case _errors__WEBPACK_IMPORTED_MODULE_3__["ErrorDetails"].FRAG_LOAD_TIMEOUT:
         this.clearTimer();
         break;
     }
@@ -1481,13 +1493,14 @@ var AbrController = /*#__PURE__*/function () {
         minAutoLevel = hls.minAutoLevel,
         media = hls.media;
     var currentFragDuration = partCurrent ? partCurrent.duration : fragCurrent ? fragCurrent.duration : 0;
-    var pos = media ? media.currentTime : 0; // playbackRate is the absolute value of the playback rate; if media.playbackRate is 0, we use 1 to load as
+    media ? media.currentTime : 0; // playbackRate is the absolute value of the playback rate; if media.playbackRate is 0, we use 1 to load as
     // if we're playing back at the normal rate.
 
     var playbackRate = media && media.playbackRate !== 0 ? Math.abs(media.playbackRate) : 1.0;
     var avgbw = this.bwEstimator ? this.bwEstimator.getEstimate() : config.abrEwmaDefaultEstimate; // bufferStarvationDelay is the wall-clock time left until the playback buffer is exhausted.
 
-    var bufferStarvationDelay = (_utils_buffer_helper__WEBPACK_IMPORTED_MODULE_3__["BufferHelper"].bufferInfo(media, pos, config.maxBufferHole).end - pos) / playbackRate; // First, look to see if we can find a level matching with our avg bandwidth AND that could also guarantee no rebuffering at all
+    var bufferInfo = hls.mainForwardBufferInfo;
+    var bufferStarvationDelay = (bufferInfo ? bufferInfo.len : 0) / playbackRate; // First, look to see if we can find a level matching with our avg bandwidth AND that could also guarantee no rebuffering at all
 
     var bestLevel = this.findBestLevel(avgbw, minAutoLevel, maxAutoLevel, bufferStarvationDelay, config.abrBandWidthFactor, config.abrBandWidthUpFactor);
 
@@ -1495,7 +1508,7 @@ var AbrController = /*#__PURE__*/function () {
       return bestLevel;
     }
 
-    _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].trace((bufferStarvationDelay ? 'rebuffering expected' : 'buffer is empty') + ", finding optimal quality level"); // not possible to get rid of rebuffering ... let's try to find level that will guarantee less than maxStarvationDelay of rebuffering
+    _utils_logger__WEBPACK_IMPORTED_MODULE_5__["logger"].trace((bufferStarvationDelay ? 'rebuffering expected' : 'buffer is empty') + ", finding optimal quality level"); // not possible to get rid of rebuffering ... let's try to find level that will guarantee less than maxStarvationDelay of rebuffering
     // if no matching level found, logic will return 0
 
     var maxStarvationDelay = currentFragDuration ? Math.min(currentFragDuration, config.maxStarvationDelay) : config.maxStarvationDelay;
@@ -1514,7 +1527,7 @@ var AbrController = /*#__PURE__*/function () {
         // cap maxLoadingDelay and ensure it is not bigger 'than bitrate test' frag duration
         var maxLoadingDelay = currentFragDuration ? Math.min(currentFragDuration, config.maxLoadingDelay) : config.maxLoadingDelay;
         maxStarvationDelay = maxLoadingDelay - bitrateTestDelay;
-        _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].trace("bitrate test took " + Math.round(1000 * bitrateTestDelay) + "ms, set first fragment max fetchDuration to " + Math.round(1000 * maxStarvationDelay) + " ms"); // don't use conservative factor on bitrate test
+        _utils_logger__WEBPACK_IMPORTED_MODULE_5__["logger"].trace("bitrate test took " + Math.round(1000 * bitrateTestDelay) + "ms, set first fragment max fetchDuration to " + Math.round(1000 * maxStarvationDelay) + " ms"); // don't use conservative factor on bitrate test
 
         bwFactor = bwUpFactor = 1;
       }
@@ -1560,12 +1573,12 @@ var AbrController = /*#__PURE__*/function () {
 
       var bitrate = levels[i].maxBitrate;
       var fetchDuration = bitrate * avgDuration / adjustedbw;
-      _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].trace("level/adjustedbw/bitrate/avgDuration/maxFetchDuration/fetchDuration: " + i + "/" + Math.round(adjustedbw) + "/" + bitrate + "/" + avgDuration + "/" + maxFetchDuration + "/" + fetchDuration); // if adjusted bw is greater than level bitrate AND
+      _utils_logger__WEBPACK_IMPORTED_MODULE_5__["logger"].trace("level/adjustedbw/bitrate/avgDuration/maxFetchDuration/fetchDuration: " + i + "/" + Math.round(adjustedbw) + "/" + bitrate + "/" + avgDuration + "/" + maxFetchDuration + "/" + fetchDuration); // if adjusted bw is greater than level bitrate AND
 
       if (adjustedbw > bitrate && ( // fragment fetchDuration unknown OR live stream OR fragment fetchDuration less than max allowed fetch duration, then this level matches
       // we don't account for max Fetch Duration for live streams, this is to avoid switching down when near the edge of live sliding window ...
       // special case to support startLevel = -1 (bitrateTest) on live streams : in that case we should not exit loop so that findBestLevel will return -1
-      !fetchDuration || live && !this.bitrateTestDelay || fetchDuration < maxFetchDuration)) {
+      fetchDuration === 0 || !Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(fetchDuration) || live && !this.bitrateTestDelay || fetchDuration < maxFetchDuration)) {
         // as we are looping from highest to lowest, this will return the best achievable quality level
         return i;
       }
@@ -1581,12 +1594,17 @@ var AbrController = /*#__PURE__*/function () {
       var forcedAutoLevel = this._nextAutoLevel;
       var bwEstimator = this.bwEstimator; // in case next auto level has been forced, and bw not available or not reliable, return forced value
 
-      if (forcedAutoLevel !== -1 && (!bwEstimator || !bwEstimator.canEstimate())) {
+      if (forcedAutoLevel !== -1 && !bwEstimator.canEstimate()) {
         return forcedAutoLevel;
       } // compute next level using ABR logic
 
 
-      var nextABRAutoLevel = this.getNextABRAutoLevel(); // if forced auto level has been defined, use it to cap ABR computed quality level
+      var nextABRAutoLevel = this.getNextABRAutoLevel(); // use forced auto level when ABR selected level has errored
+
+      if (forcedAutoLevel !== -1 && this.hls.levels[nextABRAutoLevel].loadError) {
+        return forcedAutoLevel;
+      } // if forced auto level has been defined, use it to cap ABR computed quality level
+
 
       if (forcedAutoLevel !== -1) {
         nextABRAutoLevel = Math.min(forcedAutoLevel, nextABRAutoLevel);
@@ -1627,15 +1645,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _fragment_finders__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./fragment-finders */ "./src/controller/fragment-finders.ts");
 /* harmony import */ var _utils_discontinuities__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../utils/discontinuities */ "./src/utils/discontinuities.ts");
 /* harmony import */ var _errors__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../errors */ "./src/errors.ts");
-/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
 
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; _setPrototypeOf(subClass, superClass); }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -1667,6 +1683,7 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
     _this.waitingData = null;
     _this.mainDetails = null;
     _this.bufferFlushed = false;
+    _this.cachedTrackLoadedData = null;
 
     _this._registerListeners();
 
@@ -1749,6 +1766,7 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
 
     if (lastCurrentTime > 0 && startPosition === -1) {
       this.log("Override startPosition with lastCurrentTime @" + lastCurrentTime.toFixed(3));
+      startPosition = lastCurrentTime;
       this.state = _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].IDLE;
     } else {
       this.loadedmetadata = false;
@@ -1793,6 +1811,7 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
 
           if (!retryDate || now >= retryDate || (_this$media = this.media) !== null && _this$media !== void 0 && _this$media.seeking) {
             this.log('RetryDate reached, switch back to IDLE state');
+            this.resetStartWhenNotLoaded(this.trackId);
             this.state = _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].IDLE;
           }
 
@@ -1829,7 +1848,7 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
               }
             } else if (this.videoTrackCC !== this.waitingVideoCC) {
               // Drop waiting fragment if videoTrackCC has changed since waitingFragment was set and initPTS was not found
-              _utils_logger__WEBPACK_IMPORTED_MODULE_14__["logger"].log("Waiting fragment cc (" + frag.cc + ") cancelled because video is at cc " + this.videoTrackCC);
+              this.log("Waiting fragment cc (" + frag.cc + ") cancelled because video is at cc " + this.videoTrackCC);
               this.clearWaitingFragment();
             } else {
               // Drop waiting fragment if an earlier fragment is needed
@@ -1838,7 +1857,7 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
               var waitingFragmentAtPosition = Object(_fragment_finders__WEBPACK_IMPORTED_MODULE_11__["fragmentWithinToleranceTest"])(bufferInfo.end, this.config.maxFragLookUpTolerance, frag);
 
               if (waitingFragmentAtPosition < 0) {
-                _utils_logger__WEBPACK_IMPORTED_MODULE_14__["logger"].log("Waiting fragment cc (" + frag.cc + ") @ " + frag.start + " cancelled because another fragment at " + bufferInfo.end + " is needed");
+                this.log("Waiting fragment cc (" + frag.cc + ") @ " + frag.start + " cancelled because another fragment at " + bufferInfo.end + " is needed");
                 this.clearWaitingFragment();
               }
             }
@@ -1860,6 +1879,12 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
       this.waitingVideoCC = -1;
       this.state = _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].IDLE;
     }
+  };
+
+  _proto.resetLoadingState = function resetLoadingState() {
+    this.clearWaitingFragment();
+
+    _BaseStreamController.prototype.resetLoadingState.call(this);
   };
 
   _proto.onTickEnd = function onTickEnd() {
@@ -1909,19 +1934,22 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
       return;
     }
 
-    if (this.bufferFlushed) {
+    var bufferable = this.mediaBuffer ? this.mediaBuffer : this.media;
+
+    if (this.bufferFlushed && bufferable) {
       this.bufferFlushed = false;
-      this.afterBufferFlushed(this.mediaBuffer ? this.mediaBuffer : this.media, _loader_fragment__WEBPACK_IMPORTED_MODULE_7__["ElementaryStreamTypes"].AUDIO, _types_loader__WEBPACK_IMPORTED_MODULE_6__["PlaylistLevelType"].AUDIO);
+      this.afterBufferFlushed(bufferable, _loader_fragment__WEBPACK_IMPORTED_MODULE_7__["ElementaryStreamTypes"].AUDIO, _types_loader__WEBPACK_IMPORTED_MODULE_6__["PlaylistLevelType"].AUDIO);
     }
 
-    var bufferInfo = this.getFwdBufferInfo(this.mediaBuffer ? this.mediaBuffer : this.media, _types_loader__WEBPACK_IMPORTED_MODULE_6__["PlaylistLevelType"].AUDIO);
+    var bufferInfo = this.getFwdBufferInfo(bufferable, _types_loader__WEBPACK_IMPORTED_MODULE_6__["PlaylistLevelType"].AUDIO);
 
     if (bufferInfo === null) {
       return;
     }
 
+    var mainBufferInfo = this.getFwdBufferInfo(this.videoBuffer ? this.videoBuffer : this.media, _types_loader__WEBPACK_IMPORTED_MODULE_6__["PlaylistLevelType"].MAIN);
     var bufferLen = bufferInfo.len;
-    var maxBufLen = this.getMaxBufferLength();
+    var maxBufLen = this.getMaxBufferLength(mainBufferInfo === null || mainBufferInfo === void 0 ? void 0 : mainBufferInfo.len);
     var audioSwitch = this.audioSwitch; // if buffer length is less than maxBufLen try to load a new fragment
 
     if (bufferLen >= maxBufLen && !audioSwitch) {
@@ -1940,7 +1968,7 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
     var start = fragments[0].start;
     var targetBufferTime = bufferInfo.end;
 
-    if (audioSwitch) {
+    if (audioSwitch && media) {
       var pos = this.getLoadPosition();
       targetBufferTime = pos; // if currentTime (pos) is less than alt audio playlist start time, it means that alt audio is ahead of currentTime
 
@@ -1951,6 +1979,16 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
           media.currentTime = start + 0.05;
         }
       }
+    } // buffer audio up to one target duration ahead of main buffer
+
+
+    if (mainBufferInfo && targetBufferTime > mainBufferInfo.end + trackDetails.targetduration) {
+      return;
+    } // wait for main buffer after buffing some audio
+
+
+    if ((!mainBufferInfo || !mainBufferInfo.len) && bufferInfo.len) {
+      return;
     }
 
     var frag = this.getNextFragment(targetBufferTime, trackDetails);
@@ -1967,16 +2005,14 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
     }
   };
 
-  _proto.getMaxBufferLength = function getMaxBufferLength() {
+  _proto.getMaxBufferLength = function getMaxBufferLength(mainBufferLength) {
     var maxConfigBuffer = _BaseStreamController.prototype.getMaxBufferLength.call(this);
 
-    var mainBufferInfo = this.getFwdBufferInfo(this.videoBuffer ? this.videoBuffer : this.media, _types_loader__WEBPACK_IMPORTED_MODULE_6__["PlaylistLevelType"].MAIN);
-
-    if (mainBufferInfo === null) {
+    if (!mainBufferLength) {
       return maxConfigBuffer;
     }
 
-    return Math.max(maxConfigBuffer, mainBufferInfo.len);
+    return Math.max(maxConfigBuffer, mainBufferLength);
   };
 
   _proto.onMediaDetaching = function onMediaDetaching() {
@@ -2034,10 +2070,20 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
 
   _proto.onLevelLoaded = function onLevelLoaded(event, data) {
     this.mainDetails = data.details;
+
+    if (this.cachedTrackLoadedData !== null) {
+      this.hls.trigger(_events__WEBPACK_IMPORTED_MODULE_2__["Events"].AUDIO_TRACK_LOADED, this.cachedTrackLoadedData);
+      this.cachedTrackLoadedData = null;
+    }
   };
 
   _proto.onAudioTrackLoaded = function onAudioTrackLoaded(event, data) {
     var _track$details;
+
+    if (this.mainDetails == null) {
+      this.cachedTrackLoadedData = data;
+      return;
+    }
 
     var levels = this.levels;
     var newDetails = data.details,
@@ -2130,7 +2176,7 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
       var chunkMeta = new _types_transmuxer__WEBPACK_IMPORTED_MODULE_10__["ChunkMetadata"](frag.level, frag.sn, frag.stats.chunkCount, payload.byteLength, partIndex, partial);
       transmuxer.push(payload, initSegmentData, audioCodec, '', frag, part, details.totalduration, accurateTimeOffset, chunkMeta, initPTS);
     } else {
-      _utils_logger__WEBPACK_IMPORTED_MODULE_14__["logger"].log("Unknown video PTS for cc " + frag.cc + ", waiting for video PTS before demuxing audio frag " + frag.sn + " of [" + details.startSN + " ," + details.endSN + "],track " + trackId);
+      this.log("Unknown video PTS for cc " + frag.cc + ", waiting for video PTS before demuxing audio frag " + frag.sn + " of [" + details.startSN + " ," + details.endSN + "],track " + trackId);
 
       var _this$waitingData = this.waitingData = this.waitingData || {
         frag: frag,
@@ -2167,11 +2213,11 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
     var audioTrack = data.tracks.audio;
 
     if (audioTrack) {
-      this.mediaBuffer = audioTrack.buffer;
+      this.mediaBuffer = audioTrack.buffer || null;
     }
 
     if (data.tracks.video) {
-      this.videoBuffer = data.tracks.video.buffer;
+      this.videoBuffer = data.tracks.video.buffer || null;
     }
   };
 
@@ -2272,19 +2318,20 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
 
     if (!context) {
       this.warn("The loading context changed while buffering fragment " + chunkMeta.sn + " of level " + chunkMeta.level + ". This chunk will not be buffered.");
-      this.resetLiveStartWhenNotLoaded(chunkMeta.level);
+      this.resetStartWhenNotLoaded(chunkMeta.level);
       return;
     }
 
     var frag = context.frag,
-        part = context.part;
+        part = context.part,
+        details = context.level.details;
     var audio = remuxResult.audio,
         text = remuxResult.text,
         id3 = remuxResult.id3,
         initSegment = remuxResult.initSegment; // Check if the current fragment has been aborted. We check this by first seeing if we're still playing the current level.
     // If we are, subsequently check if the currently loading fragment (fragCurrent) has changed.
 
-    if (this.fragContextChanged(frag)) {
+    if (this.fragContextChanged(frag) || !details) {
       return;
     }
 
@@ -2325,8 +2372,9 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
 
     if (id3 !== null && id3 !== void 0 && (_id3$samples = id3.samples) !== null && _id3$samples !== void 0 && _id3$samples.length) {
       var emittedID3 = _extends({
+        id: id,
         frag: frag,
-        id: id
+        details: details
       }, id3);
 
       hls.trigger(_events__WEBPACK_IMPORTED_MODULE_2__["Events"].FRAG_PARSING_METADATA, emittedID3);
@@ -2334,8 +2382,9 @@ var AudioStreamController = /*#__PURE__*/function (_BaseStreamController) {
 
     if (text) {
       var emittedText = _extends({
+        id: id,
         frag: frag,
-        id: id
+        details: details
       }, text);
 
       hls.trigger(_events__WEBPACK_IMPORTED_MODULE_2__["Events"].FRAG_PARSING_USERDATA, emittedText);
@@ -2437,11 +2486,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _types_loader__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../types/loader */ "./src/types/loader.ts");
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; _setPrototypeOf(subClass, superClass); }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -2776,7 +2825,7 @@ var BasePlaylistController = /*#__PURE__*/function () {
         var attr = renditionReports[i];
         var uri = '' + attr.URI;
 
-        if (uri === playlistUri.substr(-uri.length)) {
+        if (uri === playlistUri.slice(-uri.length)) {
           var msn = parseInt(attr['LAST-MSN']);
           var part = parseInt(attr['LAST-PART']);
 
@@ -2988,13 +3037,13 @@ __webpack_require__.r(__webpack_exports__);
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; _setPrototypeOf(subClass, superClass); }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -3020,7 +3069,6 @@ var State = {
   WAITING_TRACK: 'WAITING_TRACK',
   PARSING: 'PARSING',
   PARSED: 'PARSED',
-  BACKTRACKING: 'BACKTRACKING',
   ENDED: 'ENDED',
   ERROR: 'ERROR',
   WAITING_INIT_PTS: 'WAITING_INIT_PTS',
@@ -3040,8 +3088,8 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
     _this.fragmentTracker = void 0;
     _this.transmuxer = null;
     _this._state = State.STOPPED;
-    _this.media = void 0;
-    _this.mediaBuffer = void 0;
+    _this.media = null;
+    _this.mediaBuffer = null;
     _this.config = void 0;
     _this.bitrateTest = false;
     _this.lastCurrentTime = 0;
@@ -3070,6 +3118,7 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
     _this.config = hls.config;
     _this.decrypter = new _crypt_decrypter__WEBPACK_IMPORTED_MODULE_13__["default"](hls, hls.config);
     hls.on(_events__WEBPACK_IMPORTED_MODULE_5__["Events"].KEY_LOADED, _this.onKeyLoaded, _assertThisInitialized(_this));
+    hls.on(_events__WEBPACK_IMPORTED_MODULE_5__["Events"].LEVEL_SWITCHING, _this.onLevelSwitching, _assertThisInitialized(_this));
     return _this;
   }
 
@@ -3106,7 +3155,7 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
     // rationale is that in case there are any buffered ranges after, it means that there are unbuffered portion in between
     // so we should not switch to ENDED in that case, to be able to buffer them
 
-    if (!levelDetails.live && fragCurrent && // NOTE: Because of the way parts are currently parsed/represented in the playlist, we can end up
+    if (!levelDetails.live && fragCurrent && this.media && // NOTE: Because of the way parts are currently parsed/represented in the playlist, we can end up
     // in situations where the current fragment is actually greater than levelDetails.endSN. While
     // this feels like the "wrong place" to account for that, this is a narrower/safer change than
     // updating e.g. M3U8Parser::parseLevelPlaylist().
@@ -3152,7 +3201,7 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
     } // remove video listeners
 
 
-    if (media) {
+    if (media && this.onvseeking && this.onvended) {
       media.removeEventListener('seeking', this.onvseeking);
       media.removeEventListener('ended', this.onvended);
       this.onvseeking = this.onvended = null;
@@ -3171,7 +3220,7 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
         mediaBuffer = this.mediaBuffer,
         state = this.state;
     var currentTime = media ? media.currentTime : 0;
-    var bufferInfo = _utils_buffer_helper__WEBPACK_IMPORTED_MODULE_3__["BufferHelper"].bufferInfo(mediaBuffer || media, currentTime, config.maxBufferHole);
+    var bufferInfo = _utils_buffer_helper__WEBPACK_IMPORTED_MODULE_3__["BufferHelper"].bufferInfo(mediaBuffer ? mediaBuffer : media, currentTime, config.maxBufferHole);
     this.log("media seeking to " + (Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(currentTime) ? currentTime.toFixed(3) : currentTime) + ", state: " + state);
 
     if (state === State.ENDED) {
@@ -3224,6 +3273,10 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
     }
   };
 
+  _proto.onLevelSwitching = function onLevelSwitching(event, data) {
+    this.fragLoadError = 0;
+  };
+
   _proto.onHandlerDestroying = function onHandlerDestroying() {
     this.stopLoad();
 
@@ -3233,6 +3286,7 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
   _proto.onHandlerDestroyed = function onHandlerDestroyed() {
     this.state = State.STOPPED;
     this.hls.off(_events__WEBPACK_IMPORTED_MODULE_5__["Events"].KEY_LOADED, this.onKeyLoaded, this);
+    this.hls.off(_events__WEBPACK_IMPORTED_MODULE_5__["Events"].LEVEL_SWITCHING, this.onLevelSwitching, this);
 
     if (this.fragmentLoader) {
       this.fragmentLoader.destroy();
@@ -3287,7 +3341,7 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
       var state = _this2.state;
 
       if (_this2.fragContextChanged(frag)) {
-        if (state === State.FRAG_LOADING || state === State.BACKTRACKING || !_this2.fragCurrent && state === State.PARSING) {
+        if (state === State.FRAG_LOADING || !_this2.fragCurrent && state === State.PARSING) {
           _this2.fragmentTracker.removeFragment(frag);
 
           _this2.state = State.IDLE;
@@ -3299,22 +3353,16 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
       if ('payload' in data) {
         _this2.log("Loaded fragment " + frag.sn + " of level " + frag.level);
 
-        _this2.hls.trigger(_events__WEBPACK_IMPORTED_MODULE_5__["Events"].FRAG_LOADED, data); // Tracker backtrack must be called after onFragLoaded to update the fragment entity state to BACKTRACKED
-        // This happens after handleTransmuxComplete when the worker or progressive is disabled
-
-
-        if (_this2.state === State.BACKTRACKING) {
-          _this2.fragmentTracker.backtrack(frag, data);
-
-          _this2.resetFragmentLoading(frag);
-
-          return;
-        }
+        _this2.hls.trigger(_events__WEBPACK_IMPORTED_MODULE_5__["Events"].FRAG_LOADED, data);
       } // Pass through the whole payload; controllers not implementing progressive loading receive data from this callback
 
 
       _this2._handleFragmentLoadComplete(data);
     }).catch(function (reason) {
+      if (_this2.state === State.STOPPED || _this2.state === State.ERROR) {
+        return;
+      }
+
       _this2.warn(reason);
 
       _this2.resetFragmentLoading(frag);
@@ -3404,6 +3452,10 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
 
       _this3.tick();
     }).catch(function (reason) {
+      if (_this3.state === State.STOPPED || _this3.state === State.ERROR) {
+        return;
+      }
+
       _this3.warn(reason);
 
       _this3.resetFragmentLoading(frag);
@@ -3417,10 +3469,22 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
 
   _proto.fragBufferedComplete = function fragBufferedComplete(frag, part) {
     var media = this.mediaBuffer ? this.mediaBuffer : this.media;
-    this.log("Buffered " + frag.type + " sn: " + frag.sn + (part ? ' part: ' + part.index : '') + " of " + (this.logPrefix === '[stream-controller]' ? 'level' : 'track') + " " + frag.level + " " + _utils_time_ranges__WEBPACK_IMPORTED_MODULE_14__["default"].toString(_utils_buffer_helper__WEBPACK_IMPORTED_MODULE_3__["BufferHelper"].getBuffered(media)));
+    this.log("Buffered " + frag.type + " sn: " + frag.sn + (part ? ' part: ' + part.index : '') + " of " + (this.logPrefix === '[stream-controller]' ? 'level' : 'track') + " " + frag.level + " " + (media ? _utils_time_ranges__WEBPACK_IMPORTED_MODULE_14__["default"].toString(_utils_buffer_helper__WEBPACK_IMPORTED_MODULE_3__["BufferHelper"].getBuffered(media)) : '(detached)'));
     this.state = State.IDLE;
+
+    if (!media) {
+      return;
+    }
+
+    if (!this.loadedmetadata && media.buffered.length && this.fragCurrent === this.fragPrevious) {
+      this.loadedmetadata = true;
+      this.seekToStartPos();
+    }
+
     this.tick();
   };
+
+  _proto.seekToStartPos = function seekToStartPos() {};
 
   _proto._handleFragmentLoadComplete = function _handleFragmentLoadComplete(fragLoadedEndData) {
     var transmuxer = this.transmuxer;
@@ -3705,8 +3769,6 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
   };
 
   _proto.getNextFragment = function getNextFragment(pos, levelDetails) {
-    var _frag, _frag2;
-
     var fragments = levelDetails.fragments;
     var fragLen = fragments.length;
 
@@ -3744,11 +3806,15 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
     if (!frag) {
       var end = config.lowLatencyMode ? levelDetails.partEnd : levelDetails.fragmentEnd;
       frag = this.getFragmentAtPosition(pos, end, levelDetails);
-    } // If an initSegment is present, it must be buffered first
+    }
 
+    return this.mapToInitFragWhenRequired(frag);
+  };
 
-    if ((_frag = frag) !== null && _frag !== void 0 && _frag.initSegment && !((_frag2 = frag) !== null && _frag2 !== void 0 && _frag2.initSegment.data) && !this.bitrateTest) {
-      frag = frag.initSegment;
+  _proto.mapToInitFragWhenRequired = function mapToInitFragWhenRequired(frag) {
+    // If an initSegment is present, it must be buffered first
+    if (frag !== null && frag !== void 0 && frag.initSegment && !(frag !== null && frag !== void 0 && frag.initSegment.data) && !this.bitrateTest) {
+      return frag.initSegment;
     }
 
     return frag;
@@ -3869,31 +3935,15 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
 
     if (frag) {
       var curSNIdx = frag.sn - levelDetails.startSN;
-      var sameLevel = fragPrevious && frag.level === fragPrevious.level;
-      var nextFrag = fragments[curSNIdx + 1];
-      var fragState = this.fragmentTracker.getState(frag);
 
-      if (fragState === _fragment_tracker__WEBPACK_IMPORTED_MODULE_2__["FragmentState"].BACKTRACKED) {
-        frag = null;
-        var i = curSNIdx;
-
-        while (fragments[i] && this.fragmentTracker.getState(fragments[i]) === _fragment_tracker__WEBPACK_IMPORTED_MODULE_2__["FragmentState"].BACKTRACKED) {
-          // When fragPrevious is null, backtrack to first the first fragment is not BACKTRACKED for loading
-          // When fragPrevious is set, we want the first BACKTRACKED fragment for parsing and buffering
-          if (!fragPrevious) {
-            frag = fragments[--i];
-          } else {
-            frag = fragments[i--];
-          }
-        }
-
-        if (!frag) {
-          frag = nextFrag;
-        }
-      } else if (fragPrevious && frag.sn === fragPrevious.sn && !loadingParts) {
+      if (fragPrevious && frag.sn === fragPrevious.sn && !loadingParts) {
         // Force the next fragment to load if the previous one was already selected. This can occasionally happen with
         // non-uniform fragment durations
+        var sameLevel = fragPrevious && frag.level === fragPrevious.level;
+
         if (sameLevel) {
+          var nextFrag = fragments[curSNIdx + 1];
+
           if (frag.sn < endSN && this.fragmentTracker.getState(nextFrag) !== _fragment_tracker__WEBPACK_IMPORTED_MODULE_2__["FragmentState"].OK) {
             this.log("SN " + frag.sn + " just loaded, load next one: " + nextFrag.sn);
             frag = nextFrag;
@@ -3971,7 +4021,7 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
   _proto.waitForCdnTuneIn = function waitForCdnTuneIn(details) {
     // Wait for Low-Latency CDN Tune-in to get an updated playlist
     var advancePartLimit = 3;
-    return details.live && details.canBlockReload && details.tuneInGoal > Math.max(details.partHoldBack, details.partTarget * advancePartLimit);
+    return details.live && details.canBlockReload && details.partTarget && details.tuneInGoal > Math.max(details.partHoldBack, details.partTarget * advancePartLimit);
   };
 
   _proto.setStartPosition = function setStartPosition(details, sliding) {
@@ -4032,7 +4082,7 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
   };
 
   _proto.resetFragmentLoading = function resetFragmentLoading(frag) {
-    if (!this.fragCurrent || !this.fragContextChanged(frag)) {
+    if (!this.fragCurrent || !this.fragContextChanged(frag) && this.state !== State.FRAG_LOADING_WAITING_RETRY) {
       this.state = State.IDLE;
     }
   };
@@ -4053,8 +4103,9 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
     var config = this.config; // keep retrying until the limit will be reached
 
     if (this.fragLoadError + 1 <= config.fragLoadingMaxRetry) {
-      if (this.resetLiveStartWhenNotLoaded(frag.level)) {
-        return;
+      if (!this.loadedmetadata) {
+        this.startFragRequested = false;
+        this.nextLoadPosition = this.startPosition;
       } // exponential backoff capped to config.fragLoadingMaxRetryTimeout
 
 
@@ -4103,25 +4154,22 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
     this.state = State.IDLE;
   };
 
-  _proto.resetLiveStartWhenNotLoaded = function resetLiveStartWhenNotLoaded(level) {
-    // if loadedmetadata is not set, it means that we are emergency switch down on first frag
+  _proto.resetStartWhenNotLoaded = function resetStartWhenNotLoaded(level) {
+    // if loadedmetadata is not set, it means that first frag request failed
     // in that case, reset startFragRequested flag
     if (!this.loadedmetadata) {
       this.startFragRequested = false;
       var details = this.levels ? this.levels[level].details : null;
 
       if (details !== null && details !== void 0 && details.live) {
-        // We can't afford to retry after a delay in a live scenario. Update the start position and return to IDLE.
+        // Update the start position and return to IDLE to recover live start
         this.startPosition = -1;
         this.setStartPosition(details, 0);
         this.resetLoadingState();
-        return true;
+      } else {
+        this.nextLoadPosition = this.startPosition;
       }
-
-      this.nextLoadPosition = this.startPosition;
     }
-
-    return false;
   };
 
   _proto.updateLevelTiming = function updateLevelTiming(frag, part, level, partial) {
@@ -4139,9 +4187,7 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
           // Destroy the transmuxer after it's next time offset failed to advance because duration was <= 0.
           // The new transmuxer will be configured with a time offset matching the next fragment start,
           // preventing the timeline from shifting.
-          _this6.warn("Could not parse fragment " + frag.sn + " " + type + " duration reliably (" + parsedDuration + ") resetting transmuxer to fallback to playlist timing");
-
-          _this6.resetTransmuxer();
+          _this6.warn("Could not parse fragment " + frag.sn + " " + type + " duration reliably (" + parsedDuration + ")");
 
           return result || false;
         }
@@ -4164,15 +4210,16 @@ var BaseStreamController = /*#__PURE__*/function (_TaskLoop) {
       return result;
     }, false);
 
-    if (parsed) {
-      this.state = State.PARSED;
-      this.hls.trigger(_events__WEBPACK_IMPORTED_MODULE_5__["Events"].FRAG_PARSED, {
-        frag: frag,
-        part: part
-      });
-    } else {
-      this.resetLoadingState();
+    if (!parsed) {
+      this.warn("Found no media in fragment " + frag.sn + " of level " + level.id + " resetting transmuxer to fallback to playlist timing");
+      this.resetTransmuxer();
     }
+
+    this.state = State.PARSED;
+    this.hls.trigger(_events__WEBPACK_IMPORTED_MODULE_5__["Events"].FRAG_PARSED, {
+      frag: frag,
+      part: part
+    });
   };
 
   _proto.resetTransmuxer = function resetTransmuxer() {
@@ -4472,9 +4519,11 @@ var BufferController = /*#__PURE__*/function () {
 
         if (track && typeof track.buffer.changeType === 'function') {
           var _data$trackName = data[trackName],
+              id = _data$trackName.id,
               codec = _data$trackName.codec,
               levelCodec = _data$trackName.levelCodec,
-              container = _data$trackName.container;
+              container = _data$trackName.container,
+              metadata = _data$trackName.metadata;
           var currentCodec = (track.levelCodec || track.codec).replace(VIDEO_CODEC_PROFILE_REPACE, '$1');
           var nextCodec = (levelCodec || codec).replace(VIDEO_CODEC_PROFILE_REPACE, '$1');
 
@@ -4482,6 +4531,16 @@ var BufferController = /*#__PURE__*/function () {
             var mimeType = container + ";codecs=" + (levelCodec || codec);
 
             _this3.appendChangeType(trackName, mimeType);
+
+            _utils_logger__WEBPACK_IMPORTED_MODULE_2__["logger"].log("[buffer-controller]: switching codec " + currentCodec + " to " + nextCodec);
+            _this3.tracks[trackName] = {
+              buffer: track.buffer,
+              codec: codec,
+              container: container,
+              levelCodec: levelCodec,
+              metadata: metadata,
+              id: id
+            };
           }
         }
       } else {
@@ -4634,6 +4693,7 @@ var BufferController = /*#__PURE__*/function () {
           if (_this5.appendError > hls.config.appendErrorMaxRetry) {
             _utils_logger__WEBPACK_IMPORTED_MODULE_2__["logger"].error("[buffer-controller]: Failed " + hls.config.appendErrorMaxRetry + " times to append segment in sourceBuffer");
             event.fatal = true;
+            hls.stopLoad();
           }
         }
 
@@ -4938,6 +4998,7 @@ var BufferController = /*#__PURE__*/function () {
             codec: codec,
             container: track.container,
             levelCodec: track.levelCodec,
+            metadata: track.metadata,
             id: track.id
           };
           tracksCreated++;
@@ -5050,7 +5111,7 @@ var BufferController = /*#__PURE__*/function () {
 
     if (!buffers.length) {
       _utils_logger__WEBPACK_IMPORTED_MODULE_2__["logger"].log('[buffer-controller]: Blocking operation requested, but no SourceBuffers exist');
-      Promise.resolve(onUnblocked);
+      Promise.resolve().then(onUnblocked);
       return;
     }
 
@@ -5217,7 +5278,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../events */ "./src/events.ts");
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 /*
  * cap stream level to media size dimension controller
@@ -5424,7 +5485,7 @@ var CapLevelController = /*#__PURE__*/function () {
     // to determine whether we've chosen the greatest bandwidth for the media's dimensions
 
 
-    var atGreatestBandiwdth = function atGreatestBandiwdth(curLevel, nextLevel) {
+    var atGreatestBandwidth = function atGreatestBandwidth(curLevel, nextLevel) {
       if (!nextLevel) {
         return true;
       }
@@ -5439,7 +5500,7 @@ var CapLevelController = /*#__PURE__*/function () {
     for (var i = 0; i < levels.length; i += 1) {
       var level = levels[i];
 
-      if ((level.width >= width || level.height >= height) && atGreatestBandiwdth(level, levels[i + 1])) {
+      if ((level.width >= width || level.height >= height) && atGreatestBandwidth(level, levels[i + 1])) {
         maxLevelIndex = i;
         break;
       }
@@ -5451,22 +5512,24 @@ var CapLevelController = /*#__PURE__*/function () {
   _createClass(CapLevelController, [{
     key: "mediaWidth",
     get: function get() {
-      return this.getDimensions().width * CapLevelController.contentScaleFactor;
+      return this.getDimensions().width * this.contentScaleFactor;
     }
   }, {
     key: "mediaHeight",
     get: function get() {
-      return this.getDimensions().height * CapLevelController.contentScaleFactor;
+      return this.getDimensions().height * this.contentScaleFactor;
     }
-  }], [{
+  }, {
     key: "contentScaleFactor",
     get: function get() {
       var pixelRatio = 1;
 
-      try {
-        pixelRatio = self.devicePixelRatio;
-      } catch (e) {
-        /* no-op */
+      if (!this.hls.config.ignoreDevicePixelRatio) {
+        try {
+          pixelRatio = self.devicePixelRatio;
+        } catch (e) {
+          /* no-op */
+        }
       }
 
       return pixelRatio;
@@ -5494,7 +5557,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 function _createForOfIteratorHelperLoose(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (it) return (it = it.call(o)).next.bind(it); if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; return function () { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
@@ -5502,7 +5565,7 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 
 
@@ -5884,7 +5947,7 @@ var CMCDController = /*#__PURE__*/function () {
     var url = URL.createObjectURL(new Blob());
     var uuid = url.toString();
     URL.revokeObjectURL(url);
-    return uuid.substr(uuid.lastIndexOf('/') + 1);
+    return uuid.slice(uuid.lastIndexOf('/') + 1);
   }
   /**
    * Serialize a CMCD data object according to the rules defined in the
@@ -6062,7 +6125,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_mediakeys_helper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/mediakeys-helper */ "./src/utils/mediakeys-helper.ts");
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 /**
  * @author Stephan Hesse <disparat@gmail.com> | <tchakabam@gmail.com>
@@ -6318,7 +6381,9 @@ var EMEController = /*#__PURE__*/function () {
 
     this._requestLicense(message, function (data) {
       _utils_logger__WEBPACK_IMPORTED_MODULE_2__["logger"].log("Received license data (length: " + (data ? data.byteLength : data) + "), updating key-session");
-      keySession.update(data);
+      keySession.update(data).catch(function (err) {
+        _utils_logger__WEBPACK_IMPORTED_MODULE_2__["logger"].warn("Updating key-session failed: " + err);
+      });
     });
   }
   /**
@@ -7007,7 +7072,6 @@ var FragmentState;
 
 (function (FragmentState) {
   FragmentState["NOT_LOADED"] = "NOT_LOADED";
-  FragmentState["BACKTRACKED"] = "BACKTRACKED";
   FragmentState["APPENDING"] = "APPENDING";
   FragmentState["PARTIAL"] = "PARTIAL";
   FragmentState["OK"] = "OK";
@@ -7188,7 +7252,7 @@ var FragmentTracker = /*#__PURE__*/function () {
       var partial = part !== null || streamInfo.partial === true;
       fragmentEntity.range[elementaryStream] = _this2.getBufferedTimes(frag, part, partial, timeRange);
     });
-    fragmentEntity.backtrack = fragmentEntity.loaded = null;
+    fragmentEntity.loaded = null;
 
     if (Object.keys(fragmentEntity.range).length) {
       fragmentEntity.buffered = true;
@@ -7203,7 +7267,7 @@ var FragmentTracker = /*#__PURE__*/function () {
     var fragmentEntity = this.fragments[fragKey];
 
     if (fragmentEntity) {
-      fragmentEntity.backtrack = fragmentEntity.loaded = null;
+      fragmentEntity.loaded = null;
       fragmentEntity.buffered = true;
     }
   };
@@ -7290,10 +7354,6 @@ var FragmentTracker = /*#__PURE__*/function () {
 
     if (fragmentEntity) {
       if (!fragmentEntity.buffered) {
-        if (fragmentEntity.backtrack) {
-          return FragmentState.BACKTRACKED;
-        }
-
         return FragmentState.APPENDING;
       } else if (isPartial(fragmentEntity)) {
         return FragmentState.PARTIAL;
@@ -7303,38 +7363,6 @@ var FragmentTracker = /*#__PURE__*/function () {
     }
 
     return FragmentState.NOT_LOADED;
-  };
-
-  _proto.backtrack = function backtrack(frag, data) {
-    var fragKey = getFragmentKey(frag);
-    var fragmentEntity = this.fragments[fragKey];
-
-    if (!fragmentEntity || fragmentEntity.backtrack) {
-      return null;
-    }
-
-    var backtrack = fragmentEntity.backtrack = data ? data : fragmentEntity.loaded;
-    fragmentEntity.loaded = null;
-    return backtrack;
-  };
-
-  _proto.getBacktrackData = function getBacktrackData(fragment) {
-    var fragKey = getFragmentKey(fragment);
-    var fragmentEntity = this.fragments[fragKey];
-
-    if (fragmentEntity) {
-      var _backtrack$payload;
-
-      var backtrack = fragmentEntity.backtrack; // If data was already sent to Worker it is detached no longer available
-
-      if (backtrack !== null && backtrack !== void 0 && (_backtrack$payload = backtrack.payload) !== null && _backtrack$payload !== void 0 && _backtrack$payload.byteLength) {
-        return backtrack;
-      } else {
-        this.removeFragment(fragment);
-      }
-    }
-
-    return null;
   };
 
   _proto.isTimeBuffered = function isTimeBuffered(startPTS, endPTS, timeRange) {
@@ -7372,7 +7400,6 @@ var FragmentTracker = /*#__PURE__*/function () {
     this.fragments[fragKey] = {
       body: frag,
       loaded: data,
-      backtrack: null,
       buffered: false,
       range: Object.create(null)
     };
@@ -7501,7 +7528,7 @@ var SKIP_BUFFER_RANGE_START = 0.05;
 var GapController = /*#__PURE__*/function () {
   function GapController(config, media, fragmentTracker, hls) {
     this.config = void 0;
-    this.media = void 0;
+    this.media = null;
     this.fragmentTracker = void 0;
     this.hls = void 0;
     this.nudgeRetry = 0;
@@ -7518,8 +7545,9 @@ var GapController = /*#__PURE__*/function () {
   var _proto = GapController.prototype;
 
   _proto.destroy = function destroy() {
-    // @ts-ignore
-    this.hls = this.fragmentTracker = this.media = null;
+    this.media = null; // @ts-ignore
+
+    this.hls = this.fragmentTracker = null;
   }
   /**
    * Checks if the playhead is stuck within a gap, and if so, attempts to free it.
@@ -7529,10 +7557,15 @@ var GapController = /*#__PURE__*/function () {
    */
   ;
 
-  _proto.poll = function poll(lastCurrentTime) {
+  _proto.poll = function poll(lastCurrentTime, activeFrag) {
     var config = this.config,
         media = this.media,
         stalled = this.stalled;
+
+    if (media === null) {
+      return;
+    }
+
     var currentTime = media.currentTime,
         seeking = media.seeking;
     var seeked = this.seeking && !seeking;
@@ -7564,7 +7597,7 @@ var GapController = /*#__PURE__*/function () {
     } // The playhead should not be moving
 
 
-    if (media.paused || media.ended || media.playbackRate === 0 || !_utils_buffer_helper__WEBPACK_IMPORTED_MODULE_0__["BufferHelper"].getBuffered(media).length) {
+    if (media.paused && !seeking || media.ended || media.playbackRate === 0 || !_utils_buffer_helper__WEBPACK_IMPORTED_MODULE_0__["BufferHelper"].getBuffered(media).length) {
       return;
     }
 
@@ -7580,7 +7613,7 @@ var GapController = /*#__PURE__*/function () {
       // Waiting for seeking in a buffered range to complete
       var hasEnoughBuffer = bufferInfo.len > MAX_START_GAP_JUMP; // Next buffered range is too far ahead to jump to while still seeking
 
-      var noBufferGap = !nextStart || nextStart - currentTime > MAX_START_GAP_JUMP && !this.fragmentTracker.getPartialFragment(currentTime);
+      var noBufferGap = !nextStart || activeFrag && activeFrag.start <= currentTime || nextStart - currentTime > MAX_START_GAP_JUMP && !this.fragmentTracker.getPartialFragment(currentTime);
 
       if (hasEnoughBuffer || noBufferGap) {
         return;
@@ -7623,7 +7656,11 @@ var GapController = /*#__PURE__*/function () {
 
     if (!seeking && stalledDuration >= STALL_MINIMUM_DURATION_MS) {
       // Report stalling after trying to fix
-      this._reportStall(bufferInfo.len);
+      this._reportStall(bufferInfo);
+
+      if (!this.media) {
+        return;
+      }
     }
 
     var bufferedWithHoles = _utils_buffer_helper__WEBPACK_IMPORTED_MODULE_0__["BufferHelper"].bufferInfo(media, currentTime, config.maxBufferHole);
@@ -7642,6 +7679,11 @@ var GapController = /*#__PURE__*/function () {
     var config = this.config,
         fragmentTracker = this.fragmentTracker,
         media = this.media;
+
+    if (media === null) {
+      return;
+    }
+
     var currentTime = media.currentTime;
     var partial = fragmentTracker.getPartialFragment(currentTime);
 
@@ -7652,7 +7694,7 @@ var GapController = /*#__PURE__*/function () {
       // the branch below only executes when we don't handle a partial fragment
 
 
-      if (targetTime) {
+      if (targetTime || !this.media) {
         return;
       }
     } // if we haven't had to skip over a buffer hole of a partial fragment
@@ -7678,20 +7720,20 @@ var GapController = /*#__PURE__*/function () {
    */
   ;
 
-  _proto._reportStall = function _reportStall(bufferLen) {
+  _proto._reportStall = function _reportStall(bufferInfo) {
     var hls = this.hls,
         media = this.media,
         stallReported = this.stallReported;
 
-    if (!stallReported) {
+    if (!stallReported && media) {
       // Report stalled error once
       this.stallReported = true;
-      _utils_logger__WEBPACK_IMPORTED_MODULE_3__["logger"].warn("Playback stalling at @" + media.currentTime + " due to low buffer (buffer=" + bufferLen + ")");
+      _utils_logger__WEBPACK_IMPORTED_MODULE_3__["logger"].warn("Playback stalling at @" + media.currentTime + " due to low buffer (" + JSON.stringify(bufferInfo) + ")");
       hls.trigger(_events__WEBPACK_IMPORTED_MODULE_2__["Events"].ERROR, {
         type: _errors__WEBPACK_IMPORTED_MODULE_1__["ErrorTypes"].MEDIA_ERROR,
         details: _errors__WEBPACK_IMPORTED_MODULE_1__["ErrorDetails"].BUFFER_STALLED_ERROR,
         fatal: false,
-        buffer: bufferLen
+        buffer: bufferInfo.len
       });
     }
   }
@@ -7706,6 +7748,11 @@ var GapController = /*#__PURE__*/function () {
     var config = this.config,
         hls = this.hls,
         media = this.media;
+
+    if (media === null) {
+      return 0;
+    }
+
     var currentTime = media.currentTime;
     var lastEndTime = 0; // Check if currentTime is between unbuffered regions of partial fragments
 
@@ -7748,13 +7795,18 @@ var GapController = /*#__PURE__*/function () {
   _proto._tryNudgeBuffer = function _tryNudgeBuffer() {
     var config = this.config,
         hls = this.hls,
-        media = this.media;
+        media = this.media,
+        nudgeRetry = this.nudgeRetry;
+
+    if (media === null) {
+      return;
+    }
+
     var currentTime = media.currentTime;
-    var nudgeRetry = (this.nudgeRetry || 0) + 1;
-    this.nudgeRetry = nudgeRetry;
+    this.nudgeRetry++;
 
     if (nudgeRetry < config.nudgeMaxRetry) {
-      var targetTime = currentTime + nudgeRetry * config.nudgeOffset; // playback stalled in buffered area ... let's nudge currentTime to try to overcome this
+      var targetTime = currentTime + (nudgeRetry + 1) * config.nudgeOffset; // playback stalled in buffered area ... let's nudge currentTime to try to overcome this
 
       _utils_logger__WEBPACK_IMPORTED_MODULE_3__["logger"].warn("Nudging 'currentTime' from " + currentTime + " to " + targetTime);
       media.currentTime = targetTime;
@@ -7787,19 +7839,41 @@ var GapController = /*#__PURE__*/function () {
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../events */ "./src/events.ts");
-/* harmony import */ var _utils_texttrack_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/texttrack-utils */ "./src/utils/texttrack-utils.ts");
-/* harmony import */ var _demux_id3__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../demux/id3 */ "./src/demux/id3.ts");
+/* harmony import */ var _home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/polyfills/number */ "./src/polyfills/number.ts");
+/* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../events */ "./src/events.ts");
+/* harmony import */ var _utils_texttrack_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/texttrack-utils */ "./src/utils/texttrack-utils.ts");
+/* harmony import */ var _demux_id3__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../demux/id3 */ "./src/demux/id3.ts");
+/* harmony import */ var _loader_date_range__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../loader/date-range */ "./src/loader/date-range.ts");
+/* harmony import */ var _types_demuxer__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../types/demuxer */ "./src/types/demuxer.ts");
+
+
+
 
 
 
 var MIN_CUE_DURATION = 0.25;
+
+function getCueClass() {
+  // Attempt to recreate Safari functionality by creating
+  // WebKitDataCue objects when available and store the decoded
+  // ID3 data in the value property of the cue
+  return self.WebKitDataCue || self.VTTCue || self.TextTrackCue;
+}
+
+function dateRangeDateToTimelineSeconds(date, offset) {
+  return date.getTime() / 1000 - offset;
+}
+
+function hexToArrayBuffer(str) {
+  return Uint8Array.from(str.replace(/^0x/, '').replace(/([\da-fA-F]{2}) ?/g, '0x$1 ').replace(/ +$/, '').split(' ')).buffer;
+}
 
 var ID3TrackController = /*#__PURE__*/function () {
   function ID3TrackController(hls) {
     this.hls = void 0;
     this.id3Track = null;
     this.media = null;
+    this.dateRangeCuesAppended = {};
     this.hls = hls;
 
     this._registerListeners();
@@ -7809,22 +7883,32 @@ var ID3TrackController = /*#__PURE__*/function () {
 
   _proto.destroy = function destroy() {
     this._unregisterListeners();
+
+    this.id3Track = null;
+    this.media = null;
+    this.dateRangeCuesAppended = {}; // @ts-ignore
+
+    this.hls = null;
   };
 
   _proto._registerListeners = function _registerListeners() {
     var hls = this.hls;
-    hls.on(_events__WEBPACK_IMPORTED_MODULE_0__["Events"].MEDIA_ATTACHED, this.onMediaAttached, this);
-    hls.on(_events__WEBPACK_IMPORTED_MODULE_0__["Events"].MEDIA_DETACHING, this.onMediaDetaching, this);
-    hls.on(_events__WEBPACK_IMPORTED_MODULE_0__["Events"].FRAG_PARSING_METADATA, this.onFragParsingMetadata, this);
-    hls.on(_events__WEBPACK_IMPORTED_MODULE_0__["Events"].BUFFER_FLUSHING, this.onBufferFlushing, this);
+    hls.on(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].MEDIA_ATTACHED, this.onMediaAttached, this);
+    hls.on(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].MEDIA_DETACHING, this.onMediaDetaching, this);
+    hls.on(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].MANIFEST_LOADING, this.onManifestLoading, this);
+    hls.on(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].FRAG_PARSING_METADATA, this.onFragParsingMetadata, this);
+    hls.on(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].BUFFER_FLUSHING, this.onBufferFlushing, this);
+    hls.on(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].LEVEL_UPDATED, this.onLevelUpdated, this);
   };
 
   _proto._unregisterListeners = function _unregisterListeners() {
     var hls = this.hls;
-    hls.off(_events__WEBPACK_IMPORTED_MODULE_0__["Events"].MEDIA_ATTACHED, this.onMediaAttached, this);
-    hls.off(_events__WEBPACK_IMPORTED_MODULE_0__["Events"].MEDIA_DETACHING, this.onMediaDetaching, this);
-    hls.off(_events__WEBPACK_IMPORTED_MODULE_0__["Events"].FRAG_PARSING_METADATA, this.onFragParsingMetadata, this);
-    hls.off(_events__WEBPACK_IMPORTED_MODULE_0__["Events"].BUFFER_FLUSHING, this.onBufferFlushing, this);
+    hls.off(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].MEDIA_ATTACHED, this.onMediaAttached, this);
+    hls.off(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].MEDIA_DETACHING, this.onMediaDetaching, this);
+    hls.off(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].MANIFEST_LOADING, this.onManifestLoading, this);
+    hls.off(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].FRAG_PARSING_METADATA, this.onFragParsingMetadata, this);
+    hls.off(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].BUFFER_FLUSHING, this.onBufferFlushing, this);
+    hls.off(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].LEVEL_UPDATED, this.onLevelUpdated, this);
   } // Add ID3 metatadata text track.
   ;
 
@@ -7837,9 +7921,20 @@ var ID3TrackController = /*#__PURE__*/function () {
       return;
     }
 
-    Object(_utils_texttrack_utils__WEBPACK_IMPORTED_MODULE_1__["clearCurrentCues"])(this.id3Track);
+    Object(_utils_texttrack_utils__WEBPACK_IMPORTED_MODULE_2__["clearCurrentCues"])(this.id3Track);
     this.id3Track = null;
     this.media = null;
+    this.dateRangeCuesAppended = {};
+  };
+
+  _proto.onManifestLoading = function onManifestLoading() {
+    this.dateRangeCuesAppended = {};
+  };
+
+  _proto.createTrack = function createTrack(media) {
+    var track = this.getID3Track(media.textTracks);
+    track.mode = 'hidden';
+    return track;
   };
 
   _proto.getID3Track = function getID3Track(textTracks) {
@@ -7853,7 +7948,7 @@ var ID3TrackController = /*#__PURE__*/function () {
       if (textTrack.kind === 'metadata' && textTrack.label === 'id3') {
         // send 'addtrack' when reusing the textTrack for metadata,
         // same as what we do for captions
-        Object(_utils_texttrack_utils__WEBPACK_IMPORTED_MODULE_1__["sendAddTrackEvent"])(textTrack, this.media);
+        Object(_utils_texttrack_utils__WEBPACK_IMPORTED_MODULE_2__["sendAddTrackEvent"])(textTrack, this.media);
         return textTrack;
       }
     }
@@ -7866,25 +7961,40 @@ var ID3TrackController = /*#__PURE__*/function () {
       return;
     }
 
-    var fragment = data.frag;
-    var samples = data.samples; // create track dynamically
+    var _this$hls$config = this.hls.config,
+        enableEmsgMetadataCues = _this$hls$config.enableEmsgMetadataCues,
+        enableID3MetadataCues = _this$hls$config.enableID3MetadataCues;
+
+    if (!enableEmsgMetadataCues && !enableID3MetadataCues) {
+      return;
+    }
+
+    var fragment = data.frag,
+        samples = data.samples,
+        details = data.details; // create track dynamically
 
     if (!this.id3Track) {
-      this.id3Track = this.getID3Track(this.media.textTracks);
-      this.id3Track.mode = 'hidden';
-    } // Attempt to recreate Safari functionality by creating
-    // WebKitDataCue objects when available and store the decoded
-    // ID3 data in the value property of the cue
+      this.id3Track = this.createTrack(this.media);
+    } // VTTCue end time must be finite, so use playlist edge or fragment end until next fragment with same frame type is found
 
 
-    var Cue = self.WebKitDataCue || self.VTTCue || self.TextTrackCue;
+    var maxCueTime = details.edge || fragment.end;
+    var Cue = getCueClass();
+    var updateCueRanges = false;
+    var frameTypesAdded = {};
 
     for (var i = 0; i < samples.length; i++) {
-      var frames = _demux_id3__WEBPACK_IMPORTED_MODULE_2__["getID3Frames"](samples[i].data);
+      var type = samples[i].type;
+
+      if (type === _types_demuxer__WEBPACK_IMPORTED_MODULE_5__["MetadataSchema"].emsg && !enableEmsgMetadataCues || !enableID3MetadataCues) {
+        continue;
+      }
+
+      var frames = _demux_id3__WEBPACK_IMPORTED_MODULE_3__["getID3Frames"](samples[i].data);
 
       if (frames) {
         var startTime = samples[i].pts;
-        var endTime = i < samples.length - 1 ? samples[i + 1].pts : fragment.end;
+        var endTime = maxCueTime;
         var timeDiff = endTime - startTime;
 
         if (timeDiff <= 0) {
@@ -7894,11 +8004,48 @@ var ID3TrackController = /*#__PURE__*/function () {
         for (var j = 0; j < frames.length; j++) {
           var frame = frames[j]; // Safari doesn't put the timestamp frame in the TextTrack
 
-          if (!_demux_id3__WEBPACK_IMPORTED_MODULE_2__["isTimeStampFrame"](frame)) {
+          if (!_demux_id3__WEBPACK_IMPORTED_MODULE_3__["isTimeStampFrame"](frame)) {
             var cue = new Cue(startTime, endTime, '');
             cue.value = frame;
+
+            if (type) {
+              cue.type = type;
+            }
+
             this.id3Track.addCue(cue);
+            frameTypesAdded[frame.key] = null;
+            updateCueRanges = true;
           }
+        }
+      }
+    }
+
+    if (updateCueRanges) {
+      this.updateId3CueEnds(frameTypesAdded);
+    }
+  };
+
+  _proto.updateId3CueEnds = function updateId3CueEnds(frameTypesAdded) {
+    var _this$id3Track;
+
+    // Update endTime of previous cue with same IDR frame.type (Ex: TXXX cue spans to next TXXX)
+    var cues = (_this$id3Track = this.id3Track) === null || _this$id3Track === void 0 ? void 0 : _this$id3Track.cues;
+
+    if (cues) {
+      for (var i = cues.length; i--;) {
+        var _cue$value;
+
+        var cue = cues[i];
+        var frameType = (_cue$value = cue.value) === null || _cue$value === void 0 ? void 0 : _cue$value.key;
+
+        if (frameType && frameType in frameTypesAdded) {
+          var startTime = frameTypesAdded[frameType];
+
+          if (startTime && cue.endTime !== startTime) {
+            cue.endTime = startTime;
+          }
+
+          frameTypesAdded[frameType] = cue.startTime;
         }
       }
     }
@@ -7908,14 +8055,161 @@ var ID3TrackController = /*#__PURE__*/function () {
     var startOffset = _ref.startOffset,
         endOffset = _ref.endOffset,
         type = _ref.type;
+    var id3Track = this.id3Track,
+        hls = this.hls;
 
-    if (!type || type === 'audio') {
-      // id3 cues come from parsed audio only remove cues when audio buffer is cleared
-      var id3Track = this.id3Track;
+    if (!hls) {
+      return;
+    }
 
-      if (id3Track) {
-        Object(_utils_texttrack_utils__WEBPACK_IMPORTED_MODULE_1__["removeCuesInRange"])(id3Track, startOffset, endOffset);
+    var _hls$config = hls.config,
+        enableEmsgMetadataCues = _hls$config.enableEmsgMetadataCues,
+        enableID3MetadataCues = _hls$config.enableID3MetadataCues;
+
+    if (id3Track && (enableEmsgMetadataCues || enableID3MetadataCues)) {
+      var predicate;
+
+      if (type === 'audio') {
+        predicate = function predicate(cue) {
+          return cue.type === _types_demuxer__WEBPACK_IMPORTED_MODULE_5__["MetadataSchema"].audioId3 && enableID3MetadataCues;
+        };
+      } else if (type === 'video') {
+        predicate = function predicate(cue) {
+          return cue.type === _types_demuxer__WEBPACK_IMPORTED_MODULE_5__["MetadataSchema"].emsg && enableEmsgMetadataCues;
+        };
+      } else {
+        predicate = function predicate(cue) {
+          return cue.type === _types_demuxer__WEBPACK_IMPORTED_MODULE_5__["MetadataSchema"].audioId3 && enableID3MetadataCues || cue.type === _types_demuxer__WEBPACK_IMPORTED_MODULE_5__["MetadataSchema"].emsg && enableEmsgMetadataCues;
+        };
       }
+
+      Object(_utils_texttrack_utils__WEBPACK_IMPORTED_MODULE_2__["removeCuesInRange"])(id3Track, startOffset, endOffset, predicate);
+    }
+  };
+
+  _proto.onLevelUpdated = function onLevelUpdated(event, _ref2) {
+    var _this = this;
+
+    var details = _ref2.details;
+
+    if (!this.media || !details.hasProgramDateTime || !this.hls.config.enableDateRangeMetadataCues) {
+      return;
+    }
+
+    var dateRangeCuesAppended = this.dateRangeCuesAppended,
+        id3Track = this.id3Track;
+    var dateRanges = details.dateRanges;
+    var ids = Object.keys(dateRanges); // Remove cues from track not found in details.dateRanges
+
+    if (id3Track) {
+      var idsToRemove = Object.keys(dateRangeCuesAppended).filter(function (id) {
+        return !ids.includes(id);
+      });
+
+      var _loop = function _loop(i) {
+        var id = idsToRemove[i];
+        Object.keys(dateRangeCuesAppended[id].cues).forEach(function (key) {
+          id3Track.removeCue(dateRangeCuesAppended[id].cues[key]);
+        });
+        delete dateRangeCuesAppended[id];
+      };
+
+      for (var i = idsToRemove.length; i--;) {
+        _loop(i);
+      }
+    } // Exit if the playlist does not have Date Ranges or does not have Program Date Time
+
+
+    var lastFragment = details.fragments[details.fragments.length - 1];
+
+    if (ids.length === 0 || !Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(lastFragment === null || lastFragment === void 0 ? void 0 : lastFragment.programDateTime)) {
+      return;
+    }
+
+    if (!this.id3Track) {
+      this.id3Track = this.createTrack(this.media);
+    }
+
+    var dateTimeOffset = lastFragment.programDateTime / 1000 - lastFragment.start;
+    var maxCueTime = details.edge || lastFragment.end;
+    var Cue = getCueClass();
+
+    var _loop2 = function _loop2(_i) {
+      var id = ids[_i];
+      var dateRange = dateRanges[id];
+      var appendedDateRangeCues = dateRangeCuesAppended[id];
+      var cues = (appendedDateRangeCues === null || appendedDateRangeCues === void 0 ? void 0 : appendedDateRangeCues.cues) || {};
+      var durationKnown = (appendedDateRangeCues === null || appendedDateRangeCues === void 0 ? void 0 : appendedDateRangeCues.durationKnown) || false;
+      var startTime = dateRangeDateToTimelineSeconds(dateRange.startDate, dateTimeOffset);
+      var endTime = maxCueTime;
+      var endDate = dateRange.endDate;
+
+      if (endDate) {
+        endTime = dateRangeDateToTimelineSeconds(endDate, dateTimeOffset);
+        durationKnown = true;
+      } else if (dateRange.endOnNext && !durationKnown) {
+        var nextDateRangeWithSameClass = ids.reduce(function (filterMapArray, id) {
+          var candidate = dateRanges[id];
+
+          if (candidate.class === dateRange.class && candidate.id !== id && candidate.startDate > dateRange.startDate) {
+            filterMapArray.push(candidate);
+          }
+
+          return filterMapArray;
+        }, []).sort(function (a, b) {
+          return a.startDate.getTime() - b.startDate.getTime();
+        })[0];
+
+        if (nextDateRangeWithSameClass) {
+          endTime = dateRangeDateToTimelineSeconds(nextDateRangeWithSameClass.startDate, dateTimeOffset);
+          durationKnown = true;
+        }
+      }
+
+      var attributes = Object.keys(dateRange.attr);
+
+      for (var j = 0; j < attributes.length; j++) {
+        var key = attributes[j];
+
+        if (key === _loader_date_range__WEBPACK_IMPORTED_MODULE_4__["DateRangeAttribute"].ID || key === _loader_date_range__WEBPACK_IMPORTED_MODULE_4__["DateRangeAttribute"].CLASS || key === _loader_date_range__WEBPACK_IMPORTED_MODULE_4__["DateRangeAttribute"].START_DATE || key === _loader_date_range__WEBPACK_IMPORTED_MODULE_4__["DateRangeAttribute"].DURATION || key === _loader_date_range__WEBPACK_IMPORTED_MODULE_4__["DateRangeAttribute"].END_DATE || key === _loader_date_range__WEBPACK_IMPORTED_MODULE_4__["DateRangeAttribute"].END_ON_NEXT) {
+          continue;
+        }
+
+        var cue = cues[key];
+
+        if (cue) {
+          if (durationKnown && !appendedDateRangeCues.durationKnown) {
+            cue.endTime = endTime;
+          }
+        } else {
+          var data = dateRange.attr[key];
+          cue = new Cue(startTime, endTime, '');
+
+          if (key === _loader_date_range__WEBPACK_IMPORTED_MODULE_4__["DateRangeAttribute"].SCTE35_OUT || key === _loader_date_range__WEBPACK_IMPORTED_MODULE_4__["DateRangeAttribute"].SCTE35_IN) {
+            data = hexToArrayBuffer(data);
+          }
+
+          cue.value = {
+            key: key,
+            data: data
+          };
+          cue.type = _types_demuxer__WEBPACK_IMPORTED_MODULE_5__["MetadataSchema"].dateRange;
+
+          _this.id3Track.addCue(cue);
+
+          cues[key] = cue;
+        }
+      }
+
+      dateRangeCuesAppended[id] = {
+        cues: cues,
+        dateRange: dateRange,
+        durationKnown: durationKnown
+      };
+    };
+
+    for (var _i = 0; _i < ids.length; _i++) {
+      _loop2(_i);
     }
   };
 
@@ -7939,7 +8233,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 
 
@@ -8194,7 +8488,7 @@ var LatencyController = /*#__PURE__*/function () {
       }
 
       var bufferedRanges = media.buffered.length;
-      return bufferedRanges ? media.buffered.end(bufferedRanges - 1) : levelDetails.edge - this.currentTime;
+      return (bufferedRanges ? media.buffered.end(bufferedRanges - 1) : levelDetails.edge) - this.currentTime;
     }
   }]);
 
@@ -8220,15 +8514,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _level_helper__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./level-helper */ "./src/controller/level-helper.ts");
 /* harmony import */ var _base_playlist_controller__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./base-playlist-controller */ "./src/controller/base-playlist-controller.ts");
 /* harmony import */ var _types_loader__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../types/loader */ "./src/types/loader.ts");
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; _setPrototypeOf(subClass, superClass); }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 /*
  * Level Controller
@@ -8422,6 +8716,8 @@ var LevelController = /*#__PURE__*/function (_BasePlaylistControll) {
   };
 
   _proto.onError = function onError(event, data) {
+    var _data$level;
+
     _BasePlaylistControll.prototype.onError.call(this, event, data);
 
     if (data.fatal) {
@@ -8447,16 +8743,19 @@ var LevelController = /*#__PURE__*/function (_BasePlaylistControll) {
       case _errors__WEBPACK_IMPORTED_MODULE_2__["ErrorDetails"].KEY_LOAD_ERROR:
       case _errors__WEBPACK_IMPORTED_MODULE_2__["ErrorDetails"].KEY_LOAD_TIMEOUT:
         if (data.frag) {
-          var _level = this._levels[data.frag.level]; // Set levelIndex when we're out of fragment retries
+          // Share fragment error count accross media options (main, audio, subs)
+          // This allows for level based rendition switching when media option assets fail
+          var variantLevelIndex = data.frag.type === _types_loader__WEBPACK_IMPORTED_MODULE_6__["PlaylistLevelType"].MAIN ? data.frag.level : this.currentLevelIndex;
+          var _level = this._levels[variantLevelIndex]; // Set levelIndex when we're out of fragment retries
 
           if (_level) {
             _level.fragmentError++;
 
             if (_level.fragmentError > this.hls.config.fragLoadingMaxRetry) {
-              levelIndex = data.frag.level;
+              levelIndex = variantLevelIndex;
             }
           } else {
-            levelIndex = data.frag.level;
+            levelIndex = variantLevelIndex;
           }
         }
 
@@ -8478,7 +8777,7 @@ var LevelController = /*#__PURE__*/function (_BasePlaylistControll) {
         break;
 
       case _errors__WEBPACK_IMPORTED_MODULE_2__["ErrorDetails"].REMUX_ALLOC_ERROR:
-        levelIndex = data.level;
+        levelIndex = (_data$level = data.level) != null ? _data$level : this.currentLevelIndex;
         levelError = true;
         break;
     }
@@ -8517,10 +8816,20 @@ var LevelController = /*#__PURE__*/function (_BasePlaylistControll) {
         errorEvent.levelRetry = true;
         this.redundantFailover(levelIndex);
       } else if (this.manualLevelIndex === -1) {
-        // Search for available level in auto level selection mode, cycling from highest to lowest bitrate
-        var nextLevel = levelIndex === 0 ? this._levels.length - 1 : levelIndex - 1;
+        // Search for next level to retry
+        var nextLevel = -1;
+        var levels = this._levels;
 
-        if (this.currentLevelIndex !== nextLevel && this._levels[nextLevel].loadError === 0) {
+        for (var i = levels.length; i--;) {
+          var candidate = (i + this.currentLevelIndex) % levels.length;
+
+          if (candidate !== this.currentLevelIndex && levels[candidate].loadError === 0) {
+            nextLevel = candidate;
+            break;
+          }
+        }
+
+        if (nextLevel > -1 && this.currentLevelIndex !== nextLevel) {
           this.warn(errorDetails + ": switch to " + nextLevel);
           errorEvent.levelRetry = true;
           this.hls.nextAutoLevel = nextLevel;
@@ -8855,16 +9164,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getPartWith", function() { return getPartWith; });
 /* harmony import */ var _home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/polyfills/number */ "./src/polyfills/number.ts");
 /* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
+/* harmony import */ var _loader_date_range__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../loader/date-range */ "./src/loader/date-range.ts");
 
 
 
 
 
+
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 /**
  * @module LevelHelper
  * Providing methods dealing with playlist sliding and drift
  * */
+
 
 function addGroupId(level, type, id) {
   switch (type) {
@@ -9095,6 +9408,8 @@ function mergeDetails(oldDetails, newDetails) {
 
       newDetails.startSN = newDetails.fragments[0].sn;
       newDetails.startCC = newDetails.fragments[0].cc;
+    } else if (newDetails.canSkipDateRanges) {
+      newDetails.dateRanges = mergeDateRanges(oldDetails.dateRanges, newDetails.dateRanges, newDetails.recentlyRemovedDateranges);
     }
   }
 
@@ -9151,6 +9466,28 @@ function mergeDetails(oldDetails, newDetails) {
     newDetails.advancedDateTime = oldDetails.advancedDateTime;
   }
 }
+
+function mergeDateRanges(oldDateRanges, deltaDateRanges, recentlyRemovedDateranges) {
+  var dateRanges = _extends({}, oldDateRanges);
+
+  if (recentlyRemovedDateranges) {
+    recentlyRemovedDateranges.forEach(function (id) {
+      delete dateRanges[id];
+    });
+  }
+
+  Object.keys(deltaDateRanges).forEach(function (id) {
+    var dateRange = new _loader_date_range__WEBPACK_IMPORTED_MODULE_2__["DateRange"](deltaDateRanges[id].attr, dateRanges[id]);
+
+    if (dateRange.isValid) {
+      dateRanges[id] = dateRange;
+    } else {
+      _utils_logger__WEBPACK_IMPORTED_MODULE_1__["logger"].warn("Ignoring invalid Playlist Delta Update DATERANGE tag: \"" + JSON.stringify(deltaDateRanges[id].attr) + "\"");
+    }
+  });
+  return dateRanges;
+}
+
 function mapPartIntersection(oldParts, newParts, intersectionFn) {
   if (oldParts && newParts) {
     var delta = 0;
@@ -9321,18 +9658,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _types_transmuxer__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../types/transmuxer */ "./src/types/transmuxer.ts");
 /* harmony import */ var _gap_controller__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./gap-controller */ "./src/controller/gap-controller.ts");
 /* harmony import */ var _errors__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../errors */ "./src/errors.ts");
-/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
+
+
 
 
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; _setPrototypeOf(subClass, superClass); }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -9364,8 +9701,8 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
     _this.onvplaying = null;
     _this.onvseeked = null;
     _this.fragLastKbps = 0;
-    _this.stalled = false;
     _this.couldBacktrack = false;
+    _this.backtrackFragment = null;
     _this.audioCodecSwitch = false;
     _this.videoBuffer = null;
 
@@ -9431,7 +9768,7 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
         var startLevel = hls.startLevel;
 
         if (startLevel === -1) {
-          if (hls.config.testBandwidth) {
+          if (hls.config.testBandwidth && this.levels.length > 1) {
             // -1 : guess start Level by doing a bitrate test by loading first fragment of lowest quality level
             startLevel = 0;
             this.bitrateTest = true;
@@ -9502,6 +9839,7 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
 
           if (!retryDate || now >= retryDate || (_this$media = this.media) !== null && _this$media !== void 0 && _this$media.seeking) {
             this.log('retryDate reached, switch back to IDLE state');
+            this.resetStartWhenNotLoaded(this.level);
             this.state = _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].IDLE;
           }
         }
@@ -9558,7 +9896,7 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
       return;
     }
 
-    var bufferInfo = this.getFwdBufferInfo(this.mediaBuffer ? this.mediaBuffer : media, _types_loader__WEBPACK_IMPORTED_MODULE_6__["PlaylistLevelType"].MAIN);
+    var bufferInfo = this.getMainFwdBufferInfo();
 
     if (bufferInfo === null) {
       return;
@@ -9584,23 +9922,37 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
       return;
     }
 
-    var targetBufferTime = bufferInfo.end;
-    var frag = this.getNextFragment(targetBufferTime, levelDetails); // Avoid backtracking after seeking or switching by loading an earlier segment in streams that could backtrack
+    if (this.backtrackFragment && this.backtrackFragment.start > bufferInfo.end) {
+      this.backtrackFragment = null;
+    }
 
-    if (this.couldBacktrack && !this.fragPrevious && frag && frag.sn !== 'initSegment') {
-      var fragIdx = frag.sn - levelDetails.startSN;
+    var targetBufferTime = this.backtrackFragment ? this.backtrackFragment.start : bufferInfo.end;
+    var frag = this.getNextFragment(targetBufferTime, levelDetails); // Avoid backtracking by loading an earlier segment in streams with segments that do not start with a key frame (flagged by `couldBacktrack`)
 
-      if (fragIdx > 1) {
-        frag = levelDetails.fragments[fragIdx - 1];
-        this.fragmentTracker.removeFragment(frag);
+    if (this.couldBacktrack && !this.fragPrevious && frag && frag.sn !== 'initSegment' && this.fragmentTracker.getState(frag) !== _fragment_tracker__WEBPACK_IMPORTED_MODULE_5__["FragmentState"].OK) {
+      var _this$backtrackFragme;
+
+      var backtrackSn = ((_this$backtrackFragme = this.backtrackFragment) != null ? _this$backtrackFragme : frag).sn;
+      var fragIdx = backtrackSn - levelDetails.startSN;
+      var backtrackFrag = levelDetails.fragments[fragIdx - 1];
+
+      if (backtrackFrag && frag.cc === backtrackFrag.cc) {
+        frag = backtrackFrag;
+        this.fragmentTracker.removeFragment(backtrackFrag);
       }
+    } else if (this.backtrackFragment && bufferInfo.len) {
+      this.backtrackFragment = null;
     } // Avoid loop loading by using nextLoadPosition set for backtracking
 
 
     if (frag && this.fragmentTracker.getState(frag) === _fragment_tracker__WEBPACK_IMPORTED_MODULE_5__["FragmentState"].OK && this.nextLoadPosition > targetBufferTime) {
       // Cleanup the fragment tracker before trying to find the next unbuffered fragment
       var type = this.audioOnly && !this.altAudio ? _loader_fragment__WEBPACK_IMPORTED_MODULE_7__["ElementaryStreamTypes"].AUDIO : _loader_fragment__WEBPACK_IMPORTED_MODULE_7__["ElementaryStreamTypes"].VIDEO;
-      this.afterBufferFlushed(media, type, _types_loader__WEBPACK_IMPORTED_MODULE_6__["PlaylistLevelType"].MAIN);
+
+      if (media) {
+        this.afterBufferFlushed(media, type, _types_loader__WEBPACK_IMPORTED_MODULE_6__["PlaylistLevelType"].MAIN);
+      }
+
       frag = this.getNextFragment(this.nextLoadPosition, levelDetails);
     }
 
@@ -9626,27 +9978,12 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
 
     // Check if fragment is not loaded
     var fragState = this.fragmentTracker.getState(frag);
-    this.fragCurrent = frag; // Use data from loaded backtracked fragment if available
+    this.fragCurrent = frag;
 
-    if (fragState === _fragment_tracker__WEBPACK_IMPORTED_MODULE_5__["FragmentState"].BACKTRACKED) {
-      var data = this.fragmentTracker.getBacktrackData(frag);
-
-      if (data) {
-        this._handleFragmentLoadProgress(data);
-
-        this._handleFragmentLoadComplete(data);
-
-        return;
-      } else {
-        fragState = _fragment_tracker__WEBPACK_IMPORTED_MODULE_5__["FragmentState"].NOT_LOADED;
-      }
-    }
-
-    if (fragState === _fragment_tracker__WEBPACK_IMPORTED_MODULE_5__["FragmentState"].NOT_LOADED || fragState === _fragment_tracker__WEBPACK_IMPORTED_MODULE_5__["FragmentState"].PARTIAL) {
+    if (fragState === _fragment_tracker__WEBPACK_IMPORTED_MODULE_5__["FragmentState"].NOT_LOADED) {
       if (frag.sn === 'initSegment') {
         this._loadInitSegment(frag);
       } else if (this.bitrateTest) {
-        frag.bitrateTest = true;
         this.log("Fragment " + frag.sn + " of level " + frag.level + " is being downloaded to test bitrate and will not be buffered");
 
         this._loadBitrateTestFrag(frag);
@@ -9761,13 +10098,20 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
   _proto.abortCurrentFrag = function abortCurrentFrag() {
     var fragCurrent = this.fragCurrent;
     this.fragCurrent = null;
+    this.backtrackFragment = null;
 
     if (fragCurrent !== null && fragCurrent !== void 0 && fragCurrent.loader) {
       fragCurrent.loader.abort();
     }
 
-    if (this.state === _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].KEY_LOADING) {
-      this.state = _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].IDLE;
+    switch (this.state) {
+      case _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].KEY_LOADING:
+      case _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].FRAG_LOADING:
+      case _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].FRAG_LOADING_WAITING_RETRY:
+      case _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].PARSING:
+      case _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].PARSED:
+        this.state = _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].IDLE;
+        break;
     }
 
     this.nextLoadPosition = this.getLoadPosition();
@@ -9791,7 +10135,7 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
   _proto.onMediaDetaching = function onMediaDetaching() {
     var media = this.media;
 
-    if (media) {
+    if (media && this.onvplaying && this.onvseeked) {
       media.removeEventListener('playing', this.onvplaying);
       media.removeEventListener('seeked', this.onvseeked);
       this.onvplaying = this.onvseeked = null;
@@ -9830,9 +10174,10 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
     this.log('Trigger BUFFER_RESET');
     this.hls.trigger(_events__WEBPACK_IMPORTED_MODULE_3__["Events"].BUFFER_RESET, undefined);
     this.fragmentTracker.removeAllFragments();
-    this.couldBacktrack = this.stalled = false;
+    this.couldBacktrack = false;
     this.startPosition = this.lastCurrentTime = 0;
     this.fragPlaying = null;
+    this.backtrackFragment = null;
   };
 
   _proto.onManifestParsed = function onManifestParsed(event, data) {
@@ -9896,6 +10241,7 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
     if (fragCurrent && (this.state === _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].FRAG_LOADING || this.state === _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].FRAG_LOADING_WAITING_RETRY)) {
       if (fragCurrent.level !== data.level && fragCurrent.loader) {
         this.state = _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].IDLE;
+        this.backtrackFragment = null;
         fragCurrent.loader.abort();
       }
     }
@@ -10165,17 +10511,12 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
     if (!media || !gapController || !media.readyState) {
       // Exit early if we don't have media or if the media hasn't buffered anything yet (readyState 0)
       return;
-    } // Check combined buffer
+    }
 
-
-    var buffered = _utils_buffer_helper__WEBPACK_IMPORTED_MODULE_4__["BufferHelper"].getBuffered(media);
-
-    if (!this.loadedmetadata && buffered.length) {
-      this.loadedmetadata = true;
-      this.seekToStartPos();
-    } else {
+    if (this.loadedmetadata || !_utils_buffer_helper__WEBPACK_IMPORTED_MODULE_4__["BufferHelper"].getBuffered(media).length) {
       // Resolve gaps using the main buffer, whose ranges are the intersections of the A/V sourcebuffers
-      gapController.poll(this.lastCurrentTime);
+      var activeFrag = this.state !== _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].IDLE ? this.fragCurrent : null;
+      gapController.poll(this.lastCurrentTime, activeFrag);
     }
 
     this.lastCurrentTime = media.currentTime;
@@ -10211,19 +10552,23 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
   }
   /**
    * Seeks to the set startPosition if not equal to the mediaElement's current time.
-   * @private
    */
   ;
 
   _proto.seekToStartPos = function seekToStartPos() {
     var media = this.media;
+
+    if (!media) {
+      return;
+    }
+
     var currentTime = media.currentTime;
     var startPosition = this.startPosition; // only adjust currentTime if different from startPosition or if startPosition not buffered
     // at that stage, there should be only one buffered range, as we reach that code after first fragment has been buffered
 
     if (startPosition >= 0 && currentTime < startPosition) {
       if (media.seeking) {
-        _utils_logger__WEBPACK_IMPORTED_MODULE_12__["logger"].log("could not seek to " + startPosition + ", already seeking at " + currentTime);
+        this.log("could not seek to " + startPosition + ", already seeking at " + currentTime);
         return;
       }
 
@@ -10232,7 +10577,7 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
       var delta = bufferStart - startPosition;
 
       if (delta > 0 && (delta < this.config.maxBufferHole || delta < this.config.maxFragLookUpTolerance)) {
-        _utils_logger__WEBPACK_IMPORTED_MODULE_12__["logger"].log("adjusting start position by " + delta + " to match buffer start");
+        this.log("adjusting start position by " + delta + " to match buffer start");
         startPosition += delta;
         this.startPosition = startPosition;
       }
@@ -10261,6 +10606,8 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
   _proto._loadBitrateTestFrag = function _loadBitrateTestFrag(frag) {
     var _this2 = this;
 
+    frag.bitrateTest = true;
+
     this._doFragLoad(frag).then(function (data) {
       var hls = _this2.hls;
 
@@ -10276,6 +10623,7 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
 
       stats.parsing.start = stats.parsing.end = stats.buffering.start = stats.buffering.end = self.performance.now();
       hls.trigger(_events__WEBPACK_IMPORTED_MODULE_3__["Events"].FRAG_LOADED, data);
+      frag.bitrateTest = false;
     });
   };
 
@@ -10290,7 +10638,7 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
 
     if (!context) {
       this.warn("The loading context changed while buffering fragment " + chunkMeta.sn + " of level " + chunkMeta.level + ". This chunk will not be buffered.");
-      this.resetLiveStartWhenNotLoaded(chunkMeta.level);
+      this.resetStartWhenNotLoaded(chunkMeta.level);
       return;
     }
 
@@ -10300,7 +10648,8 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
     var video = remuxResult.video,
         text = remuxResult.text,
         id3 = remuxResult.id3,
-        initSegment = remuxResult.initSegment; // The audio-stream-controller handles audio buffering if Hls.js is playing an alternate audio track
+        initSegment = remuxResult.initSegment;
+    var details = level.details; // The audio-stream-controller handles audio buffering if Hls.js is playing an alternate audio track
 
     var audio = this.altAudio ? undefined : remuxResult.audio; // Check if the current fragment has been aborted. We check this by first seeing if we're still playing the current level.
     // If we are, subsequently check if the currently loading fragment (fragCurrent) has changed.
@@ -10339,7 +10688,7 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
 
 
     if (video && remuxResult.independent !== false) {
-      if (level.details) {
+      if (details) {
         var startPTS = video.startPTS,
             endPTS = video.endPTS,
             startDTS = video.startDTS,
@@ -10359,9 +10708,11 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
 
           if (video.dropped && video.independent) {
             // Backtrack if dropped frames create a gap after currentTime
-            var pos = this.getLoadPosition() + this.config.maxBufferHole;
+            var bufferInfo = this.getMainFwdBufferInfo();
+            var targetBufferTime = (bufferInfo ? bufferInfo.end : this.getLoadPosition()) + this.config.maxBufferHole;
+            var startTime = video.firstKeyFramePTS ? video.firstKeyFramePTS : startPTS;
 
-            if (pos < startPTS) {
+            if (targetBufferTime < startTime - this.config.maxBufferHole) {
               this.backtrack(frag);
               return;
             } // Set video stream start to fragment start so that truncated samples do not distort the timeline, and mark it partial
@@ -10372,6 +10723,11 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
         }
 
         frag.setElementaryStreamInfo(video.type, startPTS, endPTS, startDTS, endDTS);
+
+        if (this.backtrackFragment) {
+          this.backtrackFragment = frag;
+        }
+
         this.bufferFragmentData(video, frag, part, chunkMeta);
       }
     } else if (remuxResult.independent === false) {
@@ -10398,19 +10754,21 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
       this.bufferFragmentData(audio, frag, part, chunkMeta);
     }
 
-    if (id3 !== null && id3 !== void 0 && (_id3$samples = id3.samples) !== null && _id3$samples !== void 0 && _id3$samples.length) {
+    if (details && id3 !== null && id3 !== void 0 && (_id3$samples = id3.samples) !== null && _id3$samples !== void 0 && _id3$samples.length) {
       var emittedID3 = {
-        frag: frag,
         id: id,
+        frag: frag,
+        details: details,
         samples: id3.samples
       };
       hls.trigger(_events__WEBPACK_IMPORTED_MODULE_3__["Events"].FRAG_PARSING_METADATA, emittedID3);
     }
 
-    if (text) {
+    if (details && text) {
       var emittedText = {
-        frag: frag,
         id: id,
+        frag: frag,
+        details: details,
         samples: text.samples
       };
       hls.trigger(_events__WEBPACK_IMPORTED_MODULE_3__["Events"].FRAG_PARSING_USERDATA, emittedText);
@@ -10503,21 +10861,20 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
     this.tick();
   };
 
+  _proto.getMainFwdBufferInfo = function getMainFwdBufferInfo() {
+    return this.getFwdBufferInfo(this.mediaBuffer ? this.mediaBuffer : this.media, _types_loader__WEBPACK_IMPORTED_MODULE_6__["PlaylistLevelType"].MAIN);
+  };
+
   _proto.backtrack = function backtrack(frag) {
     this.couldBacktrack = true; // Causes findFragments to backtrack through fragments to find the keyframe
 
+    this.backtrackFragment = frag;
     this.resetTransmuxer();
     this.flushBufferGap(frag);
-    var data = this.fragmentTracker.backtrack(frag);
+    this.fragmentTracker.removeFragment(frag);
     this.fragPrevious = null;
     this.nextLoadPosition = frag.start;
-
-    if (data) {
-      this.resetFragmentLoading(frag);
-    } else {
-      // Change state to BACKTRACKING so that fragmentEntity.backtrack data can be added after _doFragLoad
-      this.state = _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].BACKTRACKING;
-    }
+    this.state = _base_stream_controller__WEBPACK_IMPORTED_MODULE_1__["State"].IDLE;
   };
 
   _proto.checkFragmentChanged = function checkFragmentChanged() {
@@ -10545,6 +10902,7 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
       }
 
       if (fragPlayingCurrent) {
+        this.backtrackFragment = null;
         var fragPlaying = this.fragPlaying;
         var fragCurrentLevel = fragPlayingCurrent.level;
 
@@ -10572,21 +10930,45 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
 
       if (frag) {
         return frag.level;
-      } else {
-        return -1;
       }
+
+      return -1;
     }
   }, {
-    key: "currentLevel",
+    key: "currentFrag",
     get: function get() {
       var media = this.media;
 
       if (media) {
-        var fragPlayingCurrent = this.getAppendedFrag(media.currentTime);
+        return this.fragPlaying || this.getAppendedFrag(media.currentTime);
+      }
 
-        if (fragPlayingCurrent) {
-          return fragPlayingCurrent.level;
+      return null;
+    }
+  }, {
+    key: "currentProgramDateTime",
+    get: function get() {
+      var media = this.media;
+
+      if (media) {
+        var currentTime = media.currentTime;
+        var frag = this.currentFrag;
+
+        if (frag && Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(currentTime) && Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(frag.programDateTime)) {
+          var epocMs = frag.programDateTime + (currentTime - frag.start) * 1000;
+          return new Date(epocMs);
         }
+      }
+
+      return null;
+    }
+  }, {
+    key: "currentLevel",
+    get: function get() {
+      var frag = this.currentFrag;
+
+      if (frag) {
+        return frag.level;
       }
 
       return -1;
@@ -10594,15 +10976,13 @@ var StreamController = /*#__PURE__*/function (_BaseStreamController) {
   }, {
     key: "nextBufferedFrag",
     get: function get() {
-      var media = this.media;
+      var frag = this.currentFrag;
 
-      if (media) {
-        // first get end range of current fragment
-        var fragPlayingCurrent = this.getAppendedFrag(media.currentTime);
-        return this.followingBufferedFrag(fragPlayingCurrent);
-      } else {
-        return null;
+      if (frag) {
+        return this.followingBufferedFrag(frag);
       }
+
+      return null;
     }
   }, {
     key: "forceStartLoad",
@@ -10637,11 +11017,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _types_level__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../types/level */ "./src/types/level.ts");
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; _setPrototypeOf(subClass, superClass); }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -10958,8 +11338,6 @@ var SubtitleStreamController = /*#__PURE__*/function (_BaseStreamController) {
     }
 
     if (this.state === _base_stream_controller__WEBPACK_IMPORTED_MODULE_6__["State"].IDLE) {
-      var _foundFrag;
-
       var currentTrackId = this.currentTrackId,
           levels = this.levels;
 
@@ -10972,7 +11350,7 @@ var SubtitleStreamController = /*#__PURE__*/function (_BaseStreamController) {
       var targetDuration = trackDetails.targetduration;
       var config = this.config,
           media = this.media;
-      var bufferedInfo = _utils_buffer_helper__WEBPACK_IMPORTED_MODULE_1__["BufferHelper"].bufferedInfo(this.mediaBufferTimeRanges, media.currentTime - targetDuration, config.maxBufferHole);
+      var bufferedInfo = _utils_buffer_helper__WEBPACK_IMPORTED_MODULE_1__["BufferHelper"].bufferedInfo(this.tracksBuffered[this.currentTrackId] || [], media.currentTime - targetDuration, config.maxBufferHole);
       var targetBufferTime = bufferedInfo.end,
           bufferLen = bufferedInfo.len;
       var maxBufLen = this.getMaxBufferLength() + targetDuration;
@@ -10990,7 +11368,7 @@ var SubtitleStreamController = /*#__PURE__*/function (_BaseStreamController) {
 
       if (targetBufferTime < end) {
         var maxFragLookUpTolerance = config.maxFragLookUpTolerance;
-        foundFrag = Object(_fragment_finders__WEBPACK_IMPORTED_MODULE_2__["findFragmentByPTS"])(fragPrevious, fragments, targetBufferTime, maxFragLookUpTolerance);
+        foundFrag = Object(_fragment_finders__WEBPACK_IMPORTED_MODULE_2__["findFragmentByPTS"])(fragPrevious, fragments, Math.max(fragments[0].start, targetBufferTime), maxFragLookUpTolerance);
 
         if (!foundFrag && fragPrevious && fragPrevious.start < fragments[0].start) {
           foundFrag = fragments[0];
@@ -10999,10 +11377,20 @@ var SubtitleStreamController = /*#__PURE__*/function (_BaseStreamController) {
         foundFrag = fragments[fragLen - 1];
       }
 
-      if ((_foundFrag = foundFrag) !== null && _foundFrag !== void 0 && _foundFrag.encrypted) {
+      foundFrag = this.mapToInitFragWhenRequired(foundFrag);
+
+      if (!foundFrag) {
+        return;
+      } // only load if fragment is not loaded
+
+
+      if (this.fragmentTracker.getState(foundFrag) !== _fragment_tracker__WEBPACK_IMPORTED_MODULE_5__["FragmentState"].NOT_LOADED) {
+        return;
+      }
+
+      if (foundFrag.encrypted) {
         this.loadKey(foundFrag, trackDetails);
-      } else if (foundFrag && this.fragmentTracker.getState(foundFrag) === _fragment_tracker__WEBPACK_IMPORTED_MODULE_5__["FragmentState"].NOT_LOADED) {
-        // only load if fragment is not loaded
+      } else {
         this.loadFragment(foundFrag, trackDetails, targetBufferTime);
       }
     }
@@ -11011,18 +11399,49 @@ var SubtitleStreamController = /*#__PURE__*/function (_BaseStreamController) {
   _proto.loadFragment = function loadFragment(frag, levelDetails, targetBufferTime) {
     this.fragCurrent = frag;
 
-    _BaseStreamController.prototype.loadFragment.call(this, frag, levelDetails, targetBufferTime);
+    if (frag.sn === 'initSegment') {
+      this._loadInitSegment(frag);
+    } else {
+      _BaseStreamController.prototype.loadFragment.call(this, frag, levelDetails, targetBufferTime);
+    }
   };
 
   _createClass(SubtitleStreamController, [{
     key: "mediaBufferTimeRanges",
     get: function get() {
-      return this.tracksBuffered[this.currentTrackId] || [];
+      return new BufferableInstance(this.tracksBuffered[this.currentTrackId] || []);
     }
   }]);
 
   return SubtitleStreamController;
 }(_base_stream_controller__WEBPACK_IMPORTED_MODULE_6__["default"]);
+
+var BufferableInstance = function BufferableInstance(timeranges) {
+  this.buffered = void 0;
+
+  var getRange = function getRange(name, index, length) {
+    index = index >>> 0;
+
+    if (index > length - 1) {
+      throw new DOMException("Failed to execute '" + name + "' on 'TimeRanges': The index provided (" + index + ") is greater than the maximum bound (" + length + ")");
+    }
+
+    return timeranges[index][name];
+  };
+
+  this.buffered = {
+    get length() {
+      return timeranges.length;
+    },
+
+    end: function end(index) {
+      return getRange('end', index, timeranges.length);
+    },
+    start: function start(index) {
+      return getRange('start', index, timeranges.length);
+    }
+  };
+};
 
 /***/ }),
 
@@ -11039,11 +11458,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _types_loader__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../types/loader */ "./src/types/loader.ts");
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; _setPrototypeOf(subClass, superClass); }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -11053,7 +11472,6 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 var SubtitleTrackController = /*#__PURE__*/function (_BasePlaylistControll) {
   _inheritsLoose(SubtitleTrackController, _BasePlaylistControll);
 
-  // Enable/disable subtitle display rendering
   function SubtitleTrackController(hls) {
     var _this;
 
@@ -11076,7 +11494,7 @@ var SubtitleTrackController = /*#__PURE__*/function (_BasePlaylistControll) {
 
     _this.useTextTrackPolling = false;
     _this.subtitlePollingInterval = -1;
-    _this.subtitleDisplay = true;
+    _this._subtitleDisplay = true;
 
     _this.registerListeners();
 
@@ -11307,7 +11725,6 @@ var SubtitleTrackController = /*#__PURE__*/function (_BasePlaylistControll) {
     var _this2 = this;
 
     var media = this.media,
-        subtitleDisplay = this.subtitleDisplay,
         trackId = this.trackId;
 
     if (!media) {
@@ -11334,7 +11751,7 @@ var SubtitleTrackController = /*#__PURE__*/function (_BasePlaylistControll) {
     var nextTrack = groupTracks[newId];
 
     if (nextTrack) {
-      nextTrack.mode = subtitleDisplay ? 'showing' : 'hidden';
+      nextTrack.mode = this.subtitleDisplay ? 'showing' : 'hidden';
     }
   }
   /**
@@ -11425,6 +11842,18 @@ var SubtitleTrackController = /*#__PURE__*/function (_BasePlaylistControll) {
   };
 
   _createClass(SubtitleTrackController, [{
+    key: "subtitleDisplay",
+    get: function get() {
+      return this._subtitleDisplay;
+    },
+    set: function set(value) {
+      this._subtitleDisplay = value;
+
+      if (this.trackId > -1) {
+        this.toggleTrackModes(this.trackId);
+      }
+    }
+  }, {
     key: "subtitleTracks",
     get: function get() {
       return this.tracksInGroup;
@@ -11479,8 +11908,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_webvtt_parser__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/webvtt-parser */ "./src/utils/webvtt-parser.ts");
 /* harmony import */ var _utils_texttrack_utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/texttrack-utils */ "./src/utils/texttrack-utils.ts");
 /* harmony import */ var _utils_imsc1_ttml_parser__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/imsc1-ttml-parser */ "./src/utils/imsc1-ttml-parser.ts");
-/* harmony import */ var _types_loader__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../types/loader */ "./src/types/loader.ts");
-/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
+/* harmony import */ var _utils_mp4_tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/mp4-tools */ "./src/utils/mp4-tools.ts");
+/* harmony import */ var _types_loader__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../types/loader */ "./src/types/loader.ts");
+/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
+
 
 
 
@@ -11819,7 +12250,9 @@ var TimelineController = /*#__PURE__*/function () {
           if (textTrack) {
             Object(_utils_texttrack_utils__WEBPACK_IMPORTED_MODULE_5__["clearCurrentCues"])(textTrack);
           } else {
-            textTrack = _this2.createTextTrack('subtitles', track.name, track.lang);
+            var textTrackKind = _this2._captionsOrSubtitlesFromCharacteristics(track);
+
+            textTrack = _this2.createTextTrack(textTrackKind, track.name, track.lang);
 
             if (textTrack) {
               textTrack.mode = 'disabled';
@@ -11847,6 +12280,21 @@ var TimelineController = /*#__PURE__*/function () {
         });
       }
     }
+  };
+
+  _proto._captionsOrSubtitlesFromCharacteristics = function _captionsOrSubtitlesFromCharacteristics(track) {
+    var _track$attrs;
+
+    if ((_track$attrs = track.attrs) !== null && _track$attrs !== void 0 && _track$attrs.CHARACTERISTICS) {
+      var transcribesSpokenDialog = /transcribes-spoken-dialog/gi.test(track.attrs.CHARACTERISTICS);
+      var describesMusicAndSound = /describes-music-and-sound/gi.test(track.attrs.CHARACTERISTICS);
+
+      if (transcribesSpokenDialog && describesMusicAndSound) {
+        return 'captions';
+      }
+    }
+
+    return 'subtitles';
   };
 
   _proto.onManifestLoaded = function onManifestLoaded(event, data) {
@@ -11879,6 +12327,11 @@ var TimelineController = /*#__PURE__*/function () {
     }
   };
 
+  _proto.closedCaptionsForLevel = function closedCaptionsForLevel(frag) {
+    var level = this.hls.levels[frag.level];
+    return level === null || level === void 0 ? void 0 : level.attrs['CLOSED-CAPTIONS'];
+  };
+
   _proto.onFragLoading = function onFragLoading(event, data) {
     var cea608Parser1 = this.cea608Parser1,
         cea608Parser2 = this.cea608Parser2,
@@ -11890,7 +12343,7 @@ var TimelineController = /*#__PURE__*/function () {
     } // if this frag isn't contiguous, clear the parser so cues with bad start/end times aren't added to the textTrack
 
 
-    if (data.frag.type === _types_loader__WEBPACK_IMPORTED_MODULE_7__["PlaylistLevelType"].MAIN) {
+    if (data.frag.type === _types_loader__WEBPACK_IMPORTED_MODULE_8__["PlaylistLevelType"].MAIN) {
       var _data$part$index, _data$part;
 
       var sn = data.frag.sn;
@@ -11912,7 +12365,7 @@ var TimelineController = /*#__PURE__*/function () {
     var initPTS = this.initPTS,
         unparsedVttFrags = this.unparsedVttFrags;
 
-    if (frag.type === _types_loader__WEBPACK_IMPORTED_MODULE_7__["PlaylistLevelType"].SUBTITLE) {
+    if (frag.type === _types_loader__WEBPACK_IMPORTED_MODULE_8__["PlaylistLevelType"].SUBTITLE) {
       // If fragment is subtitle type, parse as WebVTT.
       if (payload.byteLength) {
         // We need an initial synchronisation PTS. Store fragments as long as none has arrived.
@@ -11977,7 +12430,7 @@ var TimelineController = /*#__PURE__*/function () {
         frag: frag
       });
     }, function (error) {
-      _utils_logger__WEBPACK_IMPORTED_MODULE_8__["logger"].log("Failed to parse IMSC1: " + error);
+      _utils_logger__WEBPACK_IMPORTED_MODULE_9__["logger"].log("Failed to parse IMSC1: " + error);
       hls.trigger(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].SUBTITLE_FRAG_PROCESSED, {
         success: false,
         frag: frag,
@@ -11987,11 +12440,13 @@ var TimelineController = /*#__PURE__*/function () {
   };
 
   _proto._parseVTTs = function _parseVTTs(frag, payload, vttCCs) {
-    var _this5 = this;
+    var _frag$initSegment,
+        _this5 = this;
 
     var hls = this.hls; // Parse the WebVTT file contents.
 
-    Object(_utils_webvtt_parser__WEBPACK_IMPORTED_MODULE_4__["parseWebVTT"])(payload, this.initPTS[frag.cc], this.timescale[frag.cc], vttCCs, frag.cc, frag.start, function (cues) {
+    var payloadWebVTT = (_frag$initSegment = frag.initSegment) !== null && _frag$initSegment !== void 0 && _frag$initSegment.data ? Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_7__["appendUint8Array"])(frag.initSegment.data, new Uint8Array(payload)) : payload;
+    Object(_utils_webvtt_parser__WEBPACK_IMPORTED_MODULE_4__["parseWebVTT"])(payloadWebVTT, this.initPTS[frag.cc], this.timescale[frag.cc], vttCCs, frag.cc, frag.start, function (cues) {
       _this5._appendCues(cues, frag.level);
 
       hls.trigger(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].SUBTITLE_FRAG_PROCESSED, {
@@ -12002,7 +12457,7 @@ var TimelineController = /*#__PURE__*/function () {
       _this5._fallbackToIMSC1(frag, payload); // Something went wrong while parsing. Trigger event with success false.
 
 
-      _utils_logger__WEBPACK_IMPORTED_MODULE_8__["logger"].log("Failed to parse VTT cue: " + error);
+      _utils_logger__WEBPACK_IMPORTED_MODULE_9__["logger"].log("Failed to parse VTT cue: " + error);
       hls.trigger(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].SUBTITLE_FRAG_PROCESSED, {
         success: false,
         frag: frag,
@@ -12037,7 +12492,7 @@ var TimelineController = /*#__PURE__*/function () {
       // and trying to access getCueById method of cues will throw an exception
       // Because we check if the mode is disabled, we can force check `cues` below. They can't be null.
 
-      if (textTrack.mode === 'disabled') {
+      if (!textTrack || textTrack.mode === 'disabled') {
         return;
       }
 
@@ -12046,6 +12501,11 @@ var TimelineController = /*#__PURE__*/function () {
       });
     } else {
       var currentTrack = this.tracks[fragLevel];
+
+      if (!currentTrack) {
+        return;
+      }
+
       var track = currentTrack.default ? 'default' : 'subtitles' + fragLevel;
       hls.trigger(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].CUES_PARSED, {
         type: 'subtitles',
@@ -12058,7 +12518,7 @@ var TimelineController = /*#__PURE__*/function () {
   _proto.onFragDecrypted = function onFragDecrypted(event, data) {
     var frag = data.frag;
 
-    if (frag.type === _types_loader__WEBPACK_IMPORTED_MODULE_7__["PlaylistLevelType"].SUBTITLE) {
+    if (frag.type === _types_loader__WEBPACK_IMPORTED_MODULE_8__["PlaylistLevelType"].SUBTITLE) {
       if (!Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(this.initPTS[frag.cc])) {
         this.unparsedVttFrags.push(data);
         return;
@@ -12079,17 +12539,24 @@ var TimelineController = /*#__PURE__*/function () {
 
     if (!this.enabled || !(cea608Parser1 && cea608Parser2)) {
       return;
+    }
+
+    var frag = data.frag,
+        samples = data.samples;
+
+    if (frag.type === _types_loader__WEBPACK_IMPORTED_MODULE_8__["PlaylistLevelType"].MAIN && this.closedCaptionsForLevel(frag) === 'NONE') {
+      return;
     } // If the event contains captions (found in the bytes property), push all bytes into the parser immediately
     // It will create the proper timestamps based on the PTS value
 
 
-    for (var i = 0; i < data.samples.length; i++) {
-      var ccBytes = data.samples[i].bytes;
+    for (var i = 0; i < samples.length; i++) {
+      var ccBytes = samples[i].bytes;
 
       if (ccBytes) {
         var ccdatas = this.extractCea608Data(ccBytes);
-        cea608Parser1.addData(data.samples[i].pts, ccdatas[0]);
-        cea608Parser2.addData(data.samples[i].pts, ccdatas[1]);
+        cea608Parser1.addData(samples[i].pts, ccdatas[0]);
+        cea608Parser2.addData(samples[i].pts, ccdatas[1]);
       }
     }
   };
@@ -12126,23 +12593,30 @@ var TimelineController = /*#__PURE__*/function () {
   };
 
   _proto.extractCea608Data = function extractCea608Data(byteArray) {
-    var count = byteArray[0] & 31;
-    var position = 2;
     var actualCCBytes = [[], []];
+    var count = byteArray[0] & 0x1f;
+    var position = 2;
 
     for (var j = 0; j < count; j++) {
       var tmpByte = byteArray[position++];
       var ccbyte1 = 0x7f & byteArray[position++];
       var ccbyte2 = 0x7f & byteArray[position++];
-      var ccValid = (4 & tmpByte) !== 0;
-      var ccType = 3 & tmpByte;
 
       if (ccbyte1 === 0 && ccbyte2 === 0) {
         continue;
       }
 
+      var ccValid = (0x04 & tmpByte) !== 0; // Support all four channels
+
       if (ccValid) {
-        if (ccType === 0 || ccType === 1) {
+        var ccType = 0x03 & tmpByte;
+
+        if (0x00
+        /* CEA608 field1*/
+        === ccType || 0x01
+        /* CEA608 field2*/
+        === ccType) {
+          // Exclude CEA708 CC data.
           actualCCBytes[ccType].push(ccbyte1);
           actualCCBytes[ccType].push(ccbyte2);
         }
@@ -12170,7 +12644,7 @@ function newVTTCCs() {
     0: {
       start: 0,
       prevCC: -1,
-      new: false
+      new: true
     }
   };
 }
@@ -12733,7 +13207,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _demux_id3__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../demux/id3 */ "./src/demux/id3.ts");
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; _setPrototypeOf(subClass, superClass); }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 /**
  * AAC demuxer
@@ -12759,8 +13233,8 @@ var AACDemuxer = /*#__PURE__*/function (_BaseAudioDemuxer) {
 
   var _proto = AACDemuxer.prototype;
 
-  _proto.resetInitSegment = function resetInitSegment(audioCodec, videoCodec, duration) {
-    _BaseAudioDemuxer.prototype.resetInitSegment.call(this, audioCodec, videoCodec, duration);
+  _proto.resetInitSegment = function resetInitSegment(initSegment, audioCodec, videoCodec, trackDuration) {
+    _BaseAudioDemuxer.prototype.resetInitSegment.call(this, initSegment, audioCodec, videoCodec, trackDuration);
 
     this._audioTrack = {
       container: 'audio/adts',
@@ -12768,10 +13242,10 @@ var AACDemuxer = /*#__PURE__*/function (_BaseAudioDemuxer) {
       id: 2,
       pid: -1,
       sequenceNumber: 0,
-      isAAC: true,
+      segmentCodec: 'aac',
       samples: [],
       manifestCodec: audioCodec,
-      duration: duration,
+      duration: trackDuration,
       inputTimeScale: 90000,
       dropped: 0
     };
@@ -12806,7 +13280,7 @@ var AACDemuxer = /*#__PURE__*/function (_BaseAudioDemuxer) {
 
   _proto.appendFrame = function appendFrame(track, data, offset) {
     _adts__WEBPACK_IMPORTED_MODULE_1__["initTrackConfig"](track, this.observer, data, offset, track.manifestCodec);
-    var frame = _adts__WEBPACK_IMPORTED_MODULE_1__["appendFrame"](track, data, offset, this.initPTS, this.frameIndex);
+    var frame = _adts__WEBPACK_IMPORTED_MODULE_1__["appendFrame"](track, data, offset, this.basePTS, this.frameIndex);
 
     if (frame && frame.missing === 0) {
       return frame;
@@ -12816,7 +13290,6 @@ var AACDemuxer = /*#__PURE__*/function (_BaseAudioDemuxer) {
   return AACDemuxer;
 }(_base_audio_demuxer__WEBPACK_IMPORTED_MODULE_0__["default"]);
 
-AACDemuxer.minProbeByteLength = 9;
 /* harmony default export */ __webpack_exports__["default"] = (AACDemuxer);
 
 /***/ }),
@@ -12853,16 +13326,16 @@ __webpack_require__.r(__webpack_exports__);
 function getAudioConfig(observer, data, offset, audioCodec) {
   var adtsObjectType;
   var adtsExtensionSamplingIndex;
-  var adtsChanelConfig;
+  var adtsChannelConfig;
   var config;
   var userAgent = navigator.userAgent.toLowerCase();
   var manifestCodec = audioCodec;
-  var adtsSampleingRates = [96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350]; // byte 2
+  var adtsSamplingRates = [96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350]; // byte 2
 
   adtsObjectType = ((data[offset + 2] & 0xc0) >>> 6) + 1;
   var adtsSamplingIndex = (data[offset + 2] & 0x3c) >>> 2;
 
-  if (adtsSamplingIndex > adtsSampleingRates.length - 1) {
+  if (adtsSamplingIndex > adtsSamplingRates.length - 1) {
     observer.trigger(_events__WEBPACK_IMPORTED_MODULE_2__["Events"].ERROR, {
       type: _errors__WEBPACK_IMPORTED_MODULE_1__["ErrorTypes"].MEDIA_ERROR,
       details: _errors__WEBPACK_IMPORTED_MODULE_1__["ErrorDetails"].FRAG_PARSING_ERROR,
@@ -12872,9 +13345,9 @@ function getAudioConfig(observer, data, offset, audioCodec) {
     return;
   }
 
-  adtsChanelConfig = (data[offset + 2] & 0x01) << 2; // byte 3
+  adtsChannelConfig = (data[offset + 2] & 0x01) << 2; // byte 3
 
-  adtsChanelConfig |= (data[offset + 3] & 0xc0) >>> 6;
+  adtsChannelConfig |= (data[offset + 3] & 0xc0) >>> 6;
   _utils_logger__WEBPACK_IMPORTED_MODULE_0__["logger"].log("manifest codec:" + audioCodec + ", ADTS type:" + adtsObjectType + ", samplingIndex:" + adtsSamplingIndex); // firefox: freq less than 24kHz = AAC SBR (HE-AAC)
 
   if (/firefox/i.test(userAgent)) {
@@ -12910,7 +13383,7 @@ function getAudioConfig(observer, data, offset, audioCodec) {
     } else {
       // if (manifest codec is AAC) AND (frequency less than 24kHz AND nb channel is 1) OR (manifest codec not specified and mono audio)
       // Chrome fails to play back with low frequency AAC LC mono when initialized with HE-AAC.  This is not a problem with stereo.
-      if (audioCodec && audioCodec.indexOf('mp4a.40.2') !== -1 && (adtsSamplingIndex >= 6 && adtsChanelConfig === 1 || /vivaldi/i.test(userAgent)) || !audioCodec && adtsChanelConfig === 1) {
+      if (audioCodec && audioCodec.indexOf('mp4a.40.2') !== -1 && (adtsSamplingIndex >= 6 && adtsChannelConfig === 1 || /vivaldi/i.test(userAgent)) || !audioCodec && adtsChannelConfig === 1) {
         adtsObjectType = 2;
         config = new Array(2);
       }
@@ -12959,10 +13432,10 @@ function getAudioConfig(observer, data, offset, audioCodec) {
   config[0] |= (adtsSamplingIndex & 0x0e) >> 1;
   config[1] |= (adtsSamplingIndex & 0x01) << 7; // channelConfiguration
 
-  config[1] |= adtsChanelConfig << 3;
+  config[1] |= adtsChannelConfig << 3;
 
   if (adtsObjectType === 5) {
-    // adtsExtensionSampleingIndex
+    // adtsExtensionSamplingIndex
     config[1] |= (adtsExtensionSamplingIndex & 0x0e) >> 1;
     config[2] = (adtsExtensionSamplingIndex & 0x01) << 7; // adtsObjectType (force to 2, chrome is checking that object type is less than 5 ???
     //    https://chromium.googlesource.com/chromium/src.git/+/master/media/formats/mp4/aac.cc
@@ -12973,8 +13446,8 @@ function getAudioConfig(observer, data, offset, audioCodec) {
 
   return {
     config: config,
-    samplerate: adtsSampleingRates[adtsSamplingIndex],
-    channelCount: adtsChanelConfig,
+    samplerate: adtsSamplingRates[adtsSamplingIndex],
+    channelCount: adtsChannelConfig,
     codec: 'mp4a.40.' + adtsObjectType,
     manifestCodec: manifestCodec
   };
@@ -13043,58 +13516,73 @@ function initTrackConfig(track, observer, data, offset, audioCodec) {
 function getFrameDuration(samplerate) {
   return 1024 * 90000 / samplerate;
 }
-function parseFrameHeader(data, offset, pts, frameIndex, frameDuration) {
+function parseFrameHeader(data, offset) {
   // The protection skip bit tells us if we have 2 bytes of CRC data at the end of the ADTS header
-  var headerLength = getHeaderLength(data, offset); // retrieve frame size
+  var headerLength = getHeaderLength(data, offset);
 
-  var frameLength = getFullFrameLength(data, offset);
-  frameLength -= headerLength;
+  if (offset + headerLength <= data.length) {
+    // retrieve frame size
+    var frameLength = getFullFrameLength(data, offset) - headerLength;
 
-  if (frameLength > 0) {
-    var stamp = pts + frameIndex * frameDuration; // logger.log(`AAC frame, offset/length/total/pts:${offset+headerLength}/${frameLength}/${data.byteLength}/${(stamp/90).toFixed(0)}`);
-
-    return {
-      headerLength: headerLength,
-      frameLength: frameLength,
-      stamp: stamp
-    };
+    if (frameLength > 0) {
+      // logger.log(`AAC frame, offset/length/total/pts:${offset+headerLength}/${frameLength}/${data.byteLength}`);
+      return {
+        headerLength: headerLength,
+        frameLength: frameLength
+      };
+    }
   }
 }
 function appendFrame(track, data, offset, pts, frameIndex) {
   var frameDuration = getFrameDuration(track.samplerate);
-  var header = parseFrameHeader(data, offset, pts, frameIndex, frameDuration);
+  var stamp = pts + frameIndex * frameDuration;
+  var header = parseFrameHeader(data, offset);
+  var unit;
 
   if (header) {
     var frameLength = header.frameLength,
-        headerLength = header.headerLength,
-        stamp = header.stamp;
-    var length = headerLength + frameLength;
-    var missing = Math.max(0, offset + length - data.length); // logger.log(`AAC frame ${frameIndex}, pts:${stamp} length@offset/total: ${frameLength}@${offset+headerLength}/${data.byteLength} missing: ${missing}`);
+        headerLength = header.headerLength;
 
-    var unit;
+    var _length = headerLength + frameLength;
+
+    var missing = Math.max(0, offset + _length - data.length); // logger.log(`AAC frame ${frameIndex}, pts:${stamp} length@offset/total: ${frameLength}@${offset+headerLength}/${data.byteLength} missing: ${missing}`);
 
     if (missing) {
-      unit = new Uint8Array(length - headerLength);
+      unit = new Uint8Array(_length - headerLength);
       unit.set(data.subarray(offset + headerLength, data.length), 0);
     } else {
-      unit = data.subarray(offset + headerLength, offset + length);
+      unit = data.subarray(offset + headerLength, offset + _length);
     }
 
-    var sample = {
+    var _sample = {
       unit: unit,
       pts: stamp
     };
 
     if (!missing) {
-      track.samples.push(sample);
+      track.samples.push(_sample);
     }
 
     return {
-      sample: sample,
-      length: length,
+      sample: _sample,
+      length: _length,
       missing: missing
     };
-  }
+  } // overflow incomplete header
+
+
+  var length = data.length - offset;
+  unit = new Uint8Array(length);
+  unit.set(data.subarray(offset, data.length), 0);
+  var sample = {
+    unit: unit,
+    pts: stamp
+  };
+  return {
+    sample: sample,
+    length: length,
+    missing: -1
+  };
 }
 
 /***/ }),
@@ -13109,9 +13597,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "initPTSFn", function() { return initPTSFn; });
 /* harmony import */ var _home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/polyfills/number */ "./src/polyfills/number.ts");
 /* harmony import */ var _demux_id3__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../demux/id3 */ "./src/demux/id3.ts");
-/* harmony import */ var _dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./dummy-demuxed-track */ "./src/demux/dummy-demuxed-track.ts");
-/* harmony import */ var _utils_mp4_tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/mp4-tools */ "./src/utils/mp4-tools.ts");
-/* harmony import */ var _utils_typed_array__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/typed-array */ "./src/utils/typed-array.ts");
+/* harmony import */ var _types_demuxer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../types/demuxer */ "./src/types/demuxer.ts");
+/* harmony import */ var _dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./dummy-demuxed-track */ "./src/demux/dummy-demuxed-track.ts");
+/* harmony import */ var _utils_mp4_tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/mp4-tools */ "./src/utils/mp4-tools.ts");
+/* harmony import */ var _utils_typed_array__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/typed-array */ "./src/utils/typed-array.ts");
+
+
 
 
 
@@ -13124,12 +13615,13 @@ var BaseAudioDemuxer = /*#__PURE__*/function () {
     this._id3Track = void 0;
     this.frameIndex = 0;
     this.cachedData = null;
+    this.basePTS = null;
     this.initPTS = null;
   }
 
   var _proto = BaseAudioDemuxer.prototype;
 
-  _proto.resetInitSegment = function resetInitSegment(audioCodec, videoCodec, duration) {
+  _proto.resetInitSegment = function resetInitSegment(initSegment, audioCodec, videoCodec, trackDuration) {
     this._id3Track = {
       type: 'id3',
       id: 3,
@@ -13141,9 +13633,15 @@ var BaseAudioDemuxer = /*#__PURE__*/function () {
     };
   };
 
-  _proto.resetTimeStamp = function resetTimeStamp() {};
+  _proto.resetTimeStamp = function resetTimeStamp(deaultTimestamp) {
+    this.initPTS = deaultTimestamp;
+    this.resetContiguity();
+  };
 
-  _proto.resetContiguity = function resetContiguity() {};
+  _proto.resetContiguity = function resetContiguity() {
+    this.basePTS = null;
+    this.frameIndex = 0;
+  };
 
   _proto.canParse = function canParse(data, offset) {
     return false;
@@ -13154,7 +13652,7 @@ var BaseAudioDemuxer = /*#__PURE__*/function () {
 
   _proto.demux = function demux(data, timeOffset) {
     if (this.cachedData) {
-      data = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_3__["appendUint8Array"])(this.cachedData, data);
+      data = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_4__["appendUint8Array"])(this.cachedData, data);
       this.cachedData = null;
     }
 
@@ -13167,20 +13665,21 @@ var BaseAudioDemuxer = /*#__PURE__*/function () {
     var timestamp = id3Data ? _demux_id3__WEBPACK_IMPORTED_MODULE_1__["getTimeStamp"](id3Data) : undefined;
     var length = data.length;
 
-    if (this.frameIndex === 0 || this.initPTS === null) {
-      this.initPTS = initPTSFn(timestamp, timeOffset);
+    if (this.basePTS === null || this.frameIndex === 0 && Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(timestamp)) {
+      this.basePTS = initPTSFn(timestamp, timeOffset, this.initPTS);
     } // more expressive than alternative: id3Data?.length
 
 
     if (id3Data && id3Data.length > 0) {
       id3Track.samples.push({
-        pts: this.initPTS,
-        dts: this.initPTS,
-        data: id3Data
+        pts: this.basePTS,
+        dts: this.basePTS,
+        data: id3Data,
+        type: _types_demuxer__WEBPACK_IMPORTED_MODULE_2__["MetadataSchema"].audioId3
       });
     }
 
-    pts = this.initPTS;
+    pts = this.basePTS;
 
     while (offset < length) {
       if (this.canParse(data, offset)) {
@@ -13200,7 +13699,8 @@ var BaseAudioDemuxer = /*#__PURE__*/function () {
         id3Track.samples.push({
           pts: pts,
           dts: pts,
-          data: id3Data
+          data: id3Data,
+          type: _types_demuxer__WEBPACK_IMPORTED_MODULE_2__["MetadataSchema"].audioId3
         });
         offset += id3Data.length;
         lastDataIndex = offset;
@@ -13209,10 +13709,10 @@ var BaseAudioDemuxer = /*#__PURE__*/function () {
       }
 
       if (offset === length && lastDataIndex !== length) {
-        var partialData = Object(_utils_typed_array__WEBPACK_IMPORTED_MODULE_4__["sliceUint8"])(data, lastDataIndex);
+        var partialData = Object(_utils_typed_array__WEBPACK_IMPORTED_MODULE_5__["sliceUint8"])(data, lastDataIndex);
 
         if (this.cachedData) {
-          this.cachedData = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_3__["appendUint8Array"])(this.cachedData, partialData);
+          this.cachedData = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_4__["appendUint8Array"])(this.cachedData, partialData);
         } else {
           this.cachedData = partialData;
         }
@@ -13221,9 +13721,9 @@ var BaseAudioDemuxer = /*#__PURE__*/function () {
 
     return {
       audioTrack: track,
-      avcTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_2__["dummyTrack"])(),
+      videoTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_3__["dummyTrack"])(),
       id3Track: id3Track,
-      textTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_2__["dummyTrack"])()
+      textTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_3__["dummyTrack"])()
     };
   };
 
@@ -13240,12 +13740,11 @@ var BaseAudioDemuxer = /*#__PURE__*/function () {
       this.demux(cachedData, 0);
     }
 
-    this.frameIndex = 0;
     return {
       audioTrack: this._audioTrack,
-      avcTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_2__["dummyTrack"])(),
+      videoTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_3__["dummyTrack"])(),
       id3Track: this._id3Track,
-      textTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_2__["dummyTrack"])()
+      textTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_3__["dummyTrack"])()
     };
   };
 
@@ -13261,8 +13760,12 @@ var BaseAudioDemuxer = /*#__PURE__*/function () {
  */
 
 
-var initPTSFn = function initPTSFn(timestamp, timeOffset) {
-  return Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(timestamp) ? timestamp * 90 : timeOffset * 90000;
+var initPTSFn = function initPTSFn(timestamp, timeOffset, initPTS) {
+  if (Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(timestamp)) {
+    return timestamp * 90;
+  }
+
+  return timeOffset * 90000 + (initPTS || 0);
 };
 /* harmony default export */ __webpack_exports__["default"] = (BaseAudioDemuxer);
 
@@ -13339,12 +13842,20 @@ function concatUint8Arrays(chunks, dataLength) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "dummyTrack", function() { return dummyTrack; });
-function dummyTrack() {
+function dummyTrack(type, inputTimeScale) {
+  if (type === void 0) {
+    type = '';
+  }
+
+  if (inputTimeScale === void 0) {
+    inputTimeScale = 90000;
+  }
+
   return {
-    type: '',
+    type: type,
     id: -1,
     pid: -1,
-    inputTimeScale: 90000,
+    inputTimeScale: inputTimeScale,
     sequenceNumber: -1,
     samples: [],
     dropped: 0
@@ -14184,7 +14695,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _mpegaudio__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./mpegaudio */ "./src/demux/mpegaudio.ts");
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; _setPrototypeOf(subClass, superClass); }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 /**
  * MP3 demuxer
@@ -14203,8 +14714,8 @@ var MP3Demuxer = /*#__PURE__*/function (_BaseAudioDemuxer) {
 
   var _proto = MP3Demuxer.prototype;
 
-  _proto.resetInitSegment = function resetInitSegment(audioCodec, videoCodec, duration) {
-    _BaseAudioDemuxer.prototype.resetInitSegment.call(this, audioCodec, videoCodec, duration);
+  _proto.resetInitSegment = function resetInitSegment(initSegment, audioCodec, videoCodec, trackDuration) {
+    _BaseAudioDemuxer.prototype.resetInitSegment.call(this, initSegment, audioCodec, videoCodec, trackDuration);
 
     this._audioTrack = {
       container: 'audio/mpeg',
@@ -14212,10 +14723,10 @@ var MP3Demuxer = /*#__PURE__*/function (_BaseAudioDemuxer) {
       id: 2,
       pid: -1,
       sequenceNumber: 0,
-      isAAC: false,
+      segmentCodec: 'mp3',
       samples: [],
       manifestCodec: audioCodec,
-      duration: duration,
+      duration: trackDuration,
       inputTimeScale: 90000,
       dropped: 0
     };
@@ -14248,17 +14759,16 @@ var MP3Demuxer = /*#__PURE__*/function (_BaseAudioDemuxer) {
   };
 
   _proto.appendFrame = function appendFrame(track, data, offset) {
-    if (this.initPTS === null) {
+    if (this.basePTS === null) {
       return;
     }
 
-    return _mpegaudio__WEBPACK_IMPORTED_MODULE_3__["appendFrame"](track, data, offset, this.initPTS, this.frameIndex);
+    return _mpegaudio__WEBPACK_IMPORTED_MODULE_3__["appendFrame"](track, data, offset, this.basePTS, this.frameIndex);
   };
 
   return MP3Demuxer;
 }(_base_audio_demuxer__WEBPACK_IMPORTED_MODULE_0__["default"]);
 
-MP3Demuxer.minProbeByteLength = 4;
 /* harmony default export */ __webpack_exports__["default"] = (MP3Demuxer);
 
 /***/ }),
@@ -14270,18 +14780,29 @@ MP3Demuxer.minProbeByteLength = 4;
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _utils_mp4_tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/mp4-tools */ "./src/utils/mp4-tools.ts");
-/* harmony import */ var _dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./dummy-demuxed-track */ "./src/demux/dummy-demuxed-track.ts");
+/* harmony import */ var _home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/polyfills/number */ "./src/polyfills/number.ts");
+/* harmony import */ var _types_demuxer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../types/demuxer */ "./src/types/demuxer.ts");
+/* harmony import */ var _utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/mp4-tools */ "./src/utils/mp4-tools.ts");
+/* harmony import */ var _dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./dummy-demuxed-track */ "./src/demux/dummy-demuxed-track.ts");
+
+
 /**
  * MP4 demuxer
  */
 
 
 
+var emsgSchemePattern = /\/emsg[-/]ID3/i;
+
 var MP4Demuxer = /*#__PURE__*/function () {
   function MP4Demuxer(observer, config) {
     this.remainderData = null;
+    this.timeOffset = 0;
     this.config = void 0;
+    this.videoTrack = void 0;
+    this.audioTrack = void 0;
+    this.id3Track = void 0;
+    this.txtTrack = void 0;
     this.config = config;
   }
 
@@ -14289,57 +14810,121 @@ var MP4Demuxer = /*#__PURE__*/function () {
 
   _proto.resetTimeStamp = function resetTimeStamp() {};
 
-  _proto.resetInitSegment = function resetInitSegment() {};
+  _proto.resetInitSegment = function resetInitSegment(initSegment, audioCodec, videoCodec, trackDuration) {
+    var initData = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__["parseInitSegment"])(initSegment);
+    var videoTrack = this.videoTrack = Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_3__["dummyTrack"])('video', 1);
+    var audioTrack = this.audioTrack = Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_3__["dummyTrack"])('audio', 1);
+    var captionTrack = this.txtTrack = Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_3__["dummyTrack"])('text', 1);
+    this.id3Track = Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_3__["dummyTrack"])('id3', 1);
+    this.timeOffset = 0;
+
+    if (initData.video) {
+      var _initData$video = initData.video,
+          id = _initData$video.id,
+          timescale = _initData$video.timescale,
+          codec = _initData$video.codec;
+      videoTrack.id = id;
+      videoTrack.timescale = captionTrack.timescale = timescale;
+      videoTrack.codec = codec;
+    }
+
+    if (initData.audio) {
+      var _initData$audio = initData.audio,
+          _id = _initData$audio.id,
+          _timescale = _initData$audio.timescale,
+          _codec = _initData$audio.codec;
+      audioTrack.id = _id;
+      audioTrack.timescale = _timescale;
+      audioTrack.codec = _codec;
+    }
+
+    captionTrack.id = _utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__["RemuxerTrackIdConfig"].text;
+    videoTrack.sampleDuration = 0;
+    videoTrack.duration = audioTrack.duration = trackDuration;
+  };
 
   _proto.resetContiguity = function resetContiguity() {};
 
   MP4Demuxer.probe = function probe(data) {
     // ensure we find a moof box in the first 16 kB
-    return Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_0__["findBox"])({
-      data: data,
-      start: 0,
-      end: Math.min(data.length, 16384)
-    }, ['moof']).length > 0;
+    data = data.length > 16384 ? data.subarray(0, 16384) : data;
+    return Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__["findBox"])(data, ['moof']).length > 0;
   };
 
-  _proto.demux = function demux(data) {
-    // Load all data into the avc track. The CMAF remuxer will look for the data in the samples object; the rest of the fields do not matter
-    var avcSamples = data;
-    var avcTrack = Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_1__["dummyTrack"])();
+  _proto.demux = function demux(data, timeOffset) {
+    this.timeOffset = timeOffset; // Load all data into the avc track. The CMAF remuxer will look for the data in the samples object; the rest of the fields do not matter
+
+    var videoSamples = data;
+    var videoTrack = this.videoTrack;
+    var textTrack = this.txtTrack;
 
     if (this.config.progressive) {
       // Split the bytestream into two ranges: one encompassing all data up until the start of the last moof, and everything else.
       // This is done to guarantee that we're sending valid data to MSE - when demuxing progressively, we have no guarantee
       // that the fetch loader gives us flush moof+mdat pairs. If we push jagged data to MSE, it will throw an exception.
       if (this.remainderData) {
-        avcSamples = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_0__["appendUint8Array"])(this.remainderData, data);
+        videoSamples = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__["appendUint8Array"])(this.remainderData, data);
       }
 
-      var segmentedData = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_0__["segmentValidRange"])(avcSamples);
+      var segmentedData = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__["segmentValidRange"])(videoSamples);
       this.remainderData = segmentedData.remainder;
-      avcTrack.samples = segmentedData.valid || new Uint8Array();
+      videoTrack.samples = segmentedData.valid || new Uint8Array();
     } else {
-      avcTrack.samples = avcSamples;
+      videoTrack.samples = videoSamples;
     }
 
+    var id3Track = this.extractID3Track(videoTrack, timeOffset);
+    textTrack.samples = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__["parseSamples"])(timeOffset, videoTrack);
     return {
-      audioTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_1__["dummyTrack"])(),
-      avcTrack: avcTrack,
-      id3Track: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_1__["dummyTrack"])(),
-      textTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_1__["dummyTrack"])()
+      videoTrack: videoTrack,
+      audioTrack: this.audioTrack,
+      id3Track: id3Track,
+      textTrack: this.txtTrack
     };
   };
 
   _proto.flush = function flush() {
-    var avcTrack = Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_1__["dummyTrack"])();
-    avcTrack.samples = this.remainderData || new Uint8Array();
+    var timeOffset = this.timeOffset;
+    var videoTrack = this.videoTrack;
+    var textTrack = this.txtTrack;
+    videoTrack.samples = this.remainderData || new Uint8Array();
     this.remainderData = null;
+    var id3Track = this.extractID3Track(videoTrack, this.timeOffset);
+    textTrack.samples = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__["parseSamples"])(timeOffset, videoTrack);
     return {
-      audioTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_1__["dummyTrack"])(),
-      avcTrack: avcTrack,
-      id3Track: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_1__["dummyTrack"])(),
-      textTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_1__["dummyTrack"])()
+      videoTrack: videoTrack,
+      audioTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_3__["dummyTrack"])(),
+      id3Track: id3Track,
+      textTrack: Object(_dummy_demuxed_track__WEBPACK_IMPORTED_MODULE_3__["dummyTrack"])()
     };
+  };
+
+  _proto.extractID3Track = function extractID3Track(videoTrack, timeOffset) {
+    var id3Track = this.id3Track;
+
+    if (videoTrack.samples.length) {
+      var emsgs = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__["findBox"])(videoTrack.samples, ['emsg']);
+
+      if (emsgs) {
+        emsgs.forEach(function (data) {
+          var emsgInfo = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__["parseEmsg"])(data);
+
+          if (emsgSchemePattern.test(emsgInfo.schemeIdUri)) {
+            var pts = Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(emsgInfo.presentationTime) ? emsgInfo.presentationTime / emsgInfo.timeScale : timeOffset + emsgInfo.presentationTimeDelta / emsgInfo.timeScale;
+            var payload = emsgInfo.payload;
+            id3Track.samples.push({
+              data: payload,
+              len: payload.byteLength,
+              dts: pts,
+              pts: pts,
+              type: _types_demuxer__WEBPACK_IMPORTED_MODULE_1__["MetadataSchema"].emsg
+            });
+          }
+        });
+      }
+    }
+
+    return id3Track;
   };
 
   _proto.demuxSampleAes = function demuxSampleAes(data, keyData, timeOffset) {
@@ -14351,7 +14936,6 @@ var MP4Demuxer = /*#__PURE__*/function () {
   return MP4Demuxer;
 }();
 
-MP4Demuxer.minProbeByteLength = 1024;
 /* harmony default export */ __webpack_exports__["default"] = (MP4Demuxer);
 
 /***/ }),
@@ -14539,6 +15123,13 @@ var SampleAesDecrypter = /*#__PURE__*/function () {
 
   _proto.decryptAacSample = function decryptAacSample(samples, sampleIndex, callback, sync) {
     var curUnit = samples[sampleIndex].unit;
+
+    if (curUnit.length <= 16) {
+      // No encrypted portion in this sample (first 16 bytes is not
+      // encrypted, see https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/HLS_Sample_Encryption/Encryption/Encryption.html),
+      return;
+    }
+
     var encryptedData = curUnit.subarray(16, curUnit.length - curUnit.length % 16);
     var encryptedBuffer = encryptedData.buffer.slice(encryptedData.byteOffset, encryptedData.byteOffset + encryptedData.length);
     var localthis = this;
@@ -14770,6 +15361,7 @@ var TransmuxerInterface = /*#__PURE__*/function () {
       w.removeEventListener('message', this.onwmsg);
       w.terminate();
       this.worker = null;
+      this.onwmsg = undefined;
     } else {
       var transmuxer = this.transmuxer;
 
@@ -14783,10 +15375,13 @@ var TransmuxerInterface = /*#__PURE__*/function () {
 
     if (observer) {
       observer.removeAllListeners();
-    } // @ts-ignore
+    }
 
+    this.frag = null; // @ts-ignore
 
-    this.observer = null;
+    this.observer = null; // @ts-ignore
+
+    this.hls = null;
   };
 
   _proto.push = function push(data, initSegmentData, audioCodec, videoCodec, frag, part, duration, accurateTimeOffset, chunkMeta, defaultInitPTS) {
@@ -14803,8 +15398,9 @@ var TransmuxerInterface = /*#__PURE__*/function () {
     var discontinuity = !(lastFrag && frag.cc === lastFrag.cc);
     var trackSwitch = !(lastFrag && chunkMeta.level === lastFrag.level);
     var snDiff = lastFrag ? chunkMeta.sn - lastFrag.sn : -1;
-    var partDiff = this.part ? chunkMeta.part - this.part.index : 1;
-    var contiguous = !trackSwitch && (snDiff === 1 || snDiff === 0 && partDiff === 1);
+    var partDiff = this.part ? chunkMeta.part - this.part.index : -1;
+    var progressive = snDiff === 0 && chunkMeta.id > 1 && chunkMeta.id === (lastFrag === null || lastFrag === void 0 ? void 0 : lastFrag.stats.chunkCount);
+    var contiguous = !trackSwitch && (snDiff === 1 || snDiff === 0 && (partDiff === 1 || progressive && partDiff <= 0));
     var now = self.performance.now();
 
     if (trackSwitch || snDiff || frag.stats.parsing.start === 0) {
@@ -14906,6 +15502,14 @@ var TransmuxerInterface = /*#__PURE__*/function () {
           this.onFlush(data.data);
           break;
         }
+      // pass logs from the worker thread to the main logger
+
+      case 'workerLog':
+        if (_utils_logger__WEBPACK_IMPORTED_MODULE_3__["logger"][data.data.logType]) {
+          _utils_logger__WEBPACK_IMPORTED_MODULE_3__["logger"][data.data.logType](data.data.message);
+        }
+
+        break;
 
       /* falls through */
 
@@ -14974,7 +15578,25 @@ function TransmuxerWorker(self) {
 
 
   observer.on(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].FRAG_DECRYPTED, forwardMessage);
-  observer.on(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].ERROR, forwardMessage);
+  observer.on(_events__WEBPACK_IMPORTED_MODULE_1__["Events"].ERROR, forwardMessage); // forward logger events to main thread
+
+  var forwardWorkerLogs = function forwardWorkerLogs() {
+    var _loop = function _loop(logFn) {
+      var func = function func(message) {
+        forwardMessage('workerLog', {
+          logType: logFn,
+          message: message
+        });
+      };
+
+      _utils_logger__WEBPACK_IMPORTED_MODULE_2__["logger"][logFn] = func;
+    };
+
+    for (var logFn in _utils_logger__WEBPACK_IMPORTED_MODULE_2__["logger"]) {
+      _loop(logFn);
+    }
+  };
+
   self.addEventListener('message', function (ev) {
     var data = ev.data;
 
@@ -14984,6 +15606,7 @@ function TransmuxerWorker(self) {
           var config = JSON.parse(data.config);
           self.transmuxer = new _demux_transmuxer__WEBPACK_IMPORTED_MODULE_0__["default"](observer, data.typeSupported, config, data.vendor, data.id);
           Object(_utils_logger__WEBPACK_IMPORTED_MODULE_2__["enableLogs"])(config.debug);
+          forwardWorkerLogs();
           forwardMessage('init', null);
           break;
         }
@@ -15031,7 +15654,7 @@ function TransmuxerWorker(self) {
 
 function emitTransmuxComplete(self, transmuxResult) {
   if (isEmptyResult(transmuxResult.remuxResult)) {
-    return;
+    return false;
   }
 
   var transferable = [];
@@ -15051,6 +15674,7 @@ function emitTransmuxComplete(self, transmuxResult) {
     event: 'transmuxComplete',
     data: transmuxResult
   }, transferable);
+  return true;
 } // Converts data to a transferable object https://developers.google.com/web/updates/2011/12/Transferable-Objects-Lightning-Fast)
 // in order to minimize message passing overhead
 
@@ -15066,9 +15690,18 @@ function addToTransferable(transferable, track) {
 }
 
 function handleFlushResult(self, results, chunkMeta) {
-  results.forEach(function (result) {
-    emitTransmuxComplete(self, result);
-  });
+  var parsed = results.reduce(function (parsed, result) {
+    return emitTransmuxComplete(self, result) || parsed;
+  }, false);
+
+  if (!parsed) {
+    // Emit at least one "transmuxComplete" message even if media is not found to update stream-controller state to PARSING
+    self.postMessage({
+      event: 'transmuxComplete',
+      data: results[0]
+    });
+  }
+
   self.postMessage({
     event: 'flush',
     data: chunkMeta
@@ -15101,11 +15734,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _demux_mp3demuxer__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../demux/mp3demuxer */ "./src/demux/mp3demuxer.ts");
 /* harmony import */ var _remux_mp4_remuxer__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../remux/mp4-remuxer */ "./src/remux/mp4-remuxer.ts");
 /* harmony import */ var _remux_passthrough_remuxer__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../remux/passthrough-remuxer */ "./src/remux/passthrough-remuxer.ts");
-/* harmony import */ var _chunk_cache__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./chunk-cache */ "./src/demux/chunk-cache.ts");
-/* harmony import */ var _utils_mp4_tools__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/mp4-tools */ "./src/utils/mp4-tools.ts");
-/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
-
-
+/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
 
 
 
@@ -15121,7 +15750,7 @@ var now; // performance.now() not available on WebWorker, at least on Safari Des
 try {
   now = self.performance.now.bind(self.performance);
 } catch (err) {
-  _utils_logger__WEBPACK_IMPORTED_MODULE_11__["logger"].debug('Unable to use Performance API on this environment');
+  _utils_logger__WEBPACK_IMPORTED_MODULE_9__["logger"].debug('Unable to use Performance API on this environment');
   now = self.Date.now;
 }
 
@@ -15138,11 +15767,6 @@ var muxConfig = [{
   demux: _demux_mp3demuxer__WEBPACK_IMPORTED_MODULE_6__["default"],
   remux: _remux_mp4_remuxer__WEBPACK_IMPORTED_MODULE_7__["default"]
 }];
-var minProbeByteLength = 1024;
-muxConfig.forEach(function (_ref) {
-  var demux = _ref.demux;
-  minProbeByteLength = Math.max(minProbeByteLength, demux.minProbeByteLength);
-});
 
 var Transmuxer = /*#__PURE__*/function () {
   function Transmuxer(observer, typeSupported, config, vendor, id) {
@@ -15158,7 +15782,6 @@ var Transmuxer = /*#__PURE__*/function () {
     this.decryptionPromise = null;
     this.transmuxConfig = void 0;
     this.currentTransmuxState = void 0;
-    this.cache = new _chunk_cache__WEBPACK_IMPORTED_MODULE_9__["default"]();
     this.observer = observer;
     this.typeSupported = typeSupported;
     this.config = config;
@@ -15182,13 +15805,38 @@ var Transmuxer = /*#__PURE__*/function () {
     var stats = chunkMeta.transmuxing;
     stats.executeStart = now();
     var uintData = new Uint8Array(data);
-    var cache = this.cache,
-        config = this.config,
+    var config = this.config,
         currentTransmuxState = this.currentTransmuxState,
         transmuxConfig = this.transmuxConfig;
 
     if (state) {
       this.currentTransmuxState = state;
+    }
+
+    var _ref = state || currentTransmuxState,
+        contiguous = _ref.contiguous,
+        discontinuity = _ref.discontinuity,
+        trackSwitch = _ref.trackSwitch,
+        accurateTimeOffset = _ref.accurateTimeOffset,
+        timeOffset = _ref.timeOffset,
+        initSegmentChange = _ref.initSegmentChange;
+
+    var audioCodec = transmuxConfig.audioCodec,
+        videoCodec = transmuxConfig.videoCodec,
+        defaultInitPts = transmuxConfig.defaultInitPts,
+        duration = transmuxConfig.duration,
+        initSegmentData = transmuxConfig.initSegmentData; // Reset muxers before probing to ensure that their state is clean, even if flushing occurs before a successful probe
+
+    if (discontinuity || trackSwitch || initSegmentChange) {
+      this.resetInitSegment(initSegmentData, audioCodec, videoCodec, duration);
+    }
+
+    if (discontinuity || initSegmentChange) {
+      this.resetInitialTimestamp(defaultInitPts);
+    }
+
+    if (!contiguous) {
+      this.resetContiguity();
     }
 
     var keyData = getEncryptionType(uintData, decryptdata);
@@ -15220,38 +15868,7 @@ var Transmuxer = /*#__PURE__*/function () {
       }
     }
 
-    var _ref2 = state || currentTransmuxState,
-        contiguous = _ref2.contiguous,
-        discontinuity = _ref2.discontinuity,
-        trackSwitch = _ref2.trackSwitch,
-        accurateTimeOffset = _ref2.accurateTimeOffset,
-        timeOffset = _ref2.timeOffset,
-        initSegmentChange = _ref2.initSegmentChange;
-
-    var audioCodec = transmuxConfig.audioCodec,
-        videoCodec = transmuxConfig.videoCodec,
-        defaultInitPts = transmuxConfig.defaultInitPts,
-        duration = transmuxConfig.duration,
-        initSegmentData = transmuxConfig.initSegmentData; // Reset muxers before probing to ensure that their state is clean, even if flushing occurs before a successful probe
-
-    if (discontinuity || trackSwitch || initSegmentChange) {
-      this.resetInitSegment(initSegmentData, audioCodec, videoCodec, duration);
-    }
-
-    if (discontinuity || initSegmentChange) {
-      this.resetInitialTimestamp(defaultInitPts);
-    }
-
-    if (!contiguous) {
-      this.resetContiguity();
-    }
-
     if (this.needsProbing(uintData, discontinuity, trackSwitch)) {
-      if (cache.dataLength) {
-        var cachedData = cache.flush();
-        uintData = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_10__["appendUint8Array"])(cachedData, uintData);
-      }
-
       this.configureTransmuxer(uintData, transmuxConfig);
     }
 
@@ -15271,7 +15888,6 @@ var Transmuxer = /*#__PURE__*/function () {
     var stats = chunkMeta.transmuxing;
     stats.executeStart = now();
     var decrypter = this.decrypter,
-        cache = this.cache,
         currentTransmuxState = this.currentTransmuxState,
         decryptionPromise = this.decryptionPromise;
 
@@ -15298,22 +15914,17 @@ var Transmuxer = /*#__PURE__*/function () {
       }
     }
 
-    var bytesSeen = cache.dataLength;
-    cache.reset();
     var demuxer = this.demuxer,
         remuxer = this.remuxer;
 
     if (!demuxer || !remuxer) {
-      // If probing failed, and each demuxer saw enough bytes to be able to probe, then Hls.js has been given content its not able to handle
-      if (bytesSeen >= minProbeByteLength) {
-        this.observer.emit(_events__WEBPACK_IMPORTED_MODULE_0__["Events"].ERROR, _events__WEBPACK_IMPORTED_MODULE_0__["Events"].ERROR, {
-          type: _errors__WEBPACK_IMPORTED_MODULE_1__["ErrorTypes"].MEDIA_ERROR,
-          details: _errors__WEBPACK_IMPORTED_MODULE_1__["ErrorDetails"].FRAG_PARSING_ERROR,
-          fatal: true,
-          reason: 'no demux matching with content found'
-        });
-      }
-
+      // If probing failed, then Hls.js has been given content its not able to handle
+      this.observer.emit(_events__WEBPACK_IMPORTED_MODULE_0__["Events"].ERROR, _events__WEBPACK_IMPORTED_MODULE_0__["Events"].ERROR, {
+        type: _errors__WEBPACK_IMPORTED_MODULE_1__["ErrorTypes"].MEDIA_ERROR,
+        details: _errors__WEBPACK_IMPORTED_MODULE_1__["ErrorDetails"].FRAG_PARSING_ERROR,
+        fatal: true,
+        reason: 'no demux matching with content found'
+      });
       stats.executeEnd = now();
       return [emptyResult(chunkMeta)];
     }
@@ -15335,14 +15946,14 @@ var Transmuxer = /*#__PURE__*/function () {
 
   _proto.flushRemux = function flushRemux(transmuxResults, demuxResult, chunkMeta) {
     var audioTrack = demuxResult.audioTrack,
-        avcTrack = demuxResult.avcTrack,
+        videoTrack = demuxResult.videoTrack,
         id3Track = demuxResult.id3Track,
         textTrack = demuxResult.textTrack;
     var _this$currentTransmux = this.currentTransmuxState,
         accurateTimeOffset = _this$currentTransmux.accurateTimeOffset,
         timeOffset = _this$currentTransmux.timeOffset;
-    _utils_logger__WEBPACK_IMPORTED_MODULE_11__["logger"].log("[transmuxer.ts]: Flushed fragment " + chunkMeta.sn + (chunkMeta.part > -1 ? ' p: ' + chunkMeta.part : '') + " of level " + chunkMeta.level);
-    var remuxResult = this.remuxer.remux(audioTrack, avcTrack, id3Track, textTrack, timeOffset, accurateTimeOffset, true, this.id);
+    _utils_logger__WEBPACK_IMPORTED_MODULE_9__["logger"].log("[transmuxer.ts]: Flushed fragment " + chunkMeta.sn + (chunkMeta.part > -1 ? ' p: ' + chunkMeta.part : '') + " of level " + chunkMeta.level);
+    var remuxResult = this.remuxer.remux(audioTrack, videoTrack, id3Track, textTrack, timeOffset, accurateTimeOffset, true, this.id);
     transmuxResults.push({
       remuxResult: remuxResult,
       chunkMeta: chunkMeta
@@ -15374,7 +15985,7 @@ var Transmuxer = /*#__PURE__*/function () {
     remuxer.resetNextTimestamp();
   };
 
-  _proto.resetInitSegment = function resetInitSegment(initSegmentData, audioCodec, videoCodec, duration) {
+  _proto.resetInitSegment = function resetInitSegment(initSegmentData, audioCodec, videoCodec, trackDuration) {
     var demuxer = this.demuxer,
         remuxer = this.remuxer;
 
@@ -15382,7 +15993,7 @@ var Transmuxer = /*#__PURE__*/function () {
       return;
     }
 
-    demuxer.resetInitSegment(audioCodec, videoCodec, duration);
+    demuxer.resetInitSegment(initSegmentData, audioCodec, videoCodec, trackDuration);
     remuxer.resetInitSegment(initSegmentData, audioCodec, videoCodec);
   };
 
@@ -15413,11 +16024,11 @@ var Transmuxer = /*#__PURE__*/function () {
   _proto.transmuxUnencrypted = function transmuxUnencrypted(data, timeOffset, accurateTimeOffset, chunkMeta) {
     var _demux = this.demuxer.demux(data, timeOffset, false, !this.config.progressive),
         audioTrack = _demux.audioTrack,
-        avcTrack = _demux.avcTrack,
+        videoTrack = _demux.videoTrack,
         id3Track = _demux.id3Track,
         textTrack = _demux.textTrack;
 
-    var remuxResult = this.remuxer.remux(audioTrack, avcTrack, id3Track, textTrack, timeOffset, accurateTimeOffset, false, this.id);
+    var remuxResult = this.remuxer.remux(audioTrack, videoTrack, id3Track, textTrack, timeOffset, accurateTimeOffset, false, this.id);
     return {
       remuxResult: remuxResult,
       chunkMeta: chunkMeta
@@ -15428,7 +16039,7 @@ var Transmuxer = /*#__PURE__*/function () {
     var _this3 = this;
 
     return this.demuxer.demuxSampleAes(data, decryptData, timeOffset).then(function (demuxResult) {
-      var remuxResult = _this3.remuxer.remux(demuxResult.audioTrack, demuxResult.avcTrack, demuxResult.id3Track, demuxResult.textTrack, timeOffset, accurateTimeOffset, false, _this3.id);
+      var remuxResult = _this3.remuxer.remux(demuxResult.audioTrack, demuxResult.videoTrack, demuxResult.id3Track, demuxResult.textTrack, timeOffset, accurateTimeOffset, false, _this3.id);
 
       return {
         remuxResult: remuxResult,
@@ -15459,7 +16070,7 @@ var Transmuxer = /*#__PURE__*/function () {
 
     if (!mux) {
       // If probing previous configs fail, use mp4 passthrough
-      _utils_logger__WEBPACK_IMPORTED_MODULE_11__["logger"].warn('Failed to find demuxer by probing frag, treating as mp4 passthrough');
+      _utils_logger__WEBPACK_IMPORTED_MODULE_9__["logger"].warn('Failed to find demuxer by probing frag, treating as mp4 passthrough');
       mux = {
         demux: _demux_mp4demuxer__WEBPACK_IMPORTED_MODULE_4__["default"],
         remux: _remux_passthrough_remuxer__WEBPACK_IMPORTED_MODULE_8__["default"]
@@ -15567,12 +16178,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _adts__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./adts */ "./src/demux/adts.ts");
 /* harmony import */ var _mpegaudio__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mpegaudio */ "./src/demux/mpegaudio.ts");
 /* harmony import */ var _exp_golomb__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./exp-golomb */ "./src/demux/exp-golomb.ts");
-/* harmony import */ var _id3__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./id3 */ "./src/demux/id3.ts");
-/* harmony import */ var _sample_aes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sample-aes */ "./src/demux/sample-aes.ts");
-/* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../events */ "./src/events.ts");
-/* harmony import */ var _utils_mp4_tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/mp4-tools */ "./src/utils/mp4-tools.ts");
-/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
-/* harmony import */ var _errors__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../errors */ "./src/errors.ts");
+/* harmony import */ var _sample_aes__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./sample-aes */ "./src/demux/sample-aes.ts");
+/* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../events */ "./src/events.ts");
+/* harmony import */ var _utils_mp4_tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/mp4-tools */ "./src/utils/mp4-tools.ts");
+/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
+/* harmony import */ var _errors__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../errors */ "./src/errors.ts");
+/* harmony import */ var _types_demuxer__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../types/demuxer */ "./src/types/demuxer.ts");
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
 /**
  * highly optimized TS demuxer:
  * parse PAT, PMT
@@ -15592,20 +16205,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// We are using fixed track IDs for driving the MP4 remuxer
-// instead of following the TS PIDs.
-// There is no reason not to do this and some browsers/SourceBuffer-demuxers
-// may not like if there are TrackID "switches"
-// See https://github.com/video-dev/hls.js/issues/1331
-// Here we are mapping our internal track types to constant MP4 track IDs
-// With MSE currently one can only have one track of each, and we are muxing
-// whatever video/audio rendition in them.
-var RemuxerTrackIdConfig = {
-  video: 1,
-  audio: 2,
-  id3: 3,
-  text: 4
-};
 
 var TSDemuxer = /*#__PURE__*/function () {
   function TSDemuxer(observer, config, typeSupported) {
@@ -15617,9 +16216,6 @@ var TSDemuxer = /*#__PURE__*/function () {
     this.audioCodec = void 0;
     this.videoCodec = void 0;
     this._duration = 0;
-    this.aacLastPTS = null;
-    this._initPTS = null;
-    this._initDTS = null;
     this._pmtId = -1;
     this._avcTrack = void 0;
     this._audioTrack = void 0;
@@ -15634,34 +16230,8 @@ var TSDemuxer = /*#__PURE__*/function () {
   }
 
   TSDemuxer.probe = function probe(data) {
-    var syncOffset = TSDemuxer.syncOffset(data);
-
-    if (syncOffset < 0) {
-      return false;
-    } else {
-      if (syncOffset) {
-        _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].warn("MPEG2-TS detected but first sync word found @ offset " + syncOffset + ", junk ahead ?");
-      }
-
-      return true;
-    }
-  };
-
-  TSDemuxer.syncOffset = function syncOffset(data) {
-    // scan 1000 first bytes
-    var scanwindow = Math.min(1000, data.length - 3 * 188);
-    var i = 0;
-
-    while (i < scanwindow) {
-      // a TS fragment should contain at least 3 TS packets, a PAT, a PMT, and one PID, each starting with 0x47
-      if (data[i] === 0x47 && data[i + 188] === 0x47 && data[i + 2 * 188] === 0x47) {
-        return i;
-      } else {
-        i++;
-      }
-    }
-
-    return -1;
+    // a TS init segment should contain at least 2 TS packets: PAT and PMT, each starting with 0x47
+    return data[0] === 0x47 && data[188] === 0x47;
   }
   /**
    * Creates a track model internal to demuxer used to drive remuxing input
@@ -15676,7 +16246,7 @@ var TSDemuxer = /*#__PURE__*/function () {
     return {
       container: type === 'video' || type === 'audio' ? 'video/mp2t' : undefined,
       type: type,
-      id: RemuxerTrackIdConfig[type],
+      id: _utils_mp4_tools__WEBPACK_IMPORTED_MODULE_5__["RemuxerTrackIdConfig"][type],
       pid: -1,
       inputTimeScale: 90000,
       sequenceNumber: 0,
@@ -15693,21 +16263,21 @@ var TSDemuxer = /*#__PURE__*/function () {
 
   var _proto = TSDemuxer.prototype;
 
-  _proto.resetInitSegment = function resetInitSegment(audioCodec, videoCodec, duration) {
+  _proto.resetInitSegment = function resetInitSegment(initSegment, audioCodec, videoCodec, trackDuration) {
     this.pmtParsed = false;
     this._pmtId = -1;
-    this._avcTrack = TSDemuxer.createTrack('video', duration);
-    this._audioTrack = TSDemuxer.createTrack('audio', duration);
-    this._id3Track = TSDemuxer.createTrack('id3', duration);
-    this._txtTrack = TSDemuxer.createTrack('text', duration);
-    this._audioTrack.isAAC = true; // flush any partial content
+    this._avcTrack = TSDemuxer.createTrack('video');
+    this._audioTrack = TSDemuxer.createTrack('audio', trackDuration);
+    this._id3Track = TSDemuxer.createTrack('id3');
+    this._txtTrack = TSDemuxer.createTrack('text');
+    this._audioTrack.segmentCodec = 'aac'; // flush any partial content
 
     this.aacOverFlow = null;
-    this.aacLastPTS = null;
     this.avcSample = null;
+    this.remainderData = null;
     this.audioCodec = audioCodec;
     this.videoCodec = videoCodec;
-    this._duration = duration;
+    this._duration = trackDuration;
   };
 
   _proto.resetTimeStamp = function resetTimeStamp() {};
@@ -15730,7 +16300,6 @@ var TSDemuxer = /*#__PURE__*/function () {
     }
 
     this.aacOverFlow = null;
-    this.aacLastPTS = null;
   };
 
   _proto.demux = function demux(data, timeOffset, isSampleAes, flush) {
@@ -15747,22 +16316,23 @@ var TSDemuxer = /*#__PURE__*/function () {
     }
 
     var pes;
-    var avcTrack = this._avcTrack;
+    var videoTrack = this._avcTrack;
     var audioTrack = this._audioTrack;
     var id3Track = this._id3Track;
-    var avcId = avcTrack.pid;
-    var avcData = avcTrack.pesData;
+    var textTrack = this._txtTrack;
+    var avcId = videoTrack.pid;
+    var avcData = videoTrack.pesData;
     var audioId = audioTrack.pid;
     var id3Id = id3Track.pid;
     var audioData = audioTrack.pesData;
     var id3Data = id3Track.pesData;
-    var unknownPIDs = false;
+    var unknownPID = null;
     var pmtParsed = this.pmtParsed;
     var pmtId = this._pmtId;
     var len = data.length;
 
     if (this.remainderData) {
-      data = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_6__["appendUint8Array"])(this.remainderData, data);
+      data = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_5__["appendUint8Array"])(this.remainderData, data);
       len = data.length;
       this.remainderData = null;
     }
@@ -15771,14 +16341,13 @@ var TSDemuxer = /*#__PURE__*/function () {
       this.remainderData = data;
       return {
         audioTrack: audioTrack,
-        avcTrack: avcTrack,
+        videoTrack: videoTrack,
         id3Track: id3Track,
-        textTrack: this._txtTrack
+        textTrack: textTrack
       };
     }
 
-    var syncOffset = Math.max(0, TSDemuxer.syncOffset(data));
-    len -= (len + syncOffset) % 188;
+    len -= len % 188;
 
     if (len < data.byteLength && !flush) {
       this.remainderData = new Uint8Array(data.buffer, len, data.buffer.byteLength - len);
@@ -15787,7 +16356,7 @@ var TSDemuxer = /*#__PURE__*/function () {
 
     var tsPacketErrors = 0;
 
-    for (var start = syncOffset; start < len; start += 188) {
+    for (var start = 0; start < len; start += 188) {
       if (data[start] === 0x47) {
         var stt = !!(data[start + 1] & 0x40); // pid is a 13-bit field starting at the last bit of TS[1]
 
@@ -15810,7 +16379,7 @@ var TSDemuxer = /*#__PURE__*/function () {
           case avcId:
             if (stt) {
               if (avcData && (pes = parsePES(avcData))) {
-                this.parseAVCPES(pes, false);
+                this.parseAVCPES(videoTrack, textTrack, pes, false);
               }
 
               avcData = {
@@ -15829,10 +16398,14 @@ var TSDemuxer = /*#__PURE__*/function () {
           case audioId:
             if (stt) {
               if (audioData && (pes = parsePES(audioData))) {
-                if (audioTrack.isAAC) {
-                  this.parseAACPES(pes);
-                } else {
-                  this.parseMPEGPES(pes);
+                switch (audioTrack.segmentCodec) {
+                  case 'aac':
+                    this.parseAACPES(audioTrack, pes);
+                    break;
+
+                  case 'mp3':
+                    this.parseMPEGPES(audioTrack, pes);
+                    break;
                 }
               }
 
@@ -15852,7 +16425,7 @@ var TSDemuxer = /*#__PURE__*/function () {
           case id3Id:
             if (stt) {
               if (id3Data && (pes = parsePES(id3Data))) {
-                this.parseID3PES(pes);
+                this.parseID3PES(id3Track, pes);
               }
 
               id3Data = {
@@ -15882,7 +16455,7 @@ var TSDemuxer = /*#__PURE__*/function () {
                 offset += data[offset] + 1;
               }
 
-              var parsedPIDs = parsePMT(data, offset, this.typeSupported.mpeg === true || this.typeSupported.mp3 === true, isSampleAes); // only update track id if track PID found while parsing PMT
+              var parsedPIDs = parsePMT(data, offset, this.typeSupported, isSampleAes); // only update track id if track PID found while parsing PMT
               // this is to avoid resetting the PID to -1 in case
               // track PID transiently disappears from the stream
               // this could happen in case of transient missing audio samples for example
@@ -15892,14 +16465,14 @@ var TSDemuxer = /*#__PURE__*/function () {
               avcId = parsedPIDs.avc;
 
               if (avcId > 0) {
-                avcTrack.pid = avcId;
+                videoTrack.pid = avcId;
               }
 
               audioId = parsedPIDs.audio;
 
               if (audioId > 0) {
                 audioTrack.pid = audioId;
-                audioTrack.isAAC = parsedPIDs.isAAC;
+                audioTrack.segmentCodec = parsedPIDs.segmentCodec;
               }
 
               id3Id = parsedPIDs.id3;
@@ -15908,11 +16481,9 @@ var TSDemuxer = /*#__PURE__*/function () {
                 id3Track.pid = id3Id;
               }
 
-              if (unknownPIDs && !pmtParsed) {
-                _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].log('reparse from beginning');
-                unknownPIDs = false; // we set it to -188, the += 188 in the for loop will reset start to 0
-
-                start = syncOffset - 188;
+              if (unknownPID !== null && !pmtParsed) {
+                _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].log("unknown PID '" + unknownPID + "' in TS found");
+                unknownPID = null;
               }
 
               pmtParsed = this.pmtParsed = true;
@@ -15924,7 +16495,7 @@ var TSDemuxer = /*#__PURE__*/function () {
             break;
 
           default:
-            unknownPIDs = true;
+            unknownPID = pid;
             break;
         }
       } else {
@@ -15933,22 +16504,22 @@ var TSDemuxer = /*#__PURE__*/function () {
     }
 
     if (tsPacketErrors > 0) {
-      this.observer.emit(_events__WEBPACK_IMPORTED_MODULE_5__["Events"].ERROR, _events__WEBPACK_IMPORTED_MODULE_5__["Events"].ERROR, {
-        type: _errors__WEBPACK_IMPORTED_MODULE_8__["ErrorTypes"].MEDIA_ERROR,
-        details: _errors__WEBPACK_IMPORTED_MODULE_8__["ErrorDetails"].FRAG_PARSING_ERROR,
+      this.observer.emit(_events__WEBPACK_IMPORTED_MODULE_4__["Events"].ERROR, _events__WEBPACK_IMPORTED_MODULE_4__["Events"].ERROR, {
+        type: _errors__WEBPACK_IMPORTED_MODULE_7__["ErrorTypes"].MEDIA_ERROR,
+        details: _errors__WEBPACK_IMPORTED_MODULE_7__["ErrorDetails"].FRAG_PARSING_ERROR,
         fatal: false,
         reason: "Found " + tsPacketErrors + " TS packet/s that do not start with 0x47"
       });
     }
 
-    avcTrack.pesData = avcData;
+    videoTrack.pesData = avcData;
     audioTrack.pesData = audioData;
     id3Track.pesData = id3Data;
     var demuxResult = {
       audioTrack: audioTrack,
-      avcTrack: avcTrack,
+      videoTrack: videoTrack,
       id3Track: id3Track,
-      textTrack: this._txtTrack
+      textTrack: textTrack
     };
 
     if (flush) {
@@ -15967,10 +16538,10 @@ var TSDemuxer = /*#__PURE__*/function () {
       result = this.demux(remainderData, -1, false, true);
     } else {
       result = {
+        videoTrack: this._avcTrack,
         audioTrack: this._audioTrack,
-        avcTrack: this._avcTrack,
-        textTrack: this._txtTrack,
-        id3Track: this._id3Track
+        id3Track: this._id3Track,
+        textTrack: this._txtTrack
       };
     }
 
@@ -15985,33 +16556,38 @@ var TSDemuxer = /*#__PURE__*/function () {
 
   _proto.extractRemainingSamples = function extractRemainingSamples(demuxResult) {
     var audioTrack = demuxResult.audioTrack,
-        avcTrack = demuxResult.avcTrack,
-        id3Track = demuxResult.id3Track;
-    var avcData = avcTrack.pesData;
+        videoTrack = demuxResult.videoTrack,
+        id3Track = demuxResult.id3Track,
+        textTrack = demuxResult.textTrack;
+    var avcData = videoTrack.pesData;
     var audioData = audioTrack.pesData;
     var id3Data = id3Track.pesData; // try to parse last PES packets
 
     var pes;
 
     if (avcData && (pes = parsePES(avcData))) {
-      this.parseAVCPES(pes, true);
-      avcTrack.pesData = null;
+      this.parseAVCPES(videoTrack, textTrack, pes, true);
+      videoTrack.pesData = null;
     } else {
       // either avcData null or PES truncated, keep it for next frag parsing
-      avcTrack.pesData = avcData;
+      videoTrack.pesData = avcData;
     }
 
     if (audioData && (pes = parsePES(audioData))) {
-      if (audioTrack.isAAC) {
-        this.parseAACPES(pes);
-      } else {
-        this.parseMPEGPES(pes);
+      switch (audioTrack.segmentCodec) {
+        case 'aac':
+          this.parseAACPES(audioTrack, pes);
+          break;
+
+        case 'mp3':
+          this.parseMPEGPES(audioTrack, pes);
+          break;
       }
 
       audioTrack.pesData = null;
     } else {
       if (audioData !== null && audioData !== void 0 && audioData.size) {
-        _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].log('last AAC PES packet truncated,might overlap between fragments');
+        _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].log('last AAC PES packet truncated,might overlap between fragments');
       } // either audioData null or PES truncated, keep it for next frag parsing
 
 
@@ -16019,7 +16595,7 @@ var TSDemuxer = /*#__PURE__*/function () {
     }
 
     if (id3Data && (pes = parsePES(id3Data))) {
-      this.parseID3PES(pes);
+      this.parseID3PES(id3Track, pes);
       id3Track.pesData = null;
     } else {
       // either id3Data null or PES truncated, keep it for next frag parsing
@@ -16029,27 +16605,27 @@ var TSDemuxer = /*#__PURE__*/function () {
 
   _proto.demuxSampleAes = function demuxSampleAes(data, keyData, timeOffset) {
     var demuxResult = this.demux(data, timeOffset, true, !this.config.progressive);
-    var sampleAes = this.sampleAes = new _sample_aes__WEBPACK_IMPORTED_MODULE_4__["default"](this.observer, this.config, keyData);
+    var sampleAes = this.sampleAes = new _sample_aes__WEBPACK_IMPORTED_MODULE_3__["default"](this.observer, this.config, keyData);
     return this.decrypt(demuxResult, sampleAes);
   };
 
   _proto.decrypt = function decrypt(demuxResult, sampleAes) {
     return new Promise(function (resolve) {
       var audioTrack = demuxResult.audioTrack,
-          avcTrack = demuxResult.avcTrack;
+          videoTrack = demuxResult.videoTrack;
 
-      if (audioTrack.samples && audioTrack.isAAC) {
+      if (audioTrack.samples && audioTrack.segmentCodec === 'aac') {
         sampleAes.decryptAacSamples(audioTrack.samples, 0, function () {
-          if (avcTrack.samples) {
-            sampleAes.decryptAvcSamples(avcTrack.samples, 0, 0, function () {
+          if (videoTrack.samples) {
+            sampleAes.decryptAvcSamples(videoTrack.samples, 0, 0, function () {
               resolve(demuxResult);
             });
           } else {
             resolve(demuxResult);
           }
         });
-      } else if (avcTrack.samples) {
-        sampleAes.decryptAvcSamples(avcTrack.samples, 0, 0, function () {
+      } else if (videoTrack.samples) {
+        sampleAes.decryptAvcSamples(videoTrack.samples, 0, 0, function () {
           resolve(demuxResult);
         });
       }
@@ -16057,15 +16633,13 @@ var TSDemuxer = /*#__PURE__*/function () {
   };
 
   _proto.destroy = function destroy() {
-    this._initPTS = this._initDTS = null;
     this._duration = 0;
   };
 
-  _proto.parseAVCPES = function parseAVCPES(pes, last) {
+  _proto.parseAVCPES = function parseAVCPES(track, textTrack, pes, last) {
     var _this = this;
 
-    var track = this._avcTrack;
-    var units = this.parseAVCNALu(pes.data);
+    var units = this.parseAVCNALu(track, pes.data);
     var avcSample = this.avcSample;
     var push;
     var spsfound = false; // free pes.data to save up some memory
@@ -16124,103 +16698,7 @@ var TSDemuxer = /*#__PURE__*/function () {
           {
             push = true;
 
-            var expGolombDecoder = new _exp_golomb__WEBPACK_IMPORTED_MODULE_2__["default"](discardEPB(unit.data)); // skip frameType
-
-            expGolombDecoder.readUByte();
-            var payloadType = 0;
-            var payloadSize = 0;
-            var endOfCaptions = false;
-            var b = 0;
-
-            while (!endOfCaptions && expGolombDecoder.bytesAvailable > 1) {
-              payloadType = 0;
-
-              do {
-                b = expGolombDecoder.readUByte();
-                payloadType += b;
-              } while (b === 0xff); // Parse payload size.
-
-
-              payloadSize = 0;
-
-              do {
-                b = expGolombDecoder.readUByte();
-                payloadSize += b;
-              } while (b === 0xff); // TODO: there can be more than one payload in an SEI packet...
-              // TODO: need to read type and size in a while loop to get them all
-
-
-              if (payloadType === 4 && expGolombDecoder.bytesAvailable !== 0) {
-                endOfCaptions = true;
-                var countryCode = expGolombDecoder.readUByte();
-
-                if (countryCode === 181) {
-                  var providerCode = expGolombDecoder.readUShort();
-
-                  if (providerCode === 49) {
-                    var userStructure = expGolombDecoder.readUInt();
-
-                    if (userStructure === 0x47413934) {
-                      var userDataType = expGolombDecoder.readUByte(); // Raw CEA-608 bytes wrapped in CEA-708 packet
-
-                      if (userDataType === 3) {
-                        var firstByte = expGolombDecoder.readUByte();
-                        var secondByte = expGolombDecoder.readUByte();
-                        var totalCCs = 31 & firstByte;
-                        var byteArray = [firstByte, secondByte];
-
-                        for (var i = 0; i < totalCCs; i++) {
-                          // 3 bytes per CC
-                          byteArray.push(expGolombDecoder.readUByte());
-                          byteArray.push(expGolombDecoder.readUByte());
-                          byteArray.push(expGolombDecoder.readUByte());
-                        }
-
-                        insertSampleInOrder(_this._txtTrack.samples, {
-                          type: 3,
-                          pts: pes.pts,
-                          bytes: byteArray
-                        });
-                      }
-                    }
-                  }
-                }
-              } else if (payloadType === 5 && expGolombDecoder.bytesAvailable !== 0) {
-                endOfCaptions = true;
-
-                if (payloadSize > 16) {
-                  var uuidStrArray = [];
-
-                  for (var _i = 0; _i < 16; _i++) {
-                    uuidStrArray.push(expGolombDecoder.readUByte().toString(16));
-
-                    if (_i === 3 || _i === 5 || _i === 7 || _i === 9) {
-                      uuidStrArray.push('-');
-                    }
-                  }
-
-                  var length = payloadSize - 16;
-                  var userDataPayloadBytes = new Uint8Array(length);
-
-                  for (var _i2 = 0; _i2 < length; _i2++) {
-                    userDataPayloadBytes[_i2] = expGolombDecoder.readUByte();
-                  }
-
-                  insertSampleInOrder(_this._txtTrack.samples, {
-                    pts: pes.pts,
-                    payloadType: payloadType,
-                    uuid: uuidStrArray.join(''),
-                    userData: Object(_id3__WEBPACK_IMPORTED_MODULE_3__["utf8ArrayToStr"])(userDataPayloadBytes),
-                    userDataBytes: userDataPayloadBytes
-                  });
-                }
-              } else if (payloadSize < expGolombDecoder.bytesAvailable) {
-                for (var _i3 = 0; _i3 < payloadSize; _i3++) {
-                  expGolombDecoder.readUByte();
-                }
-              }
-            }
-
+            Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_5__["parseSEIMessageFromNALu"])(discardEPB(unit.data), pes.pts, textTrack.samples);
             break; // SPS
           }
 
@@ -16229,10 +16707,8 @@ var TSDemuxer = /*#__PURE__*/function () {
           spsfound = true;
 
           if (!track.sps) {
-            var _expGolombDecoder = new _exp_golomb__WEBPACK_IMPORTED_MODULE_2__["default"](unit.data);
-
-            var config = _expGolombDecoder.readSPS();
-
+            var expGolombDecoder = new _exp_golomb__WEBPACK_IMPORTED_MODULE_2__["default"](unit.data);
+            var config = expGolombDecoder.readSPS();
             track.width = config.width;
             track.height = config.height;
             track.pixelRatio = config.pixelRatio; // TODO: `track.sps` is defined as a `number[]`, but we're setting it to a `Uint8Array[]`.
@@ -16242,8 +16718,8 @@ var TSDemuxer = /*#__PURE__*/function () {
             var codecarray = unit.data.subarray(1, 4);
             var codecstring = 'avc1.';
 
-            for (var _i4 = 0; _i4 < 3; _i4++) {
-              var h = codecarray[_i4].toString(16);
+            for (var i = 0; i < 3; i++) {
+              var h = codecarray[i].toString(16);
 
               if (h.length < 2) {
                 h = '0' + h;
@@ -16282,7 +16758,7 @@ var TSDemuxer = /*#__PURE__*/function () {
         // Filler Data
 
         case 12:
-          push = false;
+          push = true;
           break;
 
         default:
@@ -16308,14 +16784,13 @@ var TSDemuxer = /*#__PURE__*/function () {
     }
   };
 
-  _proto.getLastNalUnit = function getLastNalUnit() {
+  _proto.getLastNalUnit = function getLastNalUnit(samples) {
     var _avcSample;
 
     var avcSample = this.avcSample;
     var lastUnit; // try to fallback to previous sample if current one is empty
 
     if (!avcSample || avcSample.units.length === 0) {
-      var samples = this._avcTrack.samples;
       avcSample = samples[samples.length - 1];
     }
 
@@ -16327,9 +16802,8 @@ var TSDemuxer = /*#__PURE__*/function () {
     return lastUnit;
   };
 
-  _proto.parseAVCNALu = function parseAVCNALu(array) {
+  _proto.parseAVCNALu = function parseAVCNALu(track, array) {
     var len = array.byteLength;
-    var track = this._avcTrack;
     var state = track.naluState || 0;
     var lastState = state;
     var units = [];
@@ -16378,7 +16852,7 @@ var TSDemuxer = /*#__PURE__*/function () {
           // first check if start code delimiter is overlapping between 2 PES packets,
           // ie it started in last packet (lastState not zero)
           // and ended at the beginning of this PES packet (i <= 4 - lastState)
-          var lastUnit = this.getLastNalUnit();
+          var lastUnit = this.getLastNalUnit(track.samples);
 
           if (lastUnit) {
             if (lastState && i <= 4 - lastState) {
@@ -16433,7 +16907,7 @@ var TSDemuxer = /*#__PURE__*/function () {
 
     if (units.length === 0) {
       // append pes.data to previous NAL unit
-      var _lastUnit = this.getLastNalUnit();
+      var _lastUnit = this.getLastNalUnit(track.samples);
 
       if (_lastUnit) {
         var _tmp = new Uint8Array(_lastUnit.data.byteLength + array.byteLength);
@@ -16450,21 +16924,27 @@ var TSDemuxer = /*#__PURE__*/function () {
     return units;
   };
 
-  _proto.parseAACPES = function parseAACPES(pes) {
+  _proto.parseAACPES = function parseAACPES(track, pes) {
     var startOffset = 0;
-    var track = this._audioTrack;
     var aacOverFlow = this.aacOverFlow;
     var data = pes.data;
 
     if (aacOverFlow) {
       this.aacOverFlow = null;
-      var sampleLength = aacOverFlow.sample.unit.byteLength;
-      var frameMissingBytes = Math.min(aacOverFlow.missing, sampleLength);
-      var frameOverflowBytes = sampleLength - frameMissingBytes;
-      aacOverFlow.sample.unit.set(data.subarray(0, frameMissingBytes), frameOverflowBytes);
-      track.samples.push(aacOverFlow.sample); // logger.log(`AAC: append overflowing ${frameOverflowBytes} bytes to beginning of new PES`);
+      var frameMissingBytes = aacOverFlow.missing;
+      var sampleLength = aacOverFlow.sample.unit.byteLength; // logger.log(`AAC: append overflowing ${sampleLength} bytes to beginning of new PES`);
 
-      startOffset = aacOverFlow.missing;
+      if (frameMissingBytes === -1) {
+        var tmp = new Uint8Array(sampleLength + data.byteLength);
+        tmp.set(aacOverFlow.sample.unit, 0);
+        tmp.set(data, sampleLength);
+        data = tmp;
+      } else {
+        var frameOverflowBytes = sampleLength - frameMissingBytes;
+        aacOverFlow.sample.unit.set(data.subarray(0, frameMissingBytes), frameOverflowBytes);
+        track.samples.push(aacOverFlow.sample);
+        startOffset = aacOverFlow.missing;
+      }
     } // look for ADTS header (0xFFFx)
 
 
@@ -16490,10 +16970,10 @@ var TSDemuxer = /*#__PURE__*/function () {
         fatal = true;
       }
 
-      _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].warn("parsing error:" + reason);
-      this.observer.emit(_events__WEBPACK_IMPORTED_MODULE_5__["Events"].ERROR, _events__WEBPACK_IMPORTED_MODULE_5__["Events"].ERROR, {
-        type: _errors__WEBPACK_IMPORTED_MODULE_8__["ErrorTypes"].MEDIA_ERROR,
-        details: _errors__WEBPACK_IMPORTED_MODULE_8__["ErrorDetails"].FRAG_PARSING_ERROR,
+      _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].warn("parsing error:" + reason);
+      this.observer.emit(_events__WEBPACK_IMPORTED_MODULE_4__["Events"].ERROR, _events__WEBPACK_IMPORTED_MODULE_4__["Events"].ERROR, {
+        type: _errors__WEBPACK_IMPORTED_MODULE_7__["ErrorTypes"].MEDIA_ERROR,
+        details: _errors__WEBPACK_IMPORTED_MODULE_7__["ErrorDetails"].FRAG_PARSING_ERROR,
         fatal: fatal,
         reason: reason
       });
@@ -16514,40 +16994,34 @@ var TSDemuxer = /*#__PURE__*/function () {
       var frameDuration = _adts__WEBPACK_IMPORTED_MODULE_0__["getFrameDuration"](track.samplerate);
       pts = aacOverFlow.sample.pts + frameDuration;
     } else {
-      _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].warn('[tsdemuxer]: AAC PES unknown PTS');
+      _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].warn('[tsdemuxer]: AAC PES unknown PTS');
       return;
     } // scan for aac samples
 
 
     var frameIndex = 0;
+    var frame;
 
     while (offset < len) {
-      if (_adts__WEBPACK_IMPORTED_MODULE_0__["isHeader"](data, offset)) {
-        if (offset + 5 < len) {
-          var frame = _adts__WEBPACK_IMPORTED_MODULE_0__["appendFrame"](track, data, offset, pts, frameIndex);
+      frame = _adts__WEBPACK_IMPORTED_MODULE_0__["appendFrame"](track, data, offset, pts, frameIndex);
+      offset += frame.length;
 
-          if (frame) {
-            if (frame.missing) {
-              this.aacOverFlow = frame;
-            } else {
-              offset += frame.length;
-              frameIndex++;
-              continue;
-            }
+      if (!frame.missing) {
+        frameIndex++;
+
+        for (; offset < len - 1; offset++) {
+          if (_adts__WEBPACK_IMPORTED_MODULE_0__["isHeader"](data, offset)) {
+            break;
           }
-        } // We are at an ADTS header, but do not have enough data for a frame
-        // Remaining data will be added to aacOverFlow
-
-
-        break;
+        }
       } else {
-        // nothing found, keep looking
-        offset++;
+        this.aacOverFlow = frame;
+        break;
       }
     }
   };
 
-  _proto.parseMPEGPES = function parseMPEGPES(pes) {
+  _proto.parseMPEGPES = function parseMPEGPES(track, pes) {
     var data = pes.data;
     var length = data.length;
     var frameIndex = 0;
@@ -16555,13 +17029,13 @@ var TSDemuxer = /*#__PURE__*/function () {
     var pts = pes.pts;
 
     if (pts === undefined) {
-      _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].warn('[tsdemuxer]: MPEG PES unknown PTS');
+      _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].warn('[tsdemuxer]: MPEG PES unknown PTS');
       return;
     }
 
     while (offset < length) {
       if (_mpegaudio__WEBPACK_IMPORTED_MODULE_1__["isHeader"](data, offset)) {
-        var frame = _mpegaudio__WEBPACK_IMPORTED_MODULE_1__["appendFrame"](this._audioTrack, data, offset, pts, frameIndex);
+        var frame = _mpegaudio__WEBPACK_IMPORTED_MODULE_1__["appendFrame"](track, data, offset, pts, frameIndex);
 
         if (frame) {
           offset += frame.length;
@@ -16577,19 +17051,21 @@ var TSDemuxer = /*#__PURE__*/function () {
     }
   };
 
-  _proto.parseID3PES = function parseID3PES(pes) {
+  _proto.parseID3PES = function parseID3PES(id3Track, pes) {
     if (pes.pts === undefined) {
-      _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].warn('[tsdemuxer]: ID3 PES unknown PTS');
+      _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].warn('[tsdemuxer]: ID3 PES unknown PTS');
       return;
     }
 
-    this._id3Track.samples.push(pes);
+    var id3Sample = _extends({}, pes, {
+      type: this._avcTrack ? _types_demuxer__WEBPACK_IMPORTED_MODULE_8__["MetadataSchema"].emsg : _types_demuxer__WEBPACK_IMPORTED_MODULE_8__["MetadataSchema"].audioId3
+    });
+
+    id3Track.samples.push(id3Sample);
   };
 
   return TSDemuxer;
 }();
-
-TSDemuxer.minProbeByteLength = 188;
 
 function createAVCSample(key, pts, dts, debug) {
   return {
@@ -16608,12 +17084,12 @@ function parsePAT(data, offset) {
   return (data[offset + 10] & 0x1f) << 8 | data[offset + 11]; // logger.log('PMT PID:'  + this._pmtId);
 }
 
-function parsePMT(data, offset, mpegSupported, isSampleAes) {
+function parsePMT(data, offset, typeSupported, isSampleAes) {
   var result = {
     audio: -1,
     avc: -1,
     id3: -1,
-    isAAC: true
+    segmentCodec: 'aac'
   };
   var sectionLength = (data[offset + 1] & 0x0f) << 8 | data[offset + 2];
   var tableEnd = offset + 3 + sectionLength - 4; // to determine where the table is, we have to figure out how
@@ -16630,7 +17106,7 @@ function parsePMT(data, offset, mpegSupported, isSampleAes) {
       case 0xcf:
         // SAMPLE-AES AAC
         if (!isSampleAes) {
-          _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].log('ADTS AAC with AES-128-CBC frame encryption found in unencrypted stream');
+          _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].log('ADTS AAC with AES-128-CBC frame encryption found in unencrypted stream');
           break;
         }
 
@@ -16657,7 +17133,7 @@ function parsePMT(data, offset, mpegSupported, isSampleAes) {
       case 0xdb:
         // SAMPLE-AES AVC
         if (!isSampleAes) {
-          _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].log('H.264 with AES-128-CBC slice encryption found in unencrypted stream');
+          _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].log('H.264 with AES-128-CBC slice encryption found in unencrypted stream');
           break;
         }
 
@@ -16677,17 +17153,17 @@ function parsePMT(data, offset, mpegSupported, isSampleAes) {
       case 0x03:
       case 0x04:
         // logger.log('MPEG PID:'  + pid);
-        if (!mpegSupported) {
-          _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].log('MPEG audio found, not supported in this browser');
+        if (typeSupported.mpeg !== true && typeSupported.mp3 !== true) {
+          _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].log('MPEG audio found, not supported in this browser');
         } else if (result.audio === -1) {
           result.audio = pid;
-          result.isAAC = false;
+          result.segmentCodec = 'mp3';
         }
 
         break;
 
       case 0x24:
-        _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].warn('Unsupported HEVC stream type found');
+        _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].warn('Unsupported HEVC stream type found');
         break;
     } // move to the next table entry
     // skip past the elementary stream descriptors, if present
@@ -16755,7 +17231,7 @@ function parsePES(stream) {
         (frag[18] & 0xfe) / 2;
 
         if (pesPts - pesDts > 60 * 90000) {
-          _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].warn(Math.round((pesPts - pesDts) / 90000) + "s delta between PTS and DTS, align them");
+          _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].warn(Math.round((pesPts - pesDts) / 90000) + "s delta between PTS and DTS, align them");
           pesPts = pesDts;
         }
       } else {
@@ -16834,26 +17310,7 @@ function pushAccessUnit(avcSample, avcTrack) {
   }
 
   if (avcSample.debug.length) {
-    _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].log(avcSample.pts + '/' + avcSample.dts + ':' + avcSample.debug);
-  }
-}
-
-function insertSampleInOrder(arr, data) {
-  var len = arr.length;
-
-  if (len > 0) {
-    if (data.pts >= arr[len - 1].pts) {
-      arr.push(data);
-    } else {
-      for (var pos = len - 1; pos >= 0; pos--) {
-        if (data.pts < arr[pos].pts) {
-          arr.splice(pos, 0, data);
-          break;
-        }
-      }
-    }
-  } else {
-    arr.push(data);
+    _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].log(avcSample.pts + '/' + avcSample.dts + ':' + avcSample.debug);
   }
 }
 /**
@@ -17065,7 +17522,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _errors__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./errors */ "./src/errors.ts");
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 
 
@@ -17151,9 +17608,9 @@ var Hls = /*#__PURE__*/function () {
     capLevelController.setStreamController(streamController); // fpsController uses streamController to switch when frames are being dropped
 
     fpsController.setStreamController(streamController);
-    var networkControllers = [levelController, streamController];
+    var networkControllers = [playListLoader, keyLoader, levelController, streamController];
     this.networkControllers = networkControllers;
-    var coreComponents = [playListLoader, keyLoader, abrController, bufferController, capLevelController, fpsController, id3TrackController, fragmentTracker];
+    var coreComponents = [abrController, bufferController, capLevelController, fpsController, id3TrackController, fragmentTracker];
     this.audioTrackController = this.createController(config.audioTrackController, null, networkControllers);
     this.createController(config.audioStreamController, fragmentTracker, networkControllers); // subtitleTrackController must be defined before  because the order of event handling is important
 
@@ -17625,7 +18082,7 @@ var Hls = /*#__PURE__*/function () {
       var len = levels.length;
 
       for (var i = 0; i < len; i++) {
-        if (levels[i].maxBitrate > minAutoBitrate) {
+        if (levels[i].maxBitrate >= minAutoBitrate) {
           return i;
         }
       }
@@ -17674,6 +18131,21 @@ var Hls = /*#__PURE__*/function () {
     ,
     set: function set(nextLevel) {
       this.abrController.nextAutoLevel = Math.max(this.minAutoLevel, nextLevel);
+    }
+    /**
+     * get the datetime value relative to media.currentTime for the active level Program Date Time if present
+     * @type {Date}
+     */
+
+  }, {
+    key: "playingDate",
+    get: function get() {
+      return this.streamController.currentProgramDateTime;
+    }
+  }, {
+    key: "mainForwardBufferInfo",
+    get: function get() {
+      return this.streamController.getMainFwdBufferInfo();
     }
     /**
      * @type {AudioTrack[]}
@@ -17853,7 +18325,7 @@ var Hls = /*#__PURE__*/function () {
   }], [{
     key: "version",
     get: function get() {
-      return "1.1.5";
+      return "1.2.4";
     }
   }, {
     key: "Events",
@@ -17935,6 +18407,149 @@ function changeTypeSupported() {
 
 /***/ }),
 
+/***/ "./src/loader/date-range.ts":
+/*!**********************************!*\
+  !*** ./src/loader/date-range.ts ***!
+  \**********************************/
+/*! exports provided: DateRangeAttribute, DateRange */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DateRangeAttribute", function() { return DateRangeAttribute; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DateRange", function() { return DateRange; });
+/* harmony import */ var _home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/polyfills/number */ "./src/polyfills/number.ts");
+/* harmony import */ var _utils_attr_list__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/attr-list */ "./src/utils/attr-list.ts");
+/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
+
+
+
+
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+
+
+var DateRangeAttribute;
+
+(function (DateRangeAttribute) {
+  DateRangeAttribute["ID"] = "ID";
+  DateRangeAttribute["CLASS"] = "CLASS";
+  DateRangeAttribute["START_DATE"] = "START-DATE";
+  DateRangeAttribute["DURATION"] = "DURATION";
+  DateRangeAttribute["END_DATE"] = "END-DATE";
+  DateRangeAttribute["END_ON_NEXT"] = "END-ON-NEXT";
+  DateRangeAttribute["PLANNED_DURATION"] = "PLANNED-DURATION";
+  DateRangeAttribute["SCTE35_OUT"] = "SCTE35-OUT";
+  DateRangeAttribute["SCTE35_IN"] = "SCTE35-IN";
+})(DateRangeAttribute || (DateRangeAttribute = {}));
+
+var DateRange = /*#__PURE__*/function () {
+  function DateRange(dateRangeAttr, dateRangeWithSameId) {
+    this.attr = void 0;
+    this._startDate = void 0;
+    this._endDate = void 0;
+    this._badValueForSameId = void 0;
+
+    if (dateRangeWithSameId) {
+      var previousAttr = dateRangeWithSameId.attr;
+
+      for (var key in previousAttr) {
+        if (Object.prototype.hasOwnProperty.call(dateRangeAttr, key) && dateRangeAttr[key] !== previousAttr[key]) {
+          _utils_logger__WEBPACK_IMPORTED_MODULE_2__["logger"].warn("DATERANGE tag attribute: \"" + key + "\" does not match for tags with ID: \"" + dateRangeAttr.ID + "\"");
+          this._badValueForSameId = key;
+          break;
+        }
+      } // Merge DateRange tags with the same ID
+
+
+      dateRangeAttr = _extends(new _utils_attr_list__WEBPACK_IMPORTED_MODULE_1__["AttrList"]({}), previousAttr, dateRangeAttr);
+    }
+
+    this.attr = dateRangeAttr;
+    this._startDate = new Date(dateRangeAttr[DateRangeAttribute.START_DATE]);
+
+    if (DateRangeAttribute.END_DATE in this.attr) {
+      var endDate = new Date(this.attr[DateRangeAttribute.END_DATE]);
+
+      if (Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(endDate.getTime())) {
+        this._endDate = endDate;
+      }
+    }
+  }
+
+  _createClass(DateRange, [{
+    key: "id",
+    get: function get() {
+      return this.attr.ID;
+    }
+  }, {
+    key: "class",
+    get: function get() {
+      return this.attr.CLASS;
+    }
+  }, {
+    key: "startDate",
+    get: function get() {
+      return this._startDate;
+    }
+  }, {
+    key: "endDate",
+    get: function get() {
+      if (this._endDate) {
+        return this._endDate;
+      }
+
+      var duration = this.duration;
+
+      if (duration !== null) {
+        return new Date(this._startDate.getTime() + duration * 1000);
+      }
+
+      return null;
+    }
+  }, {
+    key: "duration",
+    get: function get() {
+      if (DateRangeAttribute.DURATION in this.attr) {
+        var duration = this.attr.decimalFloatingPoint(DateRangeAttribute.DURATION);
+
+        if (Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(duration)) {
+          return duration;
+        }
+      } else if (this._endDate) {
+        return (this._endDate.getTime() - this._startDate.getTime()) / 1000;
+      }
+
+      return null;
+    }
+  }, {
+    key: "plannedDuration",
+    get: function get() {
+      if (DateRangeAttribute.PLANNED_DURATION in this.attr) {
+        return this.attr.decimalFloatingPoint(DateRangeAttribute.PLANNED_DURATION);
+      }
+
+      return null;
+    }
+  }, {
+    key: "endOnNext",
+    get: function get() {
+      return this.attr.bool(DateRangeAttribute.END_ON_NEXT);
+    }
+  }, {
+    key: "isValid",
+    get: function get() {
+      return !!this.id && !this._badValueForSameId && Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(this.startDate.getTime()) && (this.duration === null || this.duration >= 0) && (!this.endOnNext || !!this.class);
+    }
+  }]);
+
+  return DateRange;
+}();
+
+/***/ }),
+
 /***/ "./src/loader/fragment-loader.ts":
 /*!***************************************!*\
   !*** ./src/loader/fragment-loader.ts ***!
@@ -17953,15 +18568,15 @@ function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.crea
 
 function _wrapNativeSuper(Class) { var _cache = typeof Map === "function" ? new Map() : undefined; _wrapNativeSuper = function _wrapNativeSuper(Class) { if (Class === null || !_isNativeFunction(Class)) return Class; if (typeof Class !== "function") { throw new TypeError("Super expression must either be null or a function"); } if (typeof _cache !== "undefined") { if (_cache.has(Class)) return _cache.get(Class); _cache.set(Class, Wrapper); } function Wrapper() { return _construct(Class, arguments, _getPrototypeOf(this).constructor); } Wrapper.prototype = Object.create(Class.prototype, { constructor: { value: Wrapper, enumerable: false, writable: true, configurable: true } }); return _setPrototypeOf(Wrapper, Class); }; return _wrapNativeSuper(Class); }
 
-function _construct(Parent, args, Class) { if (_isNativeReflectConstruct()) { _construct = Reflect.construct; } else { _construct = function _construct(Parent, args, Class) { var a = [null]; a.push.apply(a, args); var Constructor = Function.bind.apply(Parent, a); var instance = new Constructor(); if (Class) _setPrototypeOf(instance, Class.prototype); return instance; }; } return _construct.apply(null, arguments); }
+function _construct(Parent, args, Class) { if (_isNativeReflectConstruct()) { _construct = Reflect.construct.bind(); } else { _construct = function _construct(Parent, args, Class) { var a = [null]; a.push.apply(a, args); var Constructor = Function.bind.apply(Parent, a); var instance = new Constructor(); if (Class) _setPrototypeOf(instance, Class.prototype); return instance; }; } return _construct.apply(null, arguments); }
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _isNativeFunction(fn) { return Function.toString.call(fn).indexOf("[native code]") !== -1; }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 
 var MIN_CHUNK_SIZE = Math.pow(2, 17); // 128kb
@@ -18021,7 +18636,7 @@ var FragmentLoader = /*#__PURE__*/function () {
         maxRetry: 0,
         retryDelay: 0,
         maxRetryDelay: config.fragLoadingMaxRetryTimeout,
-        highWaterMark: MIN_CHUNK_SIZE
+        highWaterMark: frag.sn === 'initSegment' ? Infinity : MIN_CHUNK_SIZE
       }; // Assign frag stats to the loader's stats reference
 
       frag.stats = loader.stats;
@@ -18279,11 +18894,11 @@ __webpack_require__.r(__webpack_exports__);
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; _setPrototypeOf(subClass, superClass); }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 
 
@@ -18369,7 +18984,7 @@ var BaseSegment = /*#__PURE__*/function () {
 var Fragment = /*#__PURE__*/function (_BaseSegment) {
   _inheritsLoose(Fragment, _BaseSegment);
 
-  // EXTINF has to be present for a m38 to be considered valid
+  // EXTINF has to be present for a m3u8 to be considered valid
   // sn notates the sequence number for a segment, and if set to a string can be 'initSegment'
   // levelkey is the EXT-X-KEY that applies to this segment for decryption
   // core difference from the private field _decryptdata is the lack of the initialized IV
@@ -18647,23 +19262,26 @@ var KeyLoader = /*#__PURE__*/function () {
     this.decryptkey = null;
     this.decrypturl = null;
     this.hls = hls;
-
-    this._registerListeners();
+    this.registerListeners();
   }
 
   var _proto = KeyLoader.prototype;
 
-  _proto._registerListeners = function _registerListeners() {
+  _proto.startLoad = function startLoad(startPosition) {};
+
+  _proto.stopLoad = function stopLoad() {
+    this.destroyInternalLoaders();
+  };
+
+  _proto.registerListeners = function registerListeners() {
     this.hls.on(_events__WEBPACK_IMPORTED_MODULE_0__["Events"].KEY_LOADING, this.onKeyLoading, this);
   };
 
-  _proto._unregisterListeners = function _unregisterListeners() {
+  _proto.unregisterListeners = function unregisterListeners() {
     this.hls.off(_events__WEBPACK_IMPORTED_MODULE_0__["Events"].KEY_LOADING, this.onKeyLoading);
   };
 
-  _proto.destroy = function destroy() {
-    this._unregisterListeners();
-
+  _proto.destroyInternalLoaders = function destroyInternalLoaders() {
     for (var loaderName in this.loaders) {
       var loader = this.loaders[loaderName];
 
@@ -18673,6 +19291,11 @@ var KeyLoader = /*#__PURE__*/function () {
     }
 
     this.loaders = {};
+  };
+
+  _proto.destroy = function destroy() {
+    this.unregisterListeners();
+    this.destroyInternalLoaders();
   };
 
   _proto.onKeyLoading = function onKeyLoading(event, data) {
@@ -18807,7 +19430,7 @@ __webpack_require__.r(__webpack_exports__);
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 var DEFAULT_TARGET_DURATION = 10;
 var LevelDetails = /*#__PURE__*/function () {
@@ -18821,6 +19444,7 @@ var LevelDetails = /*#__PURE__*/function () {
     this.fragments = void 0;
     this.fragmentHint = void 0;
     this.partList = null;
+    this.dateRanges = void 0;
     this.live = true;
     this.ageHeader = 0;
     this.advancedDateTime = void 0;
@@ -18855,6 +19479,7 @@ var LevelDetails = /*#__PURE__*/function () {
     this.driftStart = 0;
     this.driftEnd = 0;
     this.fragments = [];
+    this.dateRanges = {};
     this.url = baseUrl;
   }
 
@@ -18983,7 +19608,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var url_toolkit__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! url-toolkit */ "./node_modules/url-toolkit/src/url-toolkit.js");
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 
 var LevelKey = /*#__PURE__*/function () {
@@ -19068,12 +19693,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return M3U8Parser; });
 /* harmony import */ var _home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/polyfills/number */ "./src/polyfills/number.ts");
 /* harmony import */ var url_toolkit__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! url-toolkit */ "./node_modules/url-toolkit/src/url-toolkit.js");
-/* harmony import */ var _fragment__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./fragment */ "./src/loader/fragment.ts");
-/* harmony import */ var _level_details__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./level-details */ "./src/loader/level-details.ts");
-/* harmony import */ var _level_key__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./level-key */ "./src/loader/level-key.ts");
-/* harmony import */ var _utils_attr_list__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/attr-list */ "./src/utils/attr-list.ts");
-/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
-/* harmony import */ var _utils_codecs__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/codecs */ "./src/utils/codecs.ts");
+/* harmony import */ var _date_range__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./date-range */ "./src/loader/date-range.ts");
+/* harmony import */ var _fragment__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./fragment */ "./src/loader/fragment.ts");
+/* harmony import */ var _level_details__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./level-details */ "./src/loader/level-details.ts");
+/* harmony import */ var _level_key__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./level-key */ "./src/loader/level-key.ts");
+/* harmony import */ var _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/attr-list */ "./src/utils/attr-list.ts");
+/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
+/* harmony import */ var _utils_codecs__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/codecs */ "./src/utils/codecs.ts");
+
 
 
 
@@ -19094,7 +19721,7 @@ var LEVEL_PLAYLIST_REGEX_FAST = new RegExp([/#EXTINF:\s*(\d*(?:\.\d+)?)(?:,(.*)\
 /#EXT-X-PROGRAM-DATE-TIME:(.+)/.source, // next segment's program date/time group 5 => the datetime spec
 /#.*/.source // All other non-segment oriented tags will match with all groups empty
 ].join('|'), 'g');
-var LEVEL_PLAYLIST_REGEX_SLOW = new RegExp([/#(EXTM3U)/.source, /#EXT-X-(PLAYLIST-TYPE):(.+)/.source, /#EXT-X-(MEDIA-SEQUENCE): *(\d+)/.source, /#EXT-X-(SKIP):(.+)/.source, /#EXT-X-(TARGETDURATION): *(\d+)/.source, /#EXT-X-(KEY):(.+)/.source, /#EXT-X-(START):(.+)/.source, /#EXT-X-(ENDLIST)/.source, /#EXT-X-(DISCONTINUITY-SEQ)UENCE: *(\d+)/.source, /#EXT-X-(DIS)CONTINUITY/.source, /#EXT-X-(VERSION):(\d+)/.source, /#EXT-X-(MAP):(.+)/.source, /#EXT-X-(SERVER-CONTROL):(.+)/.source, /#EXT-X-(PART-INF):(.+)/.source, /#EXT-X-(GAP)/.source, /#EXT-X-(BITRATE):\s*(\d+)/.source, /#EXT-X-(PART):(.+)/.source, /#EXT-X-(PRELOAD-HINT):(.+)/.source, /#EXT-X-(RENDITION-REPORT):(.+)/.source, /(#)([^:]*):(.*)/.source, /(#)(.*)(?:.*)\r?\n?/.source].join('|'));
+var LEVEL_PLAYLIST_REGEX_SLOW = new RegExp([/#(EXTM3U)/.source, /#EXT-X-(DATERANGE|KEY|MAP|PART|PART-INF|PLAYLIST-TYPE|PRELOAD-HINT|RENDITION-REPORT|SERVER-CONTROL|SKIP|START):(.+)/.source, /#EXT-X-(BITRATE|DISCONTINUITY-SEQUENCE|MEDIA-SEQUENCE|TARGETDURATION|VERSION): *(\d+)/.source, /#EXT-X-(DISCONTINUITY|ENDLIST|GAP)/.source, /(#)([^:]*):(.*)/.source, /(#)(.*)(?:.*)\r?\n?/.source].join('|'));
 var MP4_REGEX_SUFFIX = /\.(mp4|m4s|m4v|m4a)$/i;
 
 function isMP4Url(url) {
@@ -19123,7 +19750,7 @@ var M3U8Parser = /*#__PURE__*/function () {
     if (avcdata.length > 2) {
       var result = avcdata.shift() + '.';
       result += parseInt(avcdata.shift()).toString(16);
-      result += ('000' + parseInt(avcdata.shift()).toString(16)).substr(-4);
+      result += ('000' + parseInt(avcdata.shift()).toString(16)).slice(-4);
       return result;
     }
 
@@ -19138,6 +19765,7 @@ var M3U8Parser = /*#__PURE__*/function () {
 
   M3U8Parser.parseMasterPlaylist = function parseMasterPlaylist(string, baseurl) {
     var levels = [];
+    var levelsWithKnownCodecs = [];
     var sessionData = {};
     var hasSessionData = false;
     MASTER_PLAYLIST_REGEX.lastIndex = 0;
@@ -19145,8 +19773,10 @@ var M3U8Parser = /*#__PURE__*/function () {
 
     while ((result = MASTER_PLAYLIST_REGEX.exec(string)) != null) {
       if (result[1]) {
+        var _level$unknownCodecs;
+
         // '#EXT-X-STREAM-INF' is found, parse level tag  in group 1
-        var attrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_5__["AttrList"](result[1]);
+        var attrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__["AttrList"](result[1]);
         var level = {
           attrs: attrs,
           bitrate: attrs.decimalInteger('AVERAGE-BANDWIDTH') || attrs.decimalInteger('BANDWIDTH'),
@@ -19168,20 +19798,26 @@ var M3U8Parser = /*#__PURE__*/function () {
           level.videoCodec = M3U8Parser.convertAVC1ToAVCOTI(level.videoCodec);
         }
 
+        if (!((_level$unknownCodecs = level.unknownCodecs) !== null && _level$unknownCodecs !== void 0 && _level$unknownCodecs.length)) {
+          levelsWithKnownCodecs.push(level);
+        }
+
         levels.push(level);
       } else if (result[3]) {
         // '#EXT-X-SESSION-DATA' is found, parse session data in group 3
-        var sessionAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_5__["AttrList"](result[3]);
+        var sessionAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__["AttrList"](result[3]);
 
         if (sessionAttrs['DATA-ID']) {
           hasSessionData = true;
           sessionData[sessionAttrs['DATA-ID']] = sessionAttrs;
         }
       }
-    }
+    } // Filter out levels with unknown codecs if it does not remove all levels
 
+
+    var stripUnknownCodecLevels = levelsWithKnownCodecs.length > 0 && levelsWithKnownCodecs.length < levels.length;
     return {
-      levels: levels,
+      levels: stripUnknownCodecLevels ? levelsWithKnownCodecs : levels,
       sessionData: hasSessionData ? sessionData : null
     };
   };
@@ -19197,7 +19833,7 @@ var M3U8Parser = /*#__PURE__*/function () {
     MASTER_PLAYLIST_MEDIA_REGEX.lastIndex = 0;
 
     while ((result = MASTER_PLAYLIST_MEDIA_REGEX.exec(string)) !== null) {
-      var attrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_5__["AttrList"](result[1]);
+      var attrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__["AttrList"](result[1]);
 
       if (attrs.TYPE === type) {
         var media = {
@@ -19232,7 +19868,7 @@ var M3U8Parser = /*#__PURE__*/function () {
   };
 
   M3U8Parser.parseLevelPlaylist = function parseLevelPlaylist(string, baseurl, id, type, levelUrlId) {
-    var level = new _level_details__WEBPACK_IMPORTED_MODULE_3__["LevelDetails"](baseurl);
+    var level = new _level_details__WEBPACK_IMPORTED_MODULE_4__["LevelDetails"](baseurl);
     var fragments = level.fragments; // The most recent init segment seen (applies to all subsequent segments)
 
     var currentInitSegment = null;
@@ -19241,7 +19877,7 @@ var M3U8Parser = /*#__PURE__*/function () {
     var totalduration = 0;
     var discontinuityCounter = 0;
     var prevFrag = null;
-    var frag = new _fragment__WEBPACK_IMPORTED_MODULE_2__["Fragment"](type, baseurl);
+    var frag = new _fragment__WEBPACK_IMPORTED_MODULE_3__["Fragment"](type, baseurl);
     var result;
     var i;
     var levelkey;
@@ -19253,7 +19889,7 @@ var M3U8Parser = /*#__PURE__*/function () {
     while ((result = LEVEL_PLAYLIST_REGEX_FAST.exec(string)) !== null) {
       if (createNextFrag) {
         createNextFrag = false;
-        frag = new _fragment__WEBPACK_IMPORTED_MODULE_2__["Fragment"](type, baseurl); // setup the next fragment for part loading
+        frag = new _fragment__WEBPACK_IMPORTED_MODULE_3__["Fragment"](type, baseurl); // setup the next fragment for part loading
 
         frag.start = totalduration;
         frag.sn = currentSN;
@@ -19263,6 +19899,7 @@ var M3U8Parser = /*#__PURE__*/function () {
         if (currentInitSegment) {
           frag.initSegment = currentInitSegment;
           frag.rawProgramDateTime = currentInitSegment.rawProgramDateTime;
+          currentInitSegment.rawProgramDateTime = null;
         }
       }
 
@@ -19320,7 +19957,7 @@ var M3U8Parser = /*#__PURE__*/function () {
         result = result[0].match(LEVEL_PLAYLIST_REGEX_SLOW);
 
         if (!result) {
-          _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].warn('No matches on slow regex match for level playlist!');
+          _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].warn('No matches on slow regex match for level playlist!');
           continue;
         }
 
@@ -19346,7 +19983,7 @@ var M3U8Parser = /*#__PURE__*/function () {
 
           case 'SKIP':
             {
-              var skipAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_5__["AttrList"](value1);
+              var skipAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__["AttrList"](value1);
               var skippedSegments = skipAttrs.decimalInteger('SKIPPED-SEGMENTS');
 
               if (Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(skippedSegments)) {
@@ -19390,10 +20027,10 @@ var M3U8Parser = /*#__PURE__*/function () {
 
             break;
 
-          case 'DIS':
+          case 'DISCONTINUITY':
             discontinuityCounter++;
-
-          /* falls through */
+            frag.tagList.push(['DIS']);
+            break;
 
           case 'GAP':
             frag.tagList.push([tag]);
@@ -19403,7 +20040,23 @@ var M3U8Parser = /*#__PURE__*/function () {
             frag.tagList.push([tag, value1]);
             break;
 
-          case 'DISCONTINUITY-SEQ':
+          case 'DATERANGE':
+            {
+              var dateRangeAttr = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__["AttrList"](value1);
+              var dateRange = new _date_range__WEBPACK_IMPORTED_MODULE_2__["DateRange"](dateRangeAttr, level.dateRanges[dateRangeAttr.ID]);
+
+              if (dateRange.isValid || level.skippedSegments) {
+                level.dateRanges[dateRange.id] = dateRange;
+              } else {
+                _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].warn("Ignoring invalid DATERANGE tag: \"" + value1 + "\"");
+              } // Add to fragment tag list for backwards compatibility (< v1.2.0)
+
+
+              frag.tagList.push(['EXT-X-DATERANGE', value1]);
+              break;
+            }
+
+          case 'DISCONTINUITY-SEQUENCE':
             discontinuityCounter = parseInt(value1);
             break;
 
@@ -19412,7 +20065,7 @@ var M3U8Parser = /*#__PURE__*/function () {
               var _keyAttrs$enumeratedS;
 
               // https://tools.ietf.org/html/rfc8216#section-4.3.2.4
-              var keyAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_5__["AttrList"](value1);
+              var keyAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__["AttrList"](value1);
               var decryptmethod = keyAttrs.enumeratedString('METHOD');
               var decrypturi = keyAttrs.URI;
               var decryptiv = keyAttrs.hexadecimalInteger('IV');
@@ -19425,7 +20078,7 @@ var M3U8Parser = /*#__PURE__*/function () {
               ];
 
               if (unsupportedKnownKeyformatsInManifest.indexOf(decryptkeyformat) > -1) {
-                _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].warn("Keyformat " + decryptkeyformat + " is not supported from the manifest");
+                _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].warn("Keyformat " + decryptkeyformat + " is not supported from the manifest");
                 continue;
               } else if (decryptkeyformat !== 'identity') {
                 // We are supposed to skip keys we don't understand.
@@ -19439,7 +20092,7 @@ var M3U8Parser = /*#__PURE__*/function () {
               if (decryptmethod) {
                 // TODO: need to determine if the level key is actually a relative URL
                 // if it isn't, then we should instead construct the LevelKey using fromURI.
-                levelkey = _level_key__WEBPACK_IMPORTED_MODULE_4__["LevelKey"].fromURL(baseurl, decrypturi);
+                levelkey = _level_key__WEBPACK_IMPORTED_MODULE_5__["LevelKey"].fromURL(baseurl, decrypturi);
 
                 if (decrypturi && ['AES-128', 'SAMPLE-AES', 'SAMPLE-AES-CENC'].indexOf(decryptmethod) >= 0) {
                   levelkey.method = decryptmethod;
@@ -19463,7 +20116,7 @@ var M3U8Parser = /*#__PURE__*/function () {
 
           case 'START':
             {
-              var startAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_5__["AttrList"](value1);
+              var startAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__["AttrList"](value1);
               var startTimeOffset = startAttrs.decimalFloatingPoint('TIME-OFFSET'); // TIME-OFFSET can be 0
 
               if (Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(startTimeOffset)) {
@@ -19475,29 +20128,33 @@ var M3U8Parser = /*#__PURE__*/function () {
 
           case 'MAP':
             {
-              var mapAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_5__["AttrList"](value1);
-              frag.relurl = mapAttrs.URI;
+              var mapAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__["AttrList"](value1);
 
-              if (mapAttrs.BYTERANGE) {
-                frag.setByteRange(mapAttrs.BYTERANGE);
+              if (frag.duration) {
+                // Initial segment tag is after segment duration tag.
+                //   #EXTINF: 6.0
+                //   #EXT-X-MAP:URI="init.mp4
+                var init = new _fragment__WEBPACK_IMPORTED_MODULE_3__["Fragment"](type, baseurl);
+                setInitSegment(init, mapAttrs, id, levelkey);
+                currentInitSegment = init;
+                frag.initSegment = currentInitSegment;
+
+                if (currentInitSegment.rawProgramDateTime && !frag.rawProgramDateTime) {
+                  frag.rawProgramDateTime = currentInitSegment.rawProgramDateTime;
+                }
+              } else {
+                // Initial segment tag is before segment duration tag
+                setInitSegment(frag, mapAttrs, id, levelkey);
+                currentInitSegment = frag;
+                createNextFrag = true;
               }
 
-              frag.level = id;
-              frag.sn = 'initSegment';
-
-              if (levelkey) {
-                frag.levelkey = levelkey;
-              }
-
-              frag.initSegment = null;
-              currentInitSegment = frag;
-              createNextFrag = true;
               break;
             }
 
           case 'SERVER-CONTROL':
             {
-              var serverControlAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_5__["AttrList"](value1);
+              var serverControlAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__["AttrList"](value1);
               level.canBlockReload = serverControlAttrs.bool('CAN-BLOCK-RELOAD');
               level.canSkipUntil = serverControlAttrs.optionalFloat('CAN-SKIP-UNTIL', 0);
               level.canSkipDateRanges = level.canSkipUntil > 0 && serverControlAttrs.bool('CAN-SKIP-DATERANGES');
@@ -19508,7 +20165,7 @@ var M3U8Parser = /*#__PURE__*/function () {
 
           case 'PART-INF':
             {
-              var partInfAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_5__["AttrList"](value1);
+              var partInfAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__["AttrList"](value1);
               level.partTarget = partInfAttrs.decimalFloatingPoint('PART-TARGET');
               break;
             }
@@ -19523,7 +20180,7 @@ var M3U8Parser = /*#__PURE__*/function () {
 
               var previousFragmentPart = currentPart > 0 ? partList[partList.length - 1] : undefined;
               var index = currentPart++;
-              var part = new _fragment__WEBPACK_IMPORTED_MODULE_2__["Part"](new _utils_attr_list__WEBPACK_IMPORTED_MODULE_5__["AttrList"](value1), frag, baseurl, index, previousFragmentPart);
+              var part = new _fragment__WEBPACK_IMPORTED_MODULE_3__["Part"](new _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__["AttrList"](value1), frag, baseurl, index, previousFragmentPart);
               partList.push(part);
               frag.duration += part.duration;
               break;
@@ -19531,21 +20188,21 @@ var M3U8Parser = /*#__PURE__*/function () {
 
           case 'PRELOAD-HINT':
             {
-              var preloadHintAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_5__["AttrList"](value1);
+              var preloadHintAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__["AttrList"](value1);
               level.preloadHint = preloadHintAttrs;
               break;
             }
 
           case 'RENDITION-REPORT':
             {
-              var renditionReportAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_5__["AttrList"](value1);
+              var renditionReportAttrs = new _utils_attr_list__WEBPACK_IMPORTED_MODULE_6__["AttrList"](value1);
               level.renditionReports = level.renditionReports || [];
               level.renditionReports.push(renditionReportAttrs);
               break;
             }
 
           default:
-            _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].warn("line parsed but not handled: " + result);
+            _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].warn("line parsed but not handled: " + result);
             break;
         }
       }
@@ -19584,8 +20241,8 @@ var M3U8Parser = /*#__PURE__*/function () {
           if (level.fragments.every(function (frag) {
             return frag.relurl && isMP4Url(frag.relurl);
           })) {
-            _utils_logger__WEBPACK_IMPORTED_MODULE_6__["logger"].warn('MP4 fragments found but no init segment (probably no MAP, incomplete M3U8), trying to fetch SIDX');
-            frag = new _fragment__WEBPACK_IMPORTED_MODULE_2__["Fragment"](type, baseurl);
+            _utils_logger__WEBPACK_IMPORTED_MODULE_7__["logger"].warn('MP4 fragments found but no init segment (probably no MAP, incomplete M3U8), trying to fetch SIDX');
+            frag = new _fragment__WEBPACK_IMPORTED_MODULE_3__["Fragment"](type, baseurl);
             frag.relurl = lastFragment.relurl;
             frag.level = id;
             frag.sn = 'initSegment';
@@ -19630,7 +20287,7 @@ var M3U8Parser = /*#__PURE__*/function () {
 function setCodecs(codecs, level) {
   ['video', 'audio', 'text'].forEach(function (type) {
     var filtered = codecs.filter(function (codec) {
-      return Object(_utils_codecs__WEBPACK_IMPORTED_MODULE_7__["isCodecType"])(codec, type);
+      return Object(_utils_codecs__WEBPACK_IMPORTED_MODULE_8__["isCodecType"])(codec, type);
     });
 
     if (filtered.length) {
@@ -19681,6 +20338,23 @@ function assignProgramDateTime(frag, prevFrag) {
     frag.programDateTime = null;
     frag.rawProgramDateTime = null;
   }
+}
+
+function setInitSegment(frag, mapAttrs, id, levelkey) {
+  frag.relurl = mapAttrs.URI;
+
+  if (mapAttrs.BYTERANGE) {
+    frag.setByteRange(mapAttrs.BYTERANGE);
+  }
+
+  frag.level = id;
+  frag.sn = 'initSegment';
+
+  if (levelkey) {
+    frag.levelkey = levelkey;
+  }
+
+  frag.initSegment = null;
 }
 
 /***/ }),
@@ -19757,6 +20431,12 @@ var PlaylistLoader = /*#__PURE__*/function () {
   }
 
   var _proto = PlaylistLoader.prototype;
+
+  _proto.startLoad = function startLoad(startPosition) {};
+
+  _proto.stopLoad = function stopLoad() {
+    this.destroyInternalLoaders();
+  };
 
   _proto.registerListeners = function registerListeners() {
     var hls = this.hls;
@@ -20160,7 +20840,14 @@ var PlaylistLoader = /*#__PURE__*/function () {
   };
 
   _proto.handleSidxRequest = function handleSidxRequest(response, context) {
-    var sidxInfo = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_4__["parseSegmentIndex"])(new Uint8Array(response.data)); // if provided fragment does not contain sidx, early return
+    var data = new Uint8Array(response.data);
+    var sidxBox = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_4__["findBox"])(data, ['sidx'])[0]; // if provided fragment does not contain sidx, early return
+
+    if (!sidxBox) {
+      return;
+    }
+
+    var sidxInfo = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_4__["parseSegmentIndex"])(sidxBox);
 
     if (!sidxInfo) {
       return;
@@ -20177,7 +20864,9 @@ var PlaylistLoader = /*#__PURE__*/function () {
       }
 
       if (frag.initSegment) {
-        frag.initSegment.setByteRange(String(sidxInfo.moovEndOffset) + '@0');
+        var moovBox = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_4__["findBox"])(data, ['moov'])[0];
+        var moovEndOffset = moovBox ? moovBox.length : null;
+        frag.initSegment.setByteRange(String(moovEndOffset) + '@0');
       }
     });
   };
@@ -20768,7 +21457,7 @@ var MP4 = /*#__PURE__*/function () {
 
   MP4.stsd = function stsd(track) {
     if (track.type === 'audio') {
-      if (!track.isAAC && track.codec === 'mp3') {
+      if (track.segmentCodec === 'mp3' && track.codec === 'mp3') {
         return MP4.box(MP4.types.stsd, MP4.STSD, MP4.mp3(track));
       }
 
@@ -20856,7 +21545,7 @@ var MP4 = /*#__PURE__*/function () {
     var flags;
     var cts;
     offset += 8 + arraylen;
-    array.set([0x00, // version 0
+    array.set([track.type === 'video' ? 0x01 : 0x00, // version 1 for video with signed-int sample_composition_time_offset
     0x00, 0x0f, 0x01, // flags
     len >>> 24 & 0xff, len >>> 16 & 0xff, len >>> 8 & 0xff, len & 0xff, // sample_count
     offset >>> 24 & 0xff, offset >>> 16 & 0xff, offset >>> 8 & 0xff, offset & 0xff // data_offset
@@ -20912,11 +21601,13 @@ MP4.DINF = void 0;
 /*!**********************************!*\
   !*** ./src/remux/mp4-remuxer.ts ***!
   \**********************************/
-/*! exports provided: default, normalizePts */
+/*! exports provided: default, normalizePts, flushTextTrackMetadataCueSamples, flushTextTrackUserdataCueSamples */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return MP4Remuxer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "normalizePts", function() { return normalizePts; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "flushTextTrackMetadataCueSamples", function() { return flushTextTrackMetadataCueSamples; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "flushTextTrackUserdataCueSamples", function() { return flushTextTrackUserdataCueSamples; });
 /* harmony import */ var _home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/polyfills/number */ "./src/polyfills/number.ts");
 /* harmony import */ var _aac_helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./aac-helper */ "./src/remux/aac-helper.ts");
 /* harmony import */ var _mp4_generator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./mp4-generator */ "./src/remux/mp4-generator.ts");
@@ -20927,7 +21618,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_timescale_conversion__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/timescale-conversion */ "./src/utils/timescale-conversion.ts");
 
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 
 
@@ -20942,7 +21633,6 @@ var AAC_SAMPLES_PER_FRAME = 1024;
 var MPEG_AUDIO_SAMPLE_PER_FRAME = 1152;
 var chromeVersion = null;
 var safariWebkitVersion = null;
-var requiresPositiveDts = false;
 
 var MP4Remuxer = /*#__PURE__*/function () {
   function MP4Remuxer(observer, config, typeSupported, vendor) {
@@ -20955,6 +21645,7 @@ var MP4Remuxer = /*#__PURE__*/function () {
     this._initDTS = void 0;
     this.nextAvcDts = null;
     this.nextAudioPts = null;
+    this.videoSampleDuration = null;
     this.isAudioContiguous = false;
     this.isVideoContiguous = false;
     this.observer = observer;
@@ -20973,8 +21664,6 @@ var MP4Remuxer = /*#__PURE__*/function () {
 
       safariWebkitVersion = _result ? parseInt(_result[1]) : 0;
     }
-
-    requiresPositiveDts = !!chromeVersion && chromeVersion < 75 || !!safariWebkitVersion && safariWebkitVersion < 600;
   }
 
   var _proto = MP4Remuxer.prototype;
@@ -21038,7 +21727,7 @@ var MP4Remuxer = /*#__PURE__*/function () {
     var hasVideo = videoTrack.pid > -1;
     var length = videoTrack.samples.length;
     var enoughAudioSamples = audioTrack.samples.length > 0;
-    var enoughVideoSamples = length > 1;
+    var enoughVideoSamples = flush && length > 0 || length > 1;
     var canRemuxAvc = (!hasAudio || enoughAudioSamples) && (!hasVideo || enoughVideoSamples) || this.ISGenerated || flush;
 
     if (canRemuxAvc) {
@@ -21048,6 +21737,7 @@ var MP4Remuxer = /*#__PURE__*/function () {
 
       var isVideoContiguous = this.isVideoContiguous;
       var firstKeyFrameIndex = -1;
+      var firstKeyFramePTS;
 
       if (enoughVideoSamples) {
         firstKeyFrameIndex = findKeyframeIndex(videoTrack.samples);
@@ -21060,7 +21750,8 @@ var MP4Remuxer = /*#__PURE__*/function () {
             var startPTS = this.getVideoStartPts(videoTrack.samples);
             videoTrack.samples = videoTrack.samples.slice(firstKeyFrameIndex);
             videoTrack.dropped += firstKeyFrameIndex;
-            videoTimeOffset += (videoTrack.samples[0].pts - startPTS) / (videoTrack.timescale || 90000);
+            videoTimeOffset += (videoTrack.samples[0].pts - startPTS) / videoTrack.inputTimeScale;
+            firstKeyFramePTS = videoTimeOffset;
           } else if (firstKeyFrameIndex === -1) {
             _utils_logger__WEBPACK_IMPORTED_MODULE_5__["logger"].warn("[mp4-remuxer]: No keyframe found out of " + length + " video samples");
             independent = false;
@@ -21110,6 +21801,7 @@ var MP4Remuxer = /*#__PURE__*/function () {
         if (video) {
           video.firstKeyFrame = firstKeyFrameIndex;
           video.independent = firstKeyFrameIndex !== -1;
+          video.firstKeyFramePTS = firstKeyFramePTS;
         }
       }
     } // Allow ID3 and text to remux, even if more audio/video samples are required
@@ -21117,11 +21809,11 @@ var MP4Remuxer = /*#__PURE__*/function () {
 
     if (this.ISGenerated) {
       if (id3Track.samples.length) {
-        id3 = this.remuxID3(id3Track, timeOffset);
+        id3 = flushTextTrackMetadataCueSamples(id3Track, timeOffset, this._initPTS, this._initDTS);
       }
 
       if (textTrack.samples.length) {
-        text = this.remuxText(textTrack, timeOffset);
+        text = flushTextTrackUserdataCueSamples(textTrack, timeOffset, this._initPTS);
       }
     }
 
@@ -21157,22 +21849,25 @@ var MP4Remuxer = /*#__PURE__*/function () {
       // this avoids potential rounding issue and AV sync issue
       audioTrack.timescale = audioTrack.samplerate;
 
-      if (!audioTrack.isAAC) {
-        if (typeSupported.mpeg) {
-          // Chrome and Safari
-          container = 'audio/mpeg';
-          audioTrack.codec = '';
-        } else if (typeSupported.mp3) {
-          // Firefox
-          audioTrack.codec = 'mp3';
-        }
+      switch (audioTrack.segmentCodec) {
+        case 'mp3':
+          if (typeSupported.mpeg) {
+            // Chrome and Safari
+            container = 'audio/mpeg';
+            audioTrack.codec = '';
+          } else if (typeSupported.mp3) {
+            // Firefox
+            audioTrack.codec = 'mp3';
+          }
+
+          break;
       }
 
       tracks.audio = {
         id: 'audio',
         container: container,
         codec: audioTrack.codec,
-        initSegment: !audioTrack.isAAC && typeSupported.mpeg ? new Uint8Array(0) : _mp4_generator__WEBPACK_IMPORTED_MODULE_2__["default"].initSegment([audioTrack]),
+        initSegment: audioTrack.segmentCodec === 'mp3' && typeSupported.mpeg ? new Uint8Array(0) : _mp4_generator__WEBPACK_IMPORTED_MODULE_2__["default"].initSegment([audioTrack]),
         metadata: {
           channelCount: audioTrack.channelCount
         }
@@ -21233,12 +21928,11 @@ var MP4Remuxer = /*#__PURE__*/function () {
     var initPTS = this._initPTS;
     var nextAvcDts = this.nextAvcDts;
     var offset = 8;
-    var mp4SampleDuration;
+    var mp4SampleDuration = this.videoSampleDuration;
     var firstDTS;
     var lastDTS;
     var minPTS = Number.POSITIVE_INFINITY;
     var maxPTS = Number.NEGATIVE_INFINITY;
-    var ptsDtsShift = 0;
     var sortSamples = false; // if parsed fragment is contiguous with last one, let's use last DTS value as reference
 
     if (!contiguous || nextAvcDts === null) {
@@ -21254,11 +21948,6 @@ var MP4Remuxer = /*#__PURE__*/function () {
       var sample = inputSamples[i];
       sample.pts = normalizePts(sample.pts - initPTS, nextAvcDts);
       sample.dts = normalizePts(sample.dts - initPTS, nextAvcDts);
-
-      if (sample.dts > sample.pts) {
-        var PTS_DTS_SHIFT_TOLERANCE_90KHZ = 90000 * 0.2;
-        ptsDtsShift = Math.max(Math.min(ptsDtsShift, sample.pts - sample.dts), -1 * PTS_DTS_SHIFT_TOLERANCE_90KHZ);
-      }
 
       if (sample.dts < inputSamples[i > 0 ? i - 1 : i].dts) {
         sortSamples = true;
@@ -21276,36 +21965,11 @@ var MP4Remuxer = /*#__PURE__*/function () {
 
 
     firstDTS = inputSamples[0].dts;
-    lastDTS = inputSamples[inputSamples.length - 1].dts; // on Safari let's signal the same sample duration for all samples
-    // sample duration (as expected by trun MP4 boxes), should be the delta between sample DTS
+    lastDTS = inputSamples[inputSamples.length - 1].dts; // Sample duration (as expected by trun MP4 boxes), should be the delta between sample DTS
     // set this constant duration as being the avg delta between consecutive DTS.
 
-    var averageSampleDuration = Math.round((lastDTS - firstDTS) / (nbSamples - 1)); // handle broken streams with PTS < DTS, tolerance up 0.2 seconds
-
-    if (ptsDtsShift < 0) {
-      if (ptsDtsShift < averageSampleDuration * -2) {
-        // Fix for "CNN special report, with CC" in test-streams (including Safari browser)
-        // With large PTS < DTS errors such as this, we want to correct CTS while maintaining increasing DTS values
-        _utils_logger__WEBPACK_IMPORTED_MODULE_5__["logger"].warn("PTS < DTS detected in video samples, offsetting DTS from PTS by " + Object(_utils_timescale_conversion__WEBPACK_IMPORTED_MODULE_7__["toMsFromMpegTsClock"])(-averageSampleDuration, true) + " ms");
-        var lastDts = ptsDtsShift;
-
-        for (var _i = 0; _i < nbSamples; _i++) {
-          inputSamples[_i].dts = lastDts = Math.max(lastDts, inputSamples[_i].pts - averageSampleDuration);
-          inputSamples[_i].pts = Math.max(lastDts, inputSamples[_i].pts);
-        }
-      } else {
-        // Fix for "Custom IV with bad PTS DTS" in test-streams
-        // With smaller PTS < DTS errors we can simply move all DTS back. This increases CTS without causing buffer gaps or decode errors in Safari
-        _utils_logger__WEBPACK_IMPORTED_MODULE_5__["logger"].warn("PTS < DTS detected in video samples, shifting DTS by " + Object(_utils_timescale_conversion__WEBPACK_IMPORTED_MODULE_7__["toMsFromMpegTsClock"])(ptsDtsShift, true) + " ms to overcome this issue");
-
-        for (var _i2 = 0; _i2 < nbSamples; _i2++) {
-          inputSamples[_i2].dts = inputSamples[_i2].dts + ptsDtsShift;
-        }
-      }
-
-      firstDTS = inputSamples[0].dts;
-    } // if fragment are contiguous, detect hole/overlapping between fragments
-
+    var inputDuration = lastDTS - firstDTS;
+    var averageSampleDuration = inputDuration ? Math.round(inputDuration / (nbSamples - 1)) : mp4SampleDuration || track.inputTimeScale / 30; // if fragment are contiguous, detect hole/overlapping between fragments
 
     if (contiguous) {
       // check timestamp continuity across consecutive fragments (this is to remove inter-fragment gap/hole)
@@ -21328,16 +21992,13 @@ var MP4Remuxer = /*#__PURE__*/function () {
       }
     }
 
-    if (requiresPositiveDts) {
-      firstDTS = Math.max(0, firstDTS);
-    }
-
+    firstDTS = Math.max(0, firstDTS);
     var nbNalu = 0;
     var naluLen = 0;
 
-    for (var _i3 = 0; _i3 < nbSamples; _i3++) {
+    for (var _i = 0; _i < nbSamples; _i++) {
       // compute total/avc sample length and nb of NAL units
-      var _sample = inputSamples[_i3];
+      var _sample = inputSamples[_i];
       var units = _sample.units;
       var nbUnits = units.length;
       var sampleLen = 0;
@@ -21348,12 +22009,9 @@ var MP4Remuxer = /*#__PURE__*/function () {
 
       naluLen += sampleLen;
       nbNalu += nbUnits;
-      _sample.length = sampleLen; // normalize PTS/DTS
-      // ensure sample monotonic DTS
+      _sample.length = sampleLen; // ensure sample monotonic DTS
 
-      _sample.dts = Math.max(_sample.dts, firstDTS); // ensure that computed value is greater or equal than sample DTS
-
-      _sample.pts = Math.max(_sample.pts, _sample.dts, 0);
+      _sample.dts = Math.max(_sample.dts, firstDTS);
       minPTS = Math.min(_sample.pts, minPTS);
       maxPTS = Math.max(_sample.pts, maxPTS);
     }
@@ -21381,9 +22039,14 @@ var MP4Remuxer = /*#__PURE__*/function () {
     var view = new DataView(mdat.buffer);
     view.setUint32(0, mdatSize);
     mdat.set(_mp4_generator__WEBPACK_IMPORTED_MODULE_2__["default"].types.mdat, 4);
+    var stretchedLastFrame = false;
+    var minDtsDelta = Number.POSITIVE_INFINITY;
+    var minPtsDelta = Number.POSITIVE_INFINITY;
+    var maxDtsDelta = Number.NEGATIVE_INFINITY;
+    var maxPtsDelta = Number.NEGATIVE_INFINITY;
 
-    for (var _i4 = 0; _i4 < nbSamples; _i4++) {
-      var avcSample = inputSamples[_i4];
+    for (var _i2 = 0; _i2 < nbSamples; _i2++) {
+      var avcSample = inputSamples[_i2];
       var avcSampleUnits = avcSample.units;
       var mp4SampleLength = 0; // convert NALU bitstream to MP4 format (prepend NALU with size field)
 
@@ -21399,11 +22062,15 @@ var MP4Remuxer = /*#__PURE__*/function () {
       } // expected sample duration is the Decoding Timestamp diff of consecutive samples
 
 
-      if (_i4 < nbSamples - 1) {
-        mp4SampleDuration = inputSamples[_i4 + 1].dts - avcSample.dts;
+      var ptsDelta = void 0;
+
+      if (_i2 < nbSamples - 1) {
+        mp4SampleDuration = inputSamples[_i2 + 1].dts - avcSample.dts;
+        ptsDelta = inputSamples[_i2 + 1].pts - avcSample.pts;
       } else {
         var config = this.config;
-        var lastFrameDuration = avcSample.dts - inputSamples[_i4 > 0 ? _i4 - 1 : _i4].dts;
+        var lastFrameDuration = _i2 > 0 ? avcSample.dts - inputSamples[_i2 - 1].dts : averageSampleDuration;
+        ptsDelta = _i2 > 0 ? avcSample.pts - inputSamples[_i2 - 1].pts : averageSampleDuration;
 
         if (config.stretchShortVideoTrack && this.nextAudioPts !== null) {
           // In some cases, a segment's audio track duration may exceed the video track duration.
@@ -21421,6 +22088,8 @@ var MP4Remuxer = /*#__PURE__*/function () {
 
             if (mp4SampleDuration < 0) {
               mp4SampleDuration = lastFrameDuration;
+            } else {
+              stretchedLastFrame = true;
             }
 
             _utils_logger__WEBPACK_IMPORTED_MODULE_5__["logger"].log("[mp4-remuxer]: It is approximately " + deltaToFrameEnd / 90 + " ms to the next segment; using duration " + mp4SampleDuration / 90 + " ms for the last video frame.");
@@ -21433,20 +22102,53 @@ var MP4Remuxer = /*#__PURE__*/function () {
       }
 
       var compositionTimeOffset = Math.round(avcSample.pts - avcSample.dts);
+      minDtsDelta = Math.min(minDtsDelta, mp4SampleDuration);
+      maxDtsDelta = Math.max(maxDtsDelta, mp4SampleDuration);
+      minPtsDelta = Math.min(minPtsDelta, ptsDelta);
+      maxPtsDelta = Math.max(maxPtsDelta, ptsDelta);
       outputSamples.push(new Mp4Sample(avcSample.key, mp4SampleDuration, mp4SampleLength, compositionTimeOffset));
     }
 
-    if (outputSamples.length && chromeVersion && chromeVersion < 70) {
-      // Chrome workaround, mark first sample as being a Random Access Point (keyframe) to avoid sourcebuffer append issue
-      // https://code.google.com/p/chromium/issues/detail?id=229412
-      var flags = outputSamples[0].flags;
-      flags.dependsOn = 2;
-      flags.isNonSync = 0;
+    if (outputSamples.length) {
+      if (chromeVersion) {
+        if (chromeVersion < 70) {
+          // Chrome workaround, mark first sample as being a Random Access Point (keyframe) to avoid sourcebuffer append issue
+          // https://code.google.com/p/chromium/issues/detail?id=229412
+          var flags = outputSamples[0].flags;
+          flags.dependsOn = 2;
+          flags.isNonSync = 0;
+        }
+      } else if (safariWebkitVersion) {
+        // Fix for "CNN special report, with CC" in test-streams (Safari browser only)
+        // Ignore DTS when frame durations are irregular. Safari MSE does not handle this leading to gaps.
+        if (maxPtsDelta - minPtsDelta < maxDtsDelta - minDtsDelta && averageSampleDuration / maxDtsDelta < 0.025 && outputSamples[0].cts === 0) {
+          _utils_logger__WEBPACK_IMPORTED_MODULE_5__["logger"].warn('Found irregular gaps in sample duration. Using PTS instead of DTS to determine MP4 sample duration.');
+          var dts = firstDTS;
+
+          for (var _i3 = 0, len = outputSamples.length; _i3 < len; _i3++) {
+            var nextDts = dts + outputSamples[_i3].duration;
+
+            var _pts = dts + outputSamples[_i3].cts;
+
+            if (_i3 < len - 1) {
+              var nextPts = nextDts + outputSamples[_i3 + 1].cts;
+              outputSamples[_i3].duration = nextPts - _pts;
+            } else {
+              outputSamples[_i3].duration = _i3 ? outputSamples[_i3 - 1].duration : averageSampleDuration;
+            }
+
+            outputSamples[_i3].cts = 0;
+            dts = nextDts;
+          }
+        }
+      }
     }
 
-    console.assert(mp4SampleDuration !== undefined, 'mp4SampleDuration must be computed'); // next AVC sample DTS should be equal to last sample DTS + last sample duration (in PES timescale)
+    console.assert(mp4SampleDuration !== null, 'mp4SampleDuration must be computed'); // next AVC sample DTS should be equal to last sample DTS + last sample duration (in PES timescale)
 
+    mp4SampleDuration = stretchedLastFrame || !mp4SampleDuration ? averageSampleDuration : mp4SampleDuration;
     this.nextAvcDts = nextAvcDts = lastDTS + mp4SampleDuration;
+    this.videoSampleDuration = mp4SampleDuration;
     this.isVideoContiguous = true;
     var moof = _mp4_generator__WEBPACK_IMPORTED_MODULE_2__["default"].moof(track.sequenceNumber++, firstDTS, _extends({}, track, {
       samples: outputSamples
@@ -21475,11 +22177,12 @@ var MP4Remuxer = /*#__PURE__*/function () {
     var inputTimeScale = track.inputTimeScale;
     var mp4timeScale = track.samplerate ? track.samplerate : inputTimeScale;
     var scaleFactor = inputTimeScale / mp4timeScale;
-    var mp4SampleDuration = track.isAAC ? AAC_SAMPLES_PER_FRAME : MPEG_AUDIO_SAMPLE_PER_FRAME;
+    var mp4SampleDuration = track.segmentCodec === 'aac' ? AAC_SAMPLES_PER_FRAME : MPEG_AUDIO_SAMPLE_PER_FRAME;
     var inputSampleDuration = mp4SampleDuration * scaleFactor;
     var initPTS = this._initPTS;
-    var rawMPEG = !track.isAAC && this.typeSupported.mpeg;
+    var rawMPEG = track.segmentCodec === 'mp3' && this.typeSupported.mpeg;
     var outputSamples = [];
+    var alignedWithVideo = videoTimeOffset !== undefined;
     var inputSamples = track.samples;
     var offset = rawMPEG ? 0 : 8;
     var nextAudioPts = this.nextAudioPts || -1; // window.audioSamples ? window.audioSamples.push(inputSamples.map(s => s.pts)) : (window.audioSamples = [inputSamples.map(s => s.pts)]);
@@ -21514,7 +22217,7 @@ var MP4Remuxer = /*#__PURE__*/function () {
       if (videoTimeOffset === 0) {
         // Set the start to 0 to match video so that start gaps larger than inputSampleDuration are filled with silence
         nextAudioPts = 0;
-      } else if (accurateTimeOffset) {
+      } else if (accurateTimeOffset && !alignedWithVideo) {
         // When not seeking, not live, and LevelDetails.PTSKnown, use fragment start as predicted next audio PTS
         nextAudioPts = Math.max(0, timeOffsetMpegTS);
       } else {
@@ -21528,8 +22231,7 @@ var MP4Remuxer = /*#__PURE__*/function () {
     // frame.
 
 
-    if (track.isAAC) {
-      var alignedWithVideo = videoTimeOffset !== undefined;
+    if (track.segmentCodec === 'aac') {
       var maxAudioFramesDrift = this.config.maxAudioFramesDrift;
 
       for (var i = 0, nextPts = nextAudioPts; i < inputSamples.length; i++) {
@@ -21603,21 +22305,21 @@ var MP4Remuxer = /*#__PURE__*/function () {
     for (var _j2 = 0, _nbSamples = inputSamples.length; _j2 < _nbSamples; _j2++) {
       var audioSample = inputSamples[_j2];
       var unit = audioSample.unit;
-      var _pts = audioSample.pts;
+      var _pts2 = audioSample.pts;
 
       if (lastPTS !== null) {
         // If we have more than one sample, set the duration of the sample to the "real" duration; the PTS diff with
         // the previous sample
         var prevSample = outputSamples[_j2 - 1];
-        prevSample.duration = Math.round((_pts - lastPTS) / scaleFactor);
+        prevSample.duration = Math.round((_pts2 - lastPTS) / scaleFactor);
       } else {
-        if (contiguous && track.isAAC) {
+        if (contiguous && track.segmentCodec === 'aac') {
           // set PTS/DTS to expected PTS/DTS
-          _pts = nextAudioPts;
+          _pts2 = nextAudioPts;
         } // remember first PTS of our audioSamples
 
 
-        firstPTS = _pts;
+        firstPTS = _pts2;
 
         if (mdatSize > 0) {
           /* concatenate the audio data and construct the mdat in place
@@ -21655,7 +22357,7 @@ var MP4Remuxer = /*#__PURE__*/function () {
       // becomes the PTS diff with the previous sample
 
       outputSamples.push(new Mp4Sample(true, mp4SampleDuration, unitLen, 0));
-      lastPTS = _pts;
+      lastPTS = _pts2;
     } // We could end up with no audio samples if all input samples were overlapping with the previously remuxed ones
 
 
@@ -21730,59 +22432,6 @@ var MP4Remuxer = /*#__PURE__*/function () {
     return this.remuxAudio(track, timeOffset, contiguous, false);
   };
 
-  _proto.remuxID3 = function remuxID3(track, timeOffset) {
-    var length = track.samples.length;
-
-    if (!length) {
-      return;
-    }
-
-    var inputTimeScale = track.inputTimeScale;
-    var initPTS = this._initPTS;
-    var initDTS = this._initDTS;
-
-    for (var index = 0; index < length; index++) {
-      var sample = track.samples[index]; // setting id3 pts, dts to relative time
-      // using this._initPTS and this._initDTS to calculate relative time
-
-      sample.pts = normalizePts(sample.pts - initPTS, timeOffset * inputTimeScale) / inputTimeScale;
-      sample.dts = normalizePts(sample.dts - initDTS, timeOffset * inputTimeScale) / inputTimeScale;
-    }
-
-    var samples = track.samples;
-    track.samples = [];
-    return {
-      samples: samples
-    };
-  };
-
-  _proto.remuxText = function remuxText(track, timeOffset) {
-    var length = track.samples.length;
-
-    if (!length) {
-      return;
-    }
-
-    var inputTimeScale = track.inputTimeScale;
-    var initPTS = this._initPTS;
-
-    for (var index = 0; index < length; index++) {
-      var sample = track.samples[index]; // setting text pts, dts to relative time
-      // using this._initPTS and this._initDTS to calculate relative time
-
-      sample.pts = normalizePts(sample.pts - initPTS, timeOffset * inputTimeScale) / inputTimeScale;
-    }
-
-    track.samples.sort(function (a, b) {
-      return a.pts - b.pts;
-    });
-    var samples = track.samples;
-    track.samples = [];
-    return {
-      samples: samples
-    };
-  };
-
   return MP4Remuxer;
 }();
 
@@ -21823,6 +22472,55 @@ function findKeyframeIndex(samples) {
   return -1;
 }
 
+function flushTextTrackMetadataCueSamples(track, timeOffset, initPTS, initDTS) {
+  var length = track.samples.length;
+
+  if (!length) {
+    return;
+  }
+
+  var inputTimeScale = track.inputTimeScale;
+
+  for (var index = 0; index < length; index++) {
+    var sample = track.samples[index]; // setting id3 pts, dts to relative time
+    // using this._initPTS and this._initDTS to calculate relative time
+
+    sample.pts = normalizePts(sample.pts - initPTS, timeOffset * inputTimeScale) / inputTimeScale;
+    sample.dts = normalizePts(sample.dts - initDTS, timeOffset * inputTimeScale) / inputTimeScale;
+  }
+
+  var samples = track.samples;
+  track.samples = [];
+  return {
+    samples: samples
+  };
+}
+function flushTextTrackUserdataCueSamples(track, timeOffset, initPTS) {
+  var length = track.samples.length;
+
+  if (!length) {
+    return;
+  }
+
+  var inputTimeScale = track.inputTimeScale;
+
+  for (var index = 0; index < length; index++) {
+    var sample = track.samples[index]; // setting text pts, dts to relative time
+    // using this._initPTS and this._initDTS to calculate relative time
+
+    sample.pts = normalizePts(sample.pts - initPTS, timeOffset * inputTimeScale) / inputTimeScale;
+  }
+
+  track.samples.sort(function (a, b) {
+    return a.pts - b.pts;
+  });
+  var samples = track.samples;
+  track.samples = [];
+  return {
+    samples: samples
+  };
+}
+
 var Mp4Sample = function Mp4Sample(isKeyframe, duration, size, cts) {
   this.size = void 0;
   this.duration = void 0;
@@ -21855,9 +22553,11 @@ var Mp4SampleFlags = function Mp4SampleFlags(isKeyframe) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/polyfills/number */ "./src/polyfills/number.ts");
-/* harmony import */ var _utils_mp4_tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/mp4-tools */ "./src/utils/mp4-tools.ts");
-/* harmony import */ var _loader_fragment__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../loader/fragment */ "./src/loader/fragment.ts");
-/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
+/* harmony import */ var _mp4_remuxer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mp4-remuxer */ "./src/remux/mp4-remuxer.ts");
+/* harmony import */ var _utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/mp4-tools */ "./src/utils/mp4-tools.ts");
+/* harmony import */ var _loader_fragment__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../loader/fragment */ "./src/loader/fragment.ts");
+/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/logger */ "./src/utils/logger.ts");
+
 
 
 
@@ -21872,7 +22572,7 @@ var PassThroughRemuxer = /*#__PURE__*/function () {
     this.initData = void 0;
     this.initPTS = void 0;
     this.initTracks = void 0;
-    this.lastEndDTS = null;
+    this.lastEndTime = null;
   }
 
   var _proto = PassThroughRemuxer.prototype;
@@ -21881,11 +22581,11 @@ var PassThroughRemuxer = /*#__PURE__*/function () {
 
   _proto.resetTimeStamp = function resetTimeStamp(defaultInitPTS) {
     this.initPTS = defaultInitPTS;
-    this.lastEndDTS = null;
+    this.lastEndTime = null;
   };
 
   _proto.resetNextTimestamp = function resetNextTimestamp() {
-    this.lastEndDTS = null;
+    this.lastEndTime = null;
   };
 
   _proto.resetInitSegment = function resetInitSegment(initSegment, audioCodec, videoCodec) {
@@ -21905,14 +22605,14 @@ var PassThroughRemuxer = /*#__PURE__*/function () {
       return;
     }
 
-    var initData = this.initData = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_1__["parseInitSegment"])(initSegment); // Get codec from initSegment or fallback to default
+    var initData = this.initData = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__["parseInitSegment"])(initSegment); // Get codec from initSegment or fallback to default
 
     if (!audioCodec) {
-      audioCodec = getParsedTrackCodec(initData.audio, _loader_fragment__WEBPACK_IMPORTED_MODULE_2__["ElementaryStreamTypes"].AUDIO);
+      audioCodec = getParsedTrackCodec(initData.audio, _loader_fragment__WEBPACK_IMPORTED_MODULE_3__["ElementaryStreamTypes"].AUDIO);
     }
 
     if (!videoCodec) {
-      videoCodec = getParsedTrackCodec(initData.video, _loader_fragment__WEBPACK_IMPORTED_MODULE_2__["ElementaryStreamTypes"].VIDEO);
+      videoCodec = getParsedTrackCodec(initData.video, _loader_fragment__WEBPACK_IMPORTED_MODULE_3__["ElementaryStreamTypes"].VIDEO);
     }
 
     var tracks = {};
@@ -21939,15 +22639,17 @@ var PassThroughRemuxer = /*#__PURE__*/function () {
         id: 'main'
       };
     } else {
-      _utils_logger__WEBPACK_IMPORTED_MODULE_3__["logger"].warn('[passthrough-remuxer.ts]: initSegment does not contain moov or trak boxes.');
+      _utils_logger__WEBPACK_IMPORTED_MODULE_4__["logger"].warn('[passthrough-remuxer.ts]: initSegment does not contain moov or trak boxes.');
     }
 
     this.initTracks = tracks;
   };
 
   _proto.remux = function remux(audioTrack, videoTrack, id3Track, textTrack, timeOffset) {
+    var _this$initPTS;
+
     var initPTS = this.initPTS,
-        lastEndDTS = this.lastEndDTS;
+        lastEndTime = this.lastEndTime;
     var result = {
       audio: undefined,
       video: undefined,
@@ -21958,8 +22660,8 @@ var PassThroughRemuxer = /*#__PURE__*/function () {
     // lastEndDTS over timeOffset whenever possible; during progressive playback, the media source will not update
     // the media duration (which is what timeOffset is provided as) before we need to process the next chunk.
 
-    if (!Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(lastEndDTS)) {
-      lastEndDTS = this.lastEndDTS = timeOffset || 0;
+    if (!Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(lastEndTime)) {
+      lastEndTime = this.lastEndTime = timeOffset || 0;
     } // The binary segment data is added to the videoTrack in the mp4demuxer. We don't check to see if the data is only
     // audio or video (or both); adding it to video was an arbitrary choice.
 
@@ -21983,7 +22685,7 @@ var PassThroughRemuxer = /*#__PURE__*/function () {
 
     if (!initData || !initData.length) {
       // We can't remux if the initSegment could not be generated
-      _utils_logger__WEBPACK_IMPORTED_MODULE_3__["logger"].warn('[passthrough-remuxer.ts]: Failed to generate initSegment.');
+      _utils_logger__WEBPACK_IMPORTED_MODULE_4__["logger"].warn('[passthrough-remuxer.ts]: Failed to generate initSegment.');
       return result;
     }
 
@@ -21992,19 +22694,21 @@ var PassThroughRemuxer = /*#__PURE__*/function () {
       this.emitInitSegment = false;
     }
 
+    var startDTS = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__["getStartDTS"])(initData, data);
+
     if (!Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(initPTS)) {
-      this.initPTS = initSegment.initPTS = initPTS = computeInitPTS(initData, data, lastEndDTS);
+      this.initPTS = initSegment.initPTS = initPTS = startDTS - timeOffset;
     }
 
-    var duration = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_1__["getDuration"])(data, initData);
-    var startDTS = lastEndDTS;
-    var endDTS = duration + startDTS;
-    Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_1__["offsetStartDTS"])(initData, data, initPTS);
+    var duration = Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__["getDuration"])(data, initData);
+    var startTime = audioTrack ? startDTS - initPTS : lastEndTime;
+    var endTime = startTime + duration;
+    Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_2__["offsetStartDTS"])(initData, data, initPTS);
 
     if (duration > 0) {
-      this.lastEndDTS = endDTS;
+      this.lastEndTime = endTime;
     } else {
-      _utils_logger__WEBPACK_IMPORTED_MODULE_3__["logger"].warn('Duration parsed from mp4 should be greater than zero');
+      _utils_logger__WEBPACK_IMPORTED_MODULE_4__["logger"].warn('Duration parsed from mp4 should be greater than zero');
       this.resetNextTimestamp();
     }
 
@@ -22022,10 +22726,10 @@ var PassThroughRemuxer = /*#__PURE__*/function () {
 
     var track = {
       data1: data,
-      startPTS: startDTS,
-      startDTS: startDTS,
-      endPTS: endDTS,
-      endDTS: endDTS,
+      startPTS: startTime,
+      startDTS: startTime,
+      endPTS: endTime,
+      endDTS: endTime,
       type: type,
       hasAudio: hasAudio,
       hasVideo: hasVideo,
@@ -22034,18 +22738,19 @@ var PassThroughRemuxer = /*#__PURE__*/function () {
     };
     result.audio = track.type === 'audio' ? track : undefined;
     result.video = track.type !== 'audio' ? track : undefined;
-    result.text = textTrack;
-    result.id3 = id3Track;
     result.initSegment = initSegment;
+    var initPtsNum = (_this$initPTS = this.initPTS) != null ? _this$initPTS : 0;
+    result.id3 = Object(_mp4_remuxer__WEBPACK_IMPORTED_MODULE_1__["flushTextTrackMetadataCueSamples"])(id3Track, timeOffset, initPtsNum, initPtsNum);
+
+    if (textTrack.samples.length) {
+      result.text = Object(_mp4_remuxer__WEBPACK_IMPORTED_MODULE_1__["flushTextTrackUserdataCueSamples"])(textTrack, timeOffset, initPtsNum);
+    }
+
     return result;
   };
 
   return PassThroughRemuxer;
 }();
-
-var computeInitPTS = function computeInitPTS(initData, data, timeOffset) {
-  return Object(_utils_mp4_tools__WEBPACK_IMPORTED_MODULE_1__["getStartDTS"])(initData, data) - timeOffset;
-};
 
 function getParsedTrackCodec(track, type) {
   var parsedCodec = track === null || track === void 0 ? void 0 : track.codec;
@@ -22057,7 +22762,7 @@ function getParsedTrackCodec(track, type) {
   // This allows for some playback of some fmp4 playlists without CODECS defined in manifest
 
 
-  if (parsedCodec === 'hvc1') {
+  if (parsedCodec === 'hvc1' || parsedCodec === 'hev1') {
     return 'hvc1.1.c.L120.90';
   }
 
@@ -22065,7 +22770,7 @@ function getParsedTrackCodec(track, type) {
     return 'av01.0.04M.08';
   }
 
-  if (parsedCodec === 'avc1' || type === _loader_fragment__WEBPACK_IMPORTED_MODULE_2__["ElementaryStreamTypes"].VIDEO) {
+  if (parsedCodec === 'avc1' || type === _loader_fragment__WEBPACK_IMPORTED_MODULE_3__["ElementaryStreamTypes"].VIDEO) {
     return 'avc1.42e01e';
   }
 
@@ -22295,6 +23000,24 @@ var CMCDStreamType;
 
 /***/ }),
 
+/***/ "./src/types/demuxer.ts":
+/*!******************************!*\
+  !*** ./src/types/demuxer.ts ***!
+  \******************************/
+/*! exports provided: MetadataSchema */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MetadataSchema", function() { return MetadataSchema; });
+var MetadataSchema;
+
+(function (MetadataSchema) {
+  MetadataSchema["audioId3"] = "org.id3";
+  MetadataSchema["dateRange"] = "com.apple.quicktime.HLS";
+  MetadataSchema["emsg"] = "https://aomedia.org/emsg/ID3";
+})(MetadataSchema || (MetadataSchema = {}));
+
+/***/ }),
+
 /***/ "./src/types/level.ts":
 /*!****************************!*\
   !*** ./src/types/level.ts ***!
@@ -22308,7 +23031,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Level", function() { return Level; });
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 var HlsSkip;
 
@@ -24413,7 +25136,9 @@ var sampleEntryCodesISO = {
     avcp: true,
     av01: true,
     drac: true,
+    dva1: true,
     dvav: true,
+    dvh1: true,
     dvhe: true,
     encv: true,
     hev1: true,
@@ -24739,7 +25464,7 @@ function alignMediaPlaylistByPDT(details, refDetails) {
   var refPDT = refDetails.fragments[0].programDateTime; // hasProgramDateTime check above makes this safe.
 
   var refStart = refDetails.fragments[0].start; // Use the delta between the reference details' presentation timeline's start time and its PDT
-  // to align the other rendtion's timeline.
+  // to align the other rendition's timeline.
 
   var delta = refPDT - refStart * 1000; // Per spec: "If any Media Playlist in a Master Playlist contains an EXT-X-PROGRAM-DATE-TIME tag, then all
   // Media Playlists in that Master Playlist MUST contain EXT-X-PROGRAM-DATE-TIME tags with consistent mappings
@@ -24927,17 +25652,17 @@ function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.crea
 
 function _wrapNativeSuper(Class) { var _cache = typeof Map === "function" ? new Map() : undefined; _wrapNativeSuper = function _wrapNativeSuper(Class) { if (Class === null || !_isNativeFunction(Class)) return Class; if (typeof Class !== "function") { throw new TypeError("Super expression must either be null or a function"); } if (typeof _cache !== "undefined") { if (_cache.has(Class)) return _cache.get(Class); _cache.set(Class, Wrapper); } function Wrapper() { return _construct(Class, arguments, _getPrototypeOf(this).constructor); } Wrapper.prototype = Object.create(Class.prototype, { constructor: { value: Wrapper, enumerable: false, writable: true, configurable: true } }); return _setPrototypeOf(Wrapper, Class); }; return _wrapNativeSuper(Class); }
 
-function _construct(Parent, args, Class) { if (_isNativeReflectConstruct()) { _construct = Reflect.construct; } else { _construct = function _construct(Parent, args, Class) { var a = [null]; a.push.apply(a, args); var Constructor = Function.bind.apply(Parent, a); var instance = new Constructor(); if (Class) _setPrototypeOf(instance, Class.prototype); return instance; }; } return _construct.apply(null, arguments); }
+function _construct(Parent, args, Class) { if (_isNativeReflectConstruct()) { _construct = Reflect.construct.bind(); } else { _construct = function _construct(Parent, args, Class) { var a = [null]; a.push.apply(a, args); var Constructor = Function.bind.apply(Parent, a); var instance = new Constructor(); if (Class) _setPrototypeOf(instance, Class.prototype); return instance; }; } return _construct.apply(null, arguments); }
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _isNativeFunction(fn) { return Function.toString.call(fn).indexOf("[native code]") !== -1; }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 
 
@@ -25067,13 +25792,15 @@ var FetchLoader = /*#__PURE__*/function () {
       if (stats.aborted) {
         return;
       } // CORS errors result in an undefined code. Set it to 0 here to align with XHR's behavior
+      // when destroying, 'error' itself can be undefined
 
 
-      var code = error.code || 0;
+      var code = !error ? 0 : error.code || 0;
+      var text = !error ? null : error.message;
       callbacks.onError({
         code: code,
-        text: error.message
-      }, context, error.details);
+        text: text
+      }, context, error ? error.details : null);
     });
   };
 
@@ -25194,7 +25921,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _demux_id3__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../demux/id3 */ "./src/demux/id3.ts");
 /* harmony import */ var _timescale_conversion__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./timescale-conversion */ "./src/utils/timescale-conversion.ts");
 /* harmony import */ var _webvtt_parser__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./webvtt-parser */ "./src/utils/webvtt-parser.ts");
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 
 
@@ -25222,12 +25949,15 @@ function parseIMSC1(payload, initPTS, timescale, callBack, errorCallBack) {
     return;
   }
 
-  var mdat = results[0];
-  var ttml = Object(_demux_id3__WEBPACK_IMPORTED_MODULE_3__["utf8ArrayToStr"])(new Uint8Array(payload, mdat.start, mdat.end - mdat.start));
+  var ttmlList = results.map(function (mdat) {
+    return Object(_demux_id3__WEBPACK_IMPORTED_MODULE_3__["utf8ArrayToStr"])(mdat);
+  });
   var syncTime = Object(_timescale_conversion__WEBPACK_IMPORTED_MODULE_4__["toTimescaleFromScale"])(initPTS, 1, timescale);
 
   try {
-    callBack(parseTTML(ttml, syncTime));
+    ttmlList.forEach(function (ttml) {
+      return callBack(parseTTML(ttml, syncTime));
+    });
   } catch (error) {
     errorCallBack(error);
   }
@@ -25288,7 +26018,7 @@ function parseTTML(ttml, syncTime) {
     cue.position = 10;
     cue.size = 80; // Apply styles to cue
 
-    var styles = getTtmlStyles(region, style);
+    var styles = getTtmlStyles(region, style, styleElements);
     var textAlign = styles.textAlign;
 
     if (textAlign) {
@@ -25350,8 +26080,9 @@ function getTextContent(element, trim) {
   }, '');
 }
 
-function getTtmlStyles(region, style) {
+function getTtmlStyles(region, style, styleElements) {
   var ttsNs = 'http://www.w3.org/ns/ttml#styling';
+  var regionStyle = null;
   var styleAttributes = ['displayAlign', 'textAlign', 'color', 'backgroundColor', 'fontSize', 'fontFamily' // 'fontWeight',
   // 'lineHeight',
   // 'wrapOption',
@@ -25359,8 +26090,14 @@ function getTtmlStyles(region, style) {
   // 'direction',
   // 'writingMode'
   ];
+  var regionStyleName = region !== null && region !== void 0 && region.hasAttribute('style') ? region.getAttribute('style') : null;
+
+  if (regionStyleName && styleElements.hasOwnProperty(regionStyleName)) {
+    regionStyle = styleElements[regionStyleName];
+  }
+
   return styleAttributes.reduce(function (styles, name) {
-    var value = getAttributeNS(style, ttsNs, name) || getAttributeNS(region, ttsNs, name);
+    var value = getAttributeNS(style, ttsNs, name) || getAttributeNS(region, ttsNs, name) || getAttributeNS(regionStyle, ttsNs, name);
 
     if (value) {
       styles[name] = value;
@@ -25371,6 +26108,10 @@ function getTtmlStyles(region, style) {
 }
 
 function getAttributeNS(element, ns, name) {
+  if (!element) {
+    return null;
+  }
+
   return element.hasAttributeNS(ns, name) ? element.getAttributeNS(ns, name) : null;
 }
 
@@ -25550,12 +26291,14 @@ function getMediaSource() {
 /*!********************************!*\
   !*** ./src/utils/mp4-tools.ts ***!
   \********************************/
-/*! exports provided: bin2str, readUint16, readUint32, writeUint32, findBox, parseSegmentIndex, parseInitSegment, getStartDTS, getDuration, computeRawDurationFromSamples, offsetStartDTS, segmentValidRange, appendUint8Array */
+/*! exports provided: RemuxerTrackIdConfig, bin2str, readUint16, readUint32, readSint32, writeUint32, findBox, parseSegmentIndex, parseInitSegment, getStartDTS, getDuration, computeRawDurationFromSamples, offsetStartDTS, segmentValidRange, appendUint8Array, parseSamples, parseSEIMessageFromNALu, parseEmsg */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RemuxerTrackIdConfig", function() { return RemuxerTrackIdConfig; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "bin2str", function() { return bin2str; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "readUint16", function() { return readUint16; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "readUint32", function() { return readUint32; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "readSint32", function() { return readSint32; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "writeUint32", function() { return writeUint32; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "findBox", function() { return findBox; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "parseSegmentIndex", function() { return parseSegmentIndex; });
@@ -25566,46 +26309,53 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "offsetStartDTS", function() { return offsetStartDTS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "segmentValidRange", function() { return segmentValidRange; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "appendUint8Array", function() { return appendUint8Array; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "parseSamples", function() { return parseSamples; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "parseSEIMessageFromNALu", function() { return parseSEIMessageFromNALu; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "parseEmsg", function() { return parseEmsg; });
 /* harmony import */ var _typed_array__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./typed-array */ "./src/utils/typed-array.ts");
 /* harmony import */ var _loader_fragment__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../loader/fragment */ "./src/loader/fragment.ts");
+/* harmony import */ var _demux_id3__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../demux/id3 */ "./src/demux/id3.ts");
+
 
 
 var UINT32_MAX = Math.pow(2, 32) - 1;
-var push = [].push;
+var push = [].push; // We are using fixed track IDs for driving the MP4 remuxer
+// instead of following the TS PIDs.
+// There is no reason not to do this and some browsers/SourceBuffer-demuxers
+// may not like if there are TrackID "switches"
+// See https://github.com/video-dev/hls.js/issues/1331
+// Here we are mapping our internal track types to constant MP4 track IDs
+// With MSE currently one can only have one track of each, and we are muxing
+// whatever video/audio rendition in them.
+
+var RemuxerTrackIdConfig = {
+  video: 1,
+  audio: 2,
+  id3: 3,
+  text: 4
+};
 function bin2str(data) {
   return String.fromCharCode.apply(null, data);
 }
 function readUint16(buffer, offset) {
-  if ('data' in buffer) {
-    offset += buffer.start;
-    buffer = buffer.data;
-  }
-
   var val = buffer[offset] << 8 | buffer[offset + 1];
   return val < 0 ? 65536 + val : val;
 }
 function readUint32(buffer, offset) {
-  if ('data' in buffer) {
-    offset += buffer.start;
-    buffer = buffer.data;
-  }
-
-  var val = buffer[offset] << 24 | buffer[offset + 1] << 16 | buffer[offset + 2] << 8 | buffer[offset + 3];
+  var val = readSint32(buffer, offset);
   return val < 0 ? 4294967296 + val : val;
 }
+function readSint32(buffer, offset) {
+  return buffer[offset] << 24 | buffer[offset + 1] << 16 | buffer[offset + 2] << 8 | buffer[offset + 3];
+}
 function writeUint32(buffer, offset, value) {
-  if ('data' in buffer) {
-    offset += buffer.start;
-    buffer = buffer.data;
-  }
-
   buffer[offset] = value >> 24;
   buffer[offset + 1] = value >> 16 & 0xff;
   buffer[offset + 2] = value >> 8 & 0xff;
   buffer[offset + 3] = value & 0xff;
 } // Find the data for a box specified by its path
 
-function findBox(input, path) {
+function findBox(data, path) {
   var results = [];
 
   if (!path.length) {
@@ -25613,21 +26363,9 @@ function findBox(input, path) {
     return results;
   }
 
-  var data;
-  var start;
-  var end;
+  var end = data.byteLength;
 
-  if ('data' in input) {
-    data = input.data;
-    start = input.start;
-    end = input.end;
-  } else {
-    data = input;
-    start = 0;
-    end = data.byteLength;
-  }
-
-  for (var i = start; i < end;) {
+  for (var i = 0; i < end;) {
     var size = readUint32(data, i);
     var type = bin2str(data.subarray(i + 4, i + 8));
     var endbox = size > 1 ? i + size : end;
@@ -25636,18 +26374,10 @@ function findBox(input, path) {
       if (path.length === 1) {
         // this is the end of the path and we've found the box we were
         // looking for
-        results.push({
-          data: data,
-          start: i + 8,
-          end: endbox
-        });
+        results.push(data.subarray(i + 8, endbox));
       } else {
         // recursively search for the next box along the path
-        var subresults = findBox({
-          data: data,
-          start: i + 8,
-          end: endbox
-        }, path.slice(1));
+        var subresults = findBox(data.subarray(i + 8, endbox), path.slice(1));
 
         if (subresults.length) {
           push.apply(results, subresults);
@@ -25661,22 +26391,11 @@ function findBox(input, path) {
 
   return results;
 }
-function parseSegmentIndex(initSegment) {
-  var moovBox = findBox(initSegment, ['moov']);
-  var moov = moovBox[0];
-  var moovEndOffset = moov ? moov.end : null; // we need this in case we need to chop of garbage of the end of current data
-
-  var sidxBox = findBox(initSegment, ['sidx']);
-
-  if (!sidxBox || !sidxBox[0]) {
-    return null;
-  }
-
+function parseSegmentIndex(sidx) {
   var references = [];
-  var sidx = sidxBox[0];
-  var version = sidx.data[0]; // set initial offset, we skip the reference ID (not needed)
+  var version = sidx[0]; // set initial offset, we skip the reference ID (not needed)
 
-  var index = version === 0 ? 8 : 16;
+  var index = 8;
   var timescale = readUint32(sidx, index);
   index += 4; // TODO: parse earliestPresentationTime and firstOffset
   // usually zero in our case
@@ -25692,7 +26411,7 @@ function parseSegmentIndex(initSegment) {
 
 
   index += 2;
-  var startByte = sidx.end + firstOffset;
+  var startByte = sidx.length + firstOffset;
   var referencesCount = readUint16(sidx, index);
   index += 2;
 
@@ -25734,8 +26453,7 @@ function parseSegmentIndex(initSegment) {
     timescale: timescale,
     version: version,
     referencesCount: referencesCount,
-    references: references,
-    moovEndOffset: moovEndOffset
+    references: references
   };
 }
 /**
@@ -25767,7 +26485,7 @@ function parseInitSegment(initSegment) {
     var tkhd = findBox(trak, ['tkhd'])[0];
 
     if (tkhd) {
-      var version = tkhd.data[tkhd.start];
+      var version = tkhd[0];
 
       var _index = version === 0 ? 12 : 20;
 
@@ -25775,13 +26493,13 @@ function parseInitSegment(initSegment) {
       var mdhd = findBox(trak, ['mdia', 'mdhd'])[0];
 
       if (mdhd) {
-        version = mdhd.data[mdhd.start];
+        version = mdhd[0];
         _index = version === 0 ? 12 : 20;
         var timescale = readUint32(mdhd, _index);
         var hdlr = findBox(trak, ['mdia', 'hdlr'])[0];
 
         if (hdlr) {
-          var hdlrType = bin2str(hdlr.data.subarray(hdlr.start + 8, hdlr.start + 12));
+          var hdlrType = bin2str(hdlr.subarray(8, 12));
           var type = {
             soun: _loader_fragment__WEBPACK_IMPORTED_MODULE_1__["ElementaryStreamTypes"].AUDIO,
             vide: _loader_fragment__WEBPACK_IMPORTED_MODULE_1__["ElementaryStreamTypes"].VIDEO
@@ -25793,7 +26511,7 @@ function parseInitSegment(initSegment) {
             var codec = void 0;
 
             if (stsd) {
-              codec = bin2str(stsd.data.subarray(stsd.start + 12, stsd.start + 16)); // TODO: Parse codec details to be able to build MIME type.
+              codec = bin2str(stsd.subarray(12, 16)); // TODO: Parse codec details to be able to build MIME type.
               // stsd.start += 8;
               // const codecBox = findBox(stsd, [codec])[0];
               // if (codecBox) {
@@ -25852,7 +26570,7 @@ function getStartDTS(initData, fmp4) {
   // we need info from two children of each track fragment box
   return findBox(fmp4, ['moof', 'traf']).reduce(function (result, traf) {
     var tfdt = findBox(traf, ['tfdt'])[0];
-    var version = tfdt.data[tfdt.start];
+    var version = tfdt[0];
     var start = findBox(traf, ['tfhd']).reduce(function (result, tfhd) {
       // get the track id from the tfhd
       var id = readUint32(tfhd, 4);
@@ -25959,13 +26677,20 @@ function getDuration(data, initData) {
 
   if (videoDuration === 0 && audioDuration === 0) {
     // If duration samples are not available in the traf use sidx subsegment_duration
-    var sidx = parseSegmentIndex(data);
+    var sidxDuration = 0;
+    var sidxs = findBox(data, ['sidx']);
 
-    if (sidx !== null && sidx !== void 0 && sidx.references) {
-      return sidx.references.reduce(function (dur, ref) {
-        return dur + ref.info.duration || 0;
-      }, 0);
+    for (var _i = 0; _i < sidxs.length; _i++) {
+      var sidx = parseSegmentIndex(sidxs[_i]);
+
+      if (sidx !== null && sidx !== void 0 && sidx.references) {
+        sidxDuration += sidx.references.reduce(function (dur, ref) {
+          return dur + ref.info.duration || 0;
+        }, 0);
+      }
     }
+
+    return sidxDuration;
   }
 
   if (videoDuration) {
@@ -26054,11 +26779,13 @@ function offsetStartDTS(initData, fmp4, timeOffset) {
       var timescale = track.timescale || 90e3; // get the base media decode time from the tfdt
 
       findBox(traf, ['tfdt']).forEach(function (tfdt) {
-        var version = tfdt.data[tfdt.start];
+        var version = tfdt[0];
         var baseMediaDecodeTime = readUint32(tfdt, 4);
 
         if (version === 0) {
-          writeUint32(tfdt, 4, baseMediaDecodeTime - timeOffset * timescale);
+          baseMediaDecodeTime -= timeOffset * timescale;
+          baseMediaDecodeTime = Math.max(baseMediaDecodeTime, 0);
+          writeUint32(tfdt, 4, baseMediaDecodeTime);
         } else {
           baseMediaDecodeTime *= Math.pow(2, 32);
           baseMediaDecodeTime += readUint32(tfdt, 8);
@@ -26090,8 +26817,8 @@ function segmentValidRange(data) {
 
   var last = moofs[moofs.length - 1]; // Offset by 8 bytes; findBox offsets the start by as much
 
-  segmentedRange.valid = Object(_typed_array__WEBPACK_IMPORTED_MODULE_0__["sliceUint8"])(data, 0, last.start - 8);
-  segmentedRange.remainder = Object(_typed_array__WEBPACK_IMPORTED_MODULE_0__["sliceUint8"])(data, last.start - 8);
+  segmentedRange.valid = Object(_typed_array__WEBPACK_IMPORTED_MODULE_0__["sliceUint8"])(data, 0, last.byteOffset - 8);
+  segmentedRange.remainder = Object(_typed_array__WEBPACK_IMPORTED_MODULE_0__["sliceUint8"])(data, last.byteOffset - 8);
   return segmentedRange;
 }
 function appendUint8Array(data1, data2) {
@@ -26099,6 +26826,411 @@ function appendUint8Array(data1, data2) {
   temp.set(data1);
   temp.set(data2, data1.length);
   return temp;
+}
+function parseSamples(timeOffset, track) {
+  var seiSamples = [];
+  var videoData = track.samples;
+  var timescale = track.timescale;
+  var trackId = track.id;
+  var isHEVCFlavor = false;
+  var moofs = findBox(videoData, ['moof']);
+  moofs.map(function (moof) {
+    var moofOffset = moof.byteOffset - 8;
+    var trafs = findBox(moof, ['traf']);
+    trafs.map(function (traf) {
+      // get the base media decode time from the tfdt
+      var baseTime = findBox(traf, ['tfdt']).map(function (tfdt) {
+        var version = tfdt[0];
+        var result = readUint32(tfdt, 4);
+
+        if (version === 1) {
+          result *= Math.pow(2, 32);
+          result += readUint32(tfdt, 8);
+        }
+
+        return result / timescale;
+      })[0];
+
+      if (baseTime !== undefined) {
+        timeOffset = baseTime;
+      }
+
+      return findBox(traf, ['tfhd']).map(function (tfhd) {
+        var id = readUint32(tfhd, 4);
+        var tfhdFlags = readUint32(tfhd, 0) & 0xffffff;
+        var baseDataOffsetPresent = (tfhdFlags & 0x000001) !== 0;
+        var sampleDescriptionIndexPresent = (tfhdFlags & 0x000002) !== 0;
+        var defaultSampleDurationPresent = (tfhdFlags & 0x000008) !== 0;
+        var defaultSampleDuration = 0;
+        var defaultSampleSizePresent = (tfhdFlags & 0x000010) !== 0;
+        var defaultSampleSize = 0;
+        var defaultSampleFlagsPresent = (tfhdFlags & 0x000020) !== 0;
+        var tfhdOffset = 8;
+
+        if (id === trackId) {
+          if (baseDataOffsetPresent) {
+            tfhdOffset += 8;
+          }
+
+          if (sampleDescriptionIndexPresent) {
+            tfhdOffset += 4;
+          }
+
+          if (defaultSampleDurationPresent) {
+            defaultSampleDuration = readUint32(tfhd, tfhdOffset);
+            tfhdOffset += 4;
+          }
+
+          if (defaultSampleSizePresent) {
+            defaultSampleSize = readUint32(tfhd, tfhdOffset);
+            tfhdOffset += 4;
+          }
+
+          if (defaultSampleFlagsPresent) {
+            tfhdOffset += 4;
+          }
+
+          if (track.type === 'video') {
+            isHEVCFlavor = isHEVC(track.codec);
+          }
+
+          findBox(traf, ['trun']).map(function (trun) {
+            var version = trun[0];
+            var flags = readUint32(trun, 0) & 0xffffff;
+            var dataOffsetPresent = (flags & 0x000001) !== 0;
+            var dataOffset = 0;
+            var firstSampleFlagsPresent = (flags & 0x000004) !== 0;
+            var sampleDurationPresent = (flags & 0x000100) !== 0;
+            var sampleDuration = 0;
+            var sampleSizePresent = (flags & 0x000200) !== 0;
+            var sampleSize = 0;
+            var sampleFlagsPresent = (flags & 0x000400) !== 0;
+            var sampleCompositionOffsetsPresent = (flags & 0x000800) !== 0;
+            var compositionOffset = 0;
+            var sampleCount = readUint32(trun, 4);
+            var trunOffset = 8; // past version, flags, and sample count
+
+            if (dataOffsetPresent) {
+              dataOffset = readUint32(trun, trunOffset);
+              trunOffset += 4;
+            }
+
+            if (firstSampleFlagsPresent) {
+              trunOffset += 4;
+            }
+
+            var sampleOffset = dataOffset + moofOffset;
+
+            for (var ix = 0; ix < sampleCount; ix++) {
+              if (sampleDurationPresent) {
+                sampleDuration = readUint32(trun, trunOffset);
+                trunOffset += 4;
+              } else {
+                sampleDuration = defaultSampleDuration;
+              }
+
+              if (sampleSizePresent) {
+                sampleSize = readUint32(trun, trunOffset);
+                trunOffset += 4;
+              } else {
+                sampleSize = defaultSampleSize;
+              }
+
+              if (sampleFlagsPresent) {
+                trunOffset += 4;
+              }
+
+              if (sampleCompositionOffsetsPresent) {
+                if (version === 0) {
+                  compositionOffset = readUint32(trun, trunOffset);
+                } else {
+                  compositionOffset = readSint32(trun, trunOffset);
+                }
+
+                trunOffset += 4;
+              }
+
+              if (track.type === _loader_fragment__WEBPACK_IMPORTED_MODULE_1__["ElementaryStreamTypes"].VIDEO) {
+                var naluTotalSize = 0;
+
+                while (naluTotalSize < sampleSize) {
+                  var naluSize = readUint32(videoData, sampleOffset);
+                  sampleOffset += 4;
+                  var naluType = videoData[sampleOffset] & 0x1f;
+
+                  if (isSEIMessage(isHEVCFlavor, naluType)) {
+                    var data = videoData.subarray(sampleOffset, sampleOffset + naluSize);
+                    parseSEIMessageFromNALu(data, timeOffset + compositionOffset / timescale, seiSamples);
+                  }
+
+                  sampleOffset += naluSize;
+                  naluTotalSize += naluSize + 4;
+                }
+              }
+
+              timeOffset += sampleDuration / timescale;
+            }
+          });
+        }
+      });
+    });
+  });
+  return seiSamples;
+}
+
+function isHEVC(codec) {
+  if (!codec) {
+    return false;
+  }
+
+  var delimit = codec.indexOf('.');
+  var baseCodec = delimit < 0 ? codec : codec.substring(0, delimit);
+  return baseCodec === 'hvc1' || baseCodec === 'hev1' || // Dolby Vision
+  baseCodec === 'dvh1' || baseCodec === 'dvhe';
+}
+
+function isSEIMessage(isHEVCFlavor, naluType) {
+  return isHEVCFlavor ? naluType === 39 || naluType === 40 : naluType === 6;
+}
+
+function parseSEIMessageFromNALu(unescapedData, pts, samples) {
+  var data = discardEPB(unescapedData);
+  var seiPtr = 0; // skip frameType
+
+  seiPtr++;
+  var payloadType = 0;
+  var payloadSize = 0;
+  var endOfCaptions = false;
+  var b = 0;
+
+  while (seiPtr < data.length) {
+    payloadType = 0;
+
+    do {
+      if (seiPtr >= data.length) {
+        break;
+      }
+
+      b = data[seiPtr++];
+      payloadType += b;
+    } while (b === 0xff); // Parse payload size.
+
+
+    payloadSize = 0;
+
+    do {
+      if (seiPtr >= data.length) {
+        break;
+      }
+
+      b = data[seiPtr++];
+      payloadSize += b;
+    } while (b === 0xff);
+
+    var leftOver = data.length - seiPtr;
+
+    if (!endOfCaptions && payloadType === 4 && seiPtr < data.length) {
+      endOfCaptions = true;
+      var countryCode = data[seiPtr++];
+
+      if (countryCode === 181) {
+        var providerCode = readUint16(data, seiPtr);
+        seiPtr += 2;
+
+        if (providerCode === 49) {
+          var userStructure = readUint32(data, seiPtr);
+          seiPtr += 4;
+
+          if (userStructure === 0x47413934) {
+            var userDataType = data[seiPtr++]; // Raw CEA-608 bytes wrapped in CEA-708 packet
+
+            if (userDataType === 3) {
+              var firstByte = data[seiPtr++];
+              var totalCCs = 0x1f & firstByte;
+              var enabled = 0x40 & firstByte;
+              var totalBytes = enabled ? 2 + totalCCs * 3 : 0;
+              var byteArray = new Uint8Array(totalBytes);
+
+              if (enabled) {
+                byteArray[0] = firstByte;
+
+                for (var i = 1; i < totalBytes; i++) {
+                  byteArray[i] = data[seiPtr++];
+                }
+              }
+
+              samples.push({
+                type: userDataType,
+                payloadType: payloadType,
+                pts: pts,
+                bytes: byteArray
+              });
+            }
+          }
+        }
+      }
+    } else if (payloadType === 5 && payloadSize < leftOver) {
+      endOfCaptions = true;
+
+      if (payloadSize > 16) {
+        var uuidStrArray = [];
+
+        for (var _i2 = 0; _i2 < 16; _i2++) {
+          var _b = data[seiPtr++].toString(16);
+
+          uuidStrArray.push(_b.length == 1 ? '0' + _b : _b);
+
+          if (_i2 === 3 || _i2 === 5 || _i2 === 7 || _i2 === 9) {
+            uuidStrArray.push('-');
+          }
+        }
+
+        var length = payloadSize - 16;
+        var userDataBytes = new Uint8Array(length);
+
+        for (var _i3 = 0; _i3 < length; _i3++) {
+          userDataBytes[_i3] = data[seiPtr++];
+        }
+
+        samples.push({
+          payloadType: payloadType,
+          pts: pts,
+          uuid: uuidStrArray.join(''),
+          userData: Object(_demux_id3__WEBPACK_IMPORTED_MODULE_2__["utf8ArrayToStr"])(userDataBytes),
+          userDataBytes: userDataBytes
+        });
+      }
+    } else if (payloadSize < leftOver) {
+      seiPtr += payloadSize;
+    } else if (payloadSize > leftOver) {
+      break;
+    }
+  }
+}
+/**
+ * remove Emulation Prevention bytes from a RBSP
+ */
+
+function discardEPB(data) {
+  var length = data.byteLength;
+  var EPBPositions = [];
+  var i = 1; // Find all `Emulation Prevention Bytes`
+
+  while (i < length - 2) {
+    if (data[i] === 0 && data[i + 1] === 0 && data[i + 2] === 0x03) {
+      EPBPositions.push(i + 2);
+      i += 2;
+    } else {
+      i++;
+    }
+  } // If no Emulation Prevention Bytes were found just return the original
+  // array
+
+
+  if (EPBPositions.length === 0) {
+    return data;
+  } // Create a new array to hold the NAL unit data
+
+
+  var newLength = length - EPBPositions.length;
+  var newData = new Uint8Array(newLength);
+  var sourceIndex = 0;
+
+  for (i = 0; i < newLength; sourceIndex++, i++) {
+    if (sourceIndex === EPBPositions[0]) {
+      // Skip this byte
+      sourceIndex++; // Remove this position index
+
+      EPBPositions.shift();
+    }
+
+    newData[i] = data[sourceIndex];
+  }
+
+  return newData;
+}
+
+function parseEmsg(data) {
+  var version = data[0];
+  var schemeIdUri = '';
+  var value = '';
+  var timeScale = 0;
+  var presentationTimeDelta = 0;
+  var presentationTime = 0;
+  var eventDuration = 0;
+  var id = 0;
+  var offset = 0;
+
+  if (version === 0) {
+    while (bin2str(data.subarray(offset, offset + 1)) !== '\0') {
+      schemeIdUri += bin2str(data.subarray(offset, offset + 1));
+      offset += 1;
+    }
+
+    schemeIdUri += bin2str(data.subarray(offset, offset + 1));
+    offset += 1;
+
+    while (bin2str(data.subarray(offset, offset + 1)) !== '\0') {
+      value += bin2str(data.subarray(offset, offset + 1));
+      offset += 1;
+    }
+
+    value += bin2str(data.subarray(offset, offset + 1));
+    offset += 1;
+    timeScale = readUint32(data, 12);
+    presentationTimeDelta = readUint32(data, 16);
+    eventDuration = readUint32(data, 20);
+    id = readUint32(data, 24);
+    offset = 28;
+  } else if (version === 1) {
+    offset += 4;
+    timeScale = readUint32(data, offset);
+    offset += 4;
+    var leftPresentationTime = readUint32(data, offset);
+    offset += 4;
+    var rightPresentationTime = readUint32(data, offset);
+    offset += 4;
+    presentationTime = Math.pow(2, 32) * leftPresentationTime + rightPresentationTime;
+
+    if (!Number.isSafeInteger(presentationTime)) {
+      presentationTime = Number.MAX_SAFE_INTEGER; // eslint-disable-next-line no-console
+
+      console.warn('Presentation time exceeds safe integer limit and wrapped to max safe integer in parsing emsg box');
+    }
+
+    eventDuration = readUint32(data, offset);
+    offset += 4;
+    id = readUint32(data, offset);
+    offset += 4;
+
+    while (bin2str(data.subarray(offset, offset + 1)) !== '\0') {
+      schemeIdUri += bin2str(data.subarray(offset, offset + 1));
+      offset += 1;
+    }
+
+    schemeIdUri += bin2str(data.subarray(offset, offset + 1));
+    offset += 1;
+
+    while (bin2str(data.subarray(offset, offset + 1)) !== '\0') {
+      value += bin2str(data.subarray(offset, offset + 1));
+      offset += 1;
+    }
+
+    value += bin2str(data.subarray(offset, offset + 1));
+    offset += 1;
+  }
+
+  var payload = data.subarray(offset, data.byteLength);
+  return {
+    schemeIdUri: schemeIdUri,
+    value: value,
+    timeScale: timeScale,
+    presentationTime: presentationTime,
+    presentationTimeDelta: presentationTimeDelta,
+    eventDuration: eventDuration,
+    id: id,
+    payload: payload
+  };
 }
 
 /***/ }),
@@ -26233,7 +27365,7 @@ function clearCurrentCues(track) {
     track.mode = mode;
   }
 }
-function removeCuesInRange(track, start, end) {
+function removeCuesInRange(track, start, end, predicate) {
   var mode = track.mode;
 
   if (mode === 'disabled') {
@@ -26244,7 +27376,9 @@ function removeCuesInRange(track, start, end) {
     var cues = getCuesInRange(track.cues, start, end);
 
     for (var i = 0; i < cues.length; i++) {
-      track.removeCue(cues[i]);
+      if (!predicate || predicate(cues[i])) {
+        track.removeCue(cues[i]);
+      }
     }
   }
 
@@ -26294,11 +27428,11 @@ function getCuesInRange(cues, start, end) {
 
   if (firstCueInRange > -1) {
     for (var i = firstCueInRange, len = cues.length; i < len; i++) {
-      var cue = cues[i];
+      var _cue = cues[i];
 
-      if (cue.startTime >= start && cue.endTime <= end) {
-        cuesFound.push(cue);
-      } else if (cue.startTime > end) {
+      if (_cue.startTime >= start && _cue.endTime <= end) {
+        cuesFound.push(_cue);
+      } else if (_cue.startTime > end) {
         return cuesFound;
       }
     }
@@ -26968,12 +28102,12 @@ function parseCue(input, cue, regionList) {
 
   skipWhitespace();
 
-  if (input.substr(0, 3) !== '-->') {
+  if (input.slice(0, 3) !== '-->') {
     // (3) next characters must match '-->'
     throw new Error("Malformed time stamp (time stamps must be separated by '-->'): " + oInput);
   }
 
-  input = input.substr(3);
+  input = input.slice(3);
   skipWhitespace();
   cue.endTime = consumeTimeStamp(); // (5) collect cue end time
   // 4.1 WebVTT cue settings list.
@@ -27021,7 +28155,7 @@ var VTTParser = /*#__PURE__*/function () {
         ++pos;
       }
 
-      var line = buffer.substr(0, pos); // Advance the buffer early in case we fail below.
+      var line = buffer.slice(0, pos); // Advance the buffer early in case we fail below.
 
       if (buffer[pos] === '\r') {
         ++pos;
@@ -27031,7 +28165,7 @@ var VTTParser = /*#__PURE__*/function () {
         ++pos;
       }
 
-      _this.buffer = buffer.substr(pos);
+      _this.buffer = buffer.slice(pos);
       return line;
     } // 3.2 WebVTT metadata header syntax
 
@@ -27265,14 +28399,14 @@ var startsWith = function startsWith(inputString, searchString, position) {
     position = 0;
   }
 
-  return inputString.substr(position, searchString.length) === searchString;
+  return inputString.slice(position, position + searchString.length) === searchString;
 };
 
 var cueString2millis = function cueString2millis(timeString) {
-  var ts = parseInt(timeString.substr(-3));
-  var secs = parseInt(timeString.substr(-6, 2));
-  var mins = parseInt(timeString.substr(-9, 2));
-  var hours = timeString.length > 9 ? parseInt(timeString.substr(0, timeString.indexOf(':'))) : 0;
+  var ts = parseInt(timeString.slice(-3));
+  var secs = parseInt(timeString.slice(-6, -4));
+  var mins = parseInt(timeString.slice(-9, -7));
+  var hours = timeString.length > 9 ? parseInt(timeString.substring(0, timeString.indexOf(':'))) : 0;
 
   if (!Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(ts) || !Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(secs) || !Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(mins) || !Object(_home_runner_work_hls_js_hls_js_src_polyfills_number__WEBPACK_IMPORTED_MODULE_0__["isFiniteNumber"])(hours)) {
     throw Error("Malformed X-TIMESTAMP-MAP: Local:" + timeString);
@@ -27339,7 +28473,6 @@ function parseWebVTT(vttByteArray, initPTS, timescale, vttCCs, cc, timeOffset, c
   var timestampMapLOCAL = 0;
   var parsingError;
   var inHeader = true;
-  var timestampMap = false;
 
   parser.oncue = function (cue) {
     // Adjust cue timing; clamp cues to start no earlier than - and drop cues that don't end after - 0 on timeline.
@@ -27362,13 +28495,10 @@ function parseWebVTT(vttByteArray, initPTS, timescale, vttCCs, cc, timeOffset, c
       cueOffset = webVttMpegTsMapOffset - vttCCs.presentationOffset;
     }
 
-    if (timestampMap) {
-      var duration = cue.endTime - cue.startTime;
-      var startTime = Object(_remux_mp4_remuxer__WEBPACK_IMPORTED_MODULE_4__["normalizePts"])((cue.startTime + cueOffset - timestampMapLOCAL) * 90000, timeOffset * 90000) / 90000;
-      cue.startTime = startTime;
-      cue.endTime = startTime + duration;
-    } //trim trailing webvtt block whitespaces
-
+    var duration = cue.endTime - cue.startTime;
+    var startTime = Object(_remux_mp4_remuxer__WEBPACK_IMPORTED_MODULE_4__["normalizePts"])((cue.startTime + cueOffset - timestampMapLOCAL) * 90000, timeOffset * 90000) / 90000;
+    cue.startTime = Math.max(startTime, 0);
+    cue.endTime = Math.max(startTime + duration, 0); //trim trailing webvtt block whitespaces
 
     var text = cue.text.trim(); // Fix encoding of special characters
 
@@ -27402,14 +28532,13 @@ function parseWebVTT(vttByteArray, initPTS, timescale, vttCCs, cc, timeOffset, c
       // Look for X-TIMESTAMP-MAP in header.
       if (startsWith(line, 'X-TIMESTAMP-MAP=')) {
         // Once found, no more are allowed anyway, so stop searching.
-        inHeader = false;
-        timestampMap = true; // Extract LOCAL and MPEGTS.
+        inHeader = false; // Extract LOCAL and MPEGTS.
 
-        line.substr(16).split(',').forEach(function (timestamp) {
+        line.slice(16).split(',').forEach(function (timestamp) {
           if (startsWith(timestamp, 'LOCAL:')) {
-            cueTime = timestamp.substr(6);
+            cueTime = timestamp.slice(6);
           } else if (startsWith(timestamp, 'MPEGTS:')) {
-            timestampMapMPEGTS = parseInt(timestamp.substr(7));
+            timestampMapMPEGTS = parseInt(timestamp.slice(7));
           }
         });
 
@@ -27417,7 +28546,6 @@ function parseWebVTT(vttByteArray, initPTS, timescale, vttCCs, cc, timeOffset, c
           // Convert cue time to seconds
           timestampMapLOCAL = cueString2millis(cueTime) / 1000;
         } catch (error) {
-          timestampMap = false;
           parsingError = error;
         } // Return without parsing X-TIMESTAMP-MAP line.
 
@@ -27720,7 +28848,7 @@ var getRandomItem = function (arr) {
 
 var _dataStore = {
     defaultUIName: 'default',
-    loggingEnabled: convertLocalStorageIntegerToBoolean('StroeerVideoplayerLoggingEnabled'),
+    loggingEnabled: convertLocalStorageIntegerToBoolean$3('StroeerVideoplayerLoggingEnabled'),
     version: version$4
 };
 var _registeredUIs = new Map();
@@ -27762,11 +28890,11 @@ var StroeerVideoplayer = /** @class */ (function () {
                 return false;
             }
         };
-        this.deinitUI = function (uiName) {
+        this.deinitUI = function (uiName, opts) {
             if (_registeredUIs.has(uiName) && _this._dataStore.uiName === uiName) {
                 _this._dataStore.uiName = undefined;
                 if (_this._dataStore.activeUI !== undefined) {
-                    _this._dataStore.activeUI.deinit(_this);
+                    _this._dataStore.activeUI.deinit(_this, opts);
                     _this._dataStore.activeUI = undefined;
                 }
                 return true;
@@ -28149,7 +29277,7 @@ var StroeerVideoplayer = /** @class */ (function () {
     return StroeerVideoplayer;
 }());
 
-var version$3 = "1.0.0";
+var version$3 = "2.0.0";
 
 var UIIcons$1 = "<?xml version=\"1.0\" encoding=\"utf-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><symbol viewBox=\"0 0 24 24\" id=\"Icon-CaptionOff\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M22.5 5.5h-20a1 1 0 00-1 1v12a1 1 0 001 1h20a1 1 0 001-1v-12a1 1 0 00-1-1z\"/><path d=\"M10.92 15.241a4.375 4.375 0 01-1.557.259 2.49 2.49 0 01-1.963-.776 3.253 3.253 0 01-.691-2.224 3.593 3.593 0 01.333-1.593c.207-.439.543-.804.964-1.046.453-.25.964-.374 1.481-.361a3.68 3.68 0 011.653.375M18.072 15.241a4.384 4.384 0 01-1.557.259 2.49 2.49 0 01-1.968-.776 3.248 3.248 0 01-.687-2.224 3.593 3.593 0 01.333-1.593c.208-.439.544-.804.965-1.046.453-.25.964-.374 1.481-.361a3.673 3.673 0 011.652.375\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-CaptionOn\" xmlns=\"http://www.w3.org/2000/svg\"><g clip-path=\"url(#bclip0)\"><path d=\"M23 4H1a1 1 0 00-1 1v14a1 1 0 001 1h22a1 1 0 001-1V5a1 1 0 00-1-1zM9.215 14.3c.342 0 .682-.049 1.01-.146.334-.099.662-.215.983-.349V15.6c-.703.3-1.46.448-2.224.435a3.51 3.51 0 01-2.725-1.031 4.248 4.248 0 01-.949-2.981 4.77 4.77 0 01.459-2.143 3.3 3.3 0 011.322-1.42 3.993 3.993 0 012.027-.5 5.587 5.587 0 012.434.553l-.65 1.67a7.241 7.241 0 00-.871-.343A3.01 3.01 0 009.1 9.7a1.352 1.352 0 00-1.182.62 3 3 0 00-.424 1.711c-.002 1.513.572 2.269 1.721 2.269zm7.138 0c.342 0 .682-.049 1.01-.146.334-.099.662-.215.983-.349V15.6a5.44 5.44 0 01-2.224.435 3.513 3.513 0 01-2.722-1.03 4.248 4.248 0 01-.949-2.981 4.77 4.77 0 01.459-2.143 3.3 3.3 0 011.319-1.421 4 4 0 012.028-.5 5.586 5.586 0 012.433.553l-.65 1.67a7.304 7.304 0 00-.87-.343 3.017 3.017 0 00-.935-.14 1.352 1.352 0 00-1.182.62 3 3 0 00-.424 1.711c0 1.513.575 2.269 1.724 2.269z\"/></g><defs><clipPath id=\"bclip0\"><path d=\"M0 0h24v24H0z\"/></clipPath></defs></symbol><symbol viewBox=\"0 0 176 121\" id=\"Icon-Error\" xmlns=\"http://www.w3.org/2000/svg\"><ellipse cx=\"88\" cy=\"106.148\" rx=\"88\" ry=\"14.381\" fill=\"url(#cpaint0_linear_188_542)\"/><path stroke=\"#5C6173\" stroke-width=\"2.054\" stroke-linecap=\"round\" d=\"M64.503 40.333l-4.995-20.602\"/><path d=\"M79.999 41.828l15.066-36.98\" stroke=\"#5C6173\" stroke-width=\"2.054\"/><rect x=\"45.198\" y=\"39.035\" width=\"84.234\" height=\"65.743\" rx=\"7.533\" fill=\"#404451\"/><rect x=\"48.623\" y=\"42.459\" width=\"77.385\" height=\"47.938\" rx=\"4.109\" fill=\"#1E2026\"/><path d=\"M85.945 45.54L60.607 67.114v17.12h39.035l21.572-17.12V45.54H85.945z\" fill=\"url(#cpaint1_linear_188_542)\"/><circle cx=\"55.129\" cy=\"97.588\" r=\"2.397\"/><circle cx=\"62.662\" cy=\"97.588\" r=\"2.397\" fill=\"#8D93A6\"/><rect x=\"95.191\" y=\"95.191\" width=\"28.763\" height=\"4.794\" rx=\"2.397\" fill=\"#8D93A6\"/><rect x=\"96.56\" y=\"96.56\" width=\"26.023\" height=\"2.054\" rx=\"1.027\" fill=\"#404451\"/><path fill=\"none\" d=\"M53.416 15.751l-4.948 4.021a.685.685 0 01-.962-.098l-5.241-6.405a.685.685 0 00-1.026-.04l-6.655 6.973\" stroke=\"#5C6173\" stroke-width=\"2.054\" stroke-linecap=\"round\"/><circle cx=\"33.214\" cy=\"21.572\" r=\"3.082\" fill=\"#CFD5E5\"/><circle cx=\"95.533\" cy=\"3.082\" r=\"3.082\" fill=\"#CFD5E5\"/><g clip-path=\"url(#cclip0_188_542)\" stroke-width=\".782\" stroke-miterlimit=\"10\" stroke-linecap=\"square\"><path d=\"M133.76 63.62l-8.344 8.345M133.76 71.965l-8.344-8.344\" stroke=\"#E20074\"/><path d=\"M129.588 79.265c6.336 0 11.473-5.136 11.473-11.472 0-6.337-5.137-11.473-11.473-11.473-6.336 0-11.472 5.136-11.472 11.473 0 6.336 5.136 11.472 11.472 11.472z\" fill=\"#171B26\" stroke=\"#fff\"/></g><path d=\"M133.76 63.62l-8.344 8.345M133.76 71.965l-8.344-8.344\" stroke=\"#E20074\" stroke-width=\".782\" stroke-miterlimit=\"10\" stroke-linecap=\"square\"/><defs><linearGradient id=\"cpaint0_linear_188_542\" x1=\"47.324\" y1=\"35.2\" x2=\"46.933\" y2=\"205.333\" gradientUnits=\"userSpaceOnUse\"><stop stop-color=\"#111318\"/><stop offset=\"1\" stop-color=\"#171B26\" stop-opacity=\"0\"/></linearGradient><linearGradient id=\"cpaint1_linear_188_542\" x1=\"121.214\" y1=\"41.09\" x2=\"79.097\" y2=\"84.233\" gradientUnits=\"userSpaceOnUse\"><stop stop-color=\"#262C39\" stop-opacity=\".6\"/><stop offset=\"1\" stop-color=\"#A6B5E3\" stop-opacity=\"0\"/></linearGradient><clipPath id=\"cclip0_188_542\"><path fill=\"#fff\" transform=\"translate(116.551 54.756)\" d=\"M0 0h25.031v25.031H0z\"/></clipPath></defs></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Fullscreen\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M8.293 14.293L3 19.586V15H1v7a1 1 0 001 1h7v-2H4.414l5.293-5.293-1.414-1.414zM22 1h-7v2h4.586l-5.293 5.293 1.414 1.414L21 4.414V9h2V2a1 1 0 00-1-1zM9 3V1H2a1 1 0 00-1 1v7h2V4.414l5.293 5.293 1.414-1.414L4.414 3H9zM21 19.586l-5.293-5.293-1.414 1.414L19.586 21H15v2h7a1 1 0 001-1v-7h-2v4.586z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-FullscreenOff\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M2.414 23l5.293-5.293v4.586h2v-7a1 1 0 00-1-1h-7v2h4.586L1 21.586 2.414 23zM15.293 9.707h7v-2h-4.586L23 2.414 21.586 1l-5.293 5.293V1.707h-2v7a1 1 0 001 1zM1.707 7.707v2h7a1 1 0 001-1v-7h-2v4.586L2.414 1 1 2.414l5.293 5.293H1.707zM16.293 17.707L21.586 23 23 21.586l-5.293-5.293h4.586v-2h-7a1 1 0 00-1 1v7h2v-4.586z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Mute\" xmlns=\"http://www.w3.org/2000/svg\"><g clip-path=\"url(#fclip0)\"><path d=\"M10.567 17.675L17.4 22.8a.995.995 0 001.047.095c.339-.17.553-.516.553-.895V9.242l-8.433 8.433zM2 17h5L19 5V2a1.001 1.001 0 00-1.6-.8L9.667 7H2a1 1 0 00-1 1v8a1 1 0 001 1z\"/><path d=\"M1 24a.999.999 0 01-.707-1.707l22-22a.999.999 0 111.414 1.414l-22 22A.997.997 0 011 24z\"/></g><defs><clipPath id=\"fclip0\"><path d=\"M0 0h24v24H0z\"/></clipPath></defs></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-NextVideo\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M12.625 3.219A.999.999 0 0011 4v6.719l-9.375-7.5A.999.999 0 000 4v16a.999.999 0 001.625.781l9.375-7.5V20a.999.999 0 001.625.781l10-8a1 1 0 000-1.562l-10-8z\"/><rect x=\"21\" y=\"3.063\" width=\"2\" height=\"18\" rx=\"1\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Pause\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M8.455 2H3.909A.91.91 0 003 2.91v18.18a.91.91 0 00.91.91h4.545a.91.91 0 00.909-.91V2.91a.91.91 0 00-.91-.91zM19.818 2h-4.545a.91.91 0 00-.91.91v18.18a.909.909 0 00.91.91h4.545a.909.909 0 00.91-.91V2.91a.91.91 0 00-.91-.91z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-PiP\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M1 4.063h20v12H1v-12z\"/><path d=\"M11 12.563h12a.5.5 0 01.5.5v7a.5.5 0 01-.5.5H11a.5.5 0 01-.5-.5v-7a.5.5 0 01.5-.5z\"/></symbol><symbol viewBox=\"0 0 17 22\" id=\"Icon-Play\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M16.56 10.17l-15-10a1 1 0 00-1-.05A1 1 0 000 1v20a1 1 0 00.53.88A1 1 0 001 22a1 1 0 00.56-.17l15-10a1 1 0 000-1.66z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Quality\" xmlns=\"http://www.w3.org/2000/svg\"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M1 4h22a1 1 0 011 1v14a1 1 0 01-1 1H1a1 1 0 01-1-1V5a1 1 0 011-1zm8.186 12.531h1.757V8H9.186v3.457H5.758V8H4v8.531h1.758v-3.656h3.428v3.656zM13.444 8v8.531h2.643c.746-.004 1.416-.175 2.01-.515a3.484 3.484 0 001.377-1.436c.328-.617.492-1.322.492-2.115v-.393c0-.793-.166-1.5-.498-2.12a3.505 3.505 0 00-1.389-1.442c-.59-.34-1.26-.51-2.01-.51h-2.625zm1.758 7.12V9.423h.867c.692 0 1.217.224 1.576.674.36.445.54 1.101.54 1.968v.452c-.008.835-.194 1.478-.557 1.927-.363.45-.889.674-1.576.674h-.85z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Replay\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M21 20H3a1 1 0 01-1-1v-5a1 1 0 112 0v4h16V9H10v3L5 8l5-4v3h11a1 1 0 011 1v11a1 1 0 01-1 1z\"/></symbol><symbol viewBox=\"0 0 103 110\" id=\"Icon-Revolver\" xmlns=\"http://www.w3.org/2000/svg\"><g filter=\"url(#mfilter0_d)\"><path d=\"M62.073 37.89l-20-13.333A1.334 1.334 0 0040 25.667v26.666a1.334 1.334 0 002.073 1.11l20-13.334a1.335 1.335 0 000-2.218z\"/></g><circle cx=\"48\" cy=\"39\" r=\"30.667\" stroke=\"#fff\" stroke-width=\"2.667\"/><path d=\"M48 8.333a32 32 0 0112.246 2.436c3.882 1.608 7.45 4.593 10.42 7.564\" stroke=\"#E20074\" stroke-width=\"2.667\" stroke-linecap=\"round\"/><defs><filter id=\"mfilter0_d\" x=\"-5.333\" y=\"-1\" width=\"112\" height=\"112\" filterUnits=\"userSpaceOnUse\" color-interpolation-filters=\"sRGB\"><feFlood flood-opacity=\"0\" result=\"BackgroundImageFix\"/><feColorMatrix in=\"SourceAlpha\" values=\"0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0\" result=\"hardAlpha\"/><feOffset dy=\"16\"/><feGaussianBlur stdDeviation=\"20\"/><feColorMatrix values=\"0 0 0 0 0.490196 0 0 0 0 0.596078 0 0 0 0 0.698039 0 0 0 0.2 0\"/><feBlend mode=\"multiply\" in2=\"BackgroundImageFix\" result=\"effect1_dropShadow\"/><feBlend in=\"SourceGraphic\" in2=\"effect1_dropShadow\" result=\"shape\"/></filter></defs></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Settings\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M20.872 13.453c.082-.48.125-.966.128-1.453a9.026 9.026 0 00-.128-1.453l2.1-2.029a1 1 0 00.171-1.218l-1.5-2.6a1.009 1.009 0 00-1.143-.461l-2.8.8a9.018 9.018 0 00-2.527-1.451L14.47.758A1 1 0 0013.5 0h-3a1 1 0 00-.97.758l-.707 2.83A9.017 9.017 0 006.3 5.039l-2.8-.8a1.01 1.01 0 00-1.143.461l-1.5 2.6a1 1 0 00.171 1.219l2.1 2.029c-.082.48-.125.965-.128 1.452.003.487.046.973.128 1.453l-2.1 2.029A1 1 0 00.857 16.7l1.5 2.6a1 1 0 001.142.462l2.8-.8a9.017 9.017 0 002.527 1.451l.707 2.83A1 1 0 0010.5 24h3a1 1 0 00.97-.758l.707-2.83a9.019 9.019 0 002.523-1.451l2.8.8a1 1 0 001.142-.462l1.5-2.6a1 1 0 00-.171-1.219l-2.099-2.027zM12 16a4 4 0 110-8 4 4 0 010 8z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Share\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"4.174\" cy=\"11.478\" r=\"4.174\"/><circle cx=\"19.826\" cy=\"4.174\" r=\"4.174\"/><circle cx=\"19.826\" cy=\"19.826\" r=\"4.174\"/><path d=\"M20.348 3.734L6.26 11.867 20.348 20\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Volume\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M14.447 1.105A1.006 1.006 0 0013.4 1.2L5.667 7H1a1 1 0 00-1 1v8a1 1 0 001 1h4.667l7.733 5.8a.995.995 0 001.047.095c.339-.17.553-.516.553-.895V2c0-.379-.214-.725-.553-.895zM18.243 7.758l-.707-.707-1.414 1.414.707.707a4.003 4.003 0 010 5.656l-.707.707 1.414 1.414.707-.707a6.006 6.006 0 000-8.484z\"/><path d=\"M20.364 4.222L18.95 5.636l.707.707c3.119 3.119 3.119 8.195 0 11.314l-.707.707 1.414 1.414.707-.707c3.899-3.899 3.899-10.243 0-14.143l-.707-.706z\"/></symbol><symbol fill=\"none\" viewBox=\"0 0 56 16\" id=\"LiveIndicator\" xmlns=\"http://www.w3.org/2000/svg\"><circle opacity=\".2\" cx=\"8\" cy=\"8\" r=\"8\" fill=\"#E20074\"/><circle cx=\"8\" cy=\"8\" r=\"4\" fill=\"#E20074\"/><path d=\"M25.94 11.352h4.354V13h-6.405V3.047h2.05v8.305zM34.776 13h-2.05V3.047h2.05V13zm6.705-2.468l2.256-7.485h2.283L42.555 13h-2.14l-3.451-9.953h2.276l2.242 7.485zm12.59-1.845h-3.937v2.665h4.622V13h-6.672V3.047h6.658v1.661h-4.608V7.08h3.938v1.607z\" fill=\"#E20074\"/></symbol></svg>";
 
@@ -28157,7 +29285,7 @@ var noop$3 = function () {
     return false;
 };
 
-function SVGHelper$1(type, opts) {
+function SVGHelper$2(type, opts) {
     var _a, _b;
     opts = opts !== null && opts !== void 0 ? opts : {};
     opts.svgAttributes = (_a = opts.svgAttributes) !== null && _a !== void 0 ? _a : [];
@@ -28205,17 +29333,51 @@ var Logger$2 = {
     }
 };
 
-var isTouchDevice$1 = function () {
+var isTouchDevice$2 = function () {
     return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
 };
-var hideElement$1 = function (element) {
+var hideElement$2 = function (element) {
     element.classList.add('hidden');
     element.setAttribute('aria-hidden', 'true');
 };
-var showElement$1 = function (element) {
+var showElement$2 = function (element) {
     element.classList.remove('hidden');
     element.removeAttribute('aria-hidden');
 };
+var convertLocalStorageStringToNumber$2 = function (key) {
+    if (typeof window !== 'undefined') {
+        var localStorageItem = window.localStorage.getItem(key);
+        if (localStorageItem !== null) {
+            var number = parseFloat(localStorageItem);
+            if (number >= 0 && number <= 1) {
+                return number;
+            }
+            else {
+                return 0.5;
+            }
+        }
+        else {
+            return 0.5;
+        }
+    }
+    return 0.5;
+};
+var convertLocalStorageIntegerToBoolean$2 = function (key) {
+    if (typeof window !== 'undefined') {
+        var localStorageItem = window.localStorage.getItem(key);
+        if (localStorageItem !== null) {
+            var probablyInteger = parseInt(localStorageItem, 10);
+            if (isNaN(probablyInteger)) {
+                return false;
+            }
+            else {
+                return Boolean(probablyInteger);
+            }
+        }
+    }
+    return false;
+};
+
 var UI$1 = /** @class */ (function () {
     function UI() {
         var _this = this;
@@ -28232,9 +29394,9 @@ var UI$1 = /** @class */ (function () {
             var el = document.createElement(tag);
             el.classList.add(cls);
             el.setAttribute('aria-label', aria);
-            el.appendChild(SVGHelper$1(svgid));
+            el.appendChild(SVGHelper$2(svgid));
             if (ishidden)
-                hideElement$1(el);
+                hideElement$2(el);
             var _loop_1 = function (i) {
                 el.addEventListener(evts[i].name, function (ev) {
                     evts[i].callb(ev);
@@ -28293,13 +29455,15 @@ var UI$1 = /** @class */ (function () {
             uiEl.innerHTML = '<div class="error"></div>';
             uiEl.firstChild.style.height = String(height) + 'px';
             uiEl.firstChild.style.width = String(width) + 'px';
-            uiEl.firstChild.appendChild(SVGHelper$1('Icon-Error'));
+            uiEl.firstChild.appendChild(SVGHelper$2('Icon-Error'));
             uiEl.firstChild.appendChild(text);
         };
         this.init = function (StroeerVideoplayer) {
             Logger$2.log('version', version$3);
             var rootEl = StroeerVideoplayer.getRootEl();
             var videoEl = StroeerVideoplayer.getVideoEl();
+            videoEl.muted = convertLocalStorageIntegerToBoolean$2('StroeerVideoplayerMuted');
+            videoEl.volume = convertLocalStorageStringToNumber$2('StroeerVideoplayerVolume');
             videoEl.removeAttribute('controls');
             var uiEl = StroeerVideoplayer.getUIEl();
             if (uiEl.querySelector('.' + _this.uiContainerClassName) !== null) {
@@ -28347,7 +29511,7 @@ var UI$1 = /** @class */ (function () {
             var overlayContainer = document.createElement('div');
             seekPreviewVideo.setAttribute('preload', 'auto');
             seekPreviewContainer.classList.add('seek-preview-container');
-            hideElement$1(seekPreviewContainer);
+            hideElement$2(seekPreviewContainer);
             seekPreview.classList.add('seek-preview');
             seekPreviewTime.classList.add('seek-preview-time');
             seekPreviewTimeMinutes.classList.add('seek-preview-time-minutes');
@@ -28369,10 +29533,10 @@ var UI$1 = /** @class */ (function () {
             volumeRange.appendChild(volumeLevel);
             volumeContainer.appendChild(volumeRange);
             overlayContainer.className = 'video-overlay startscreen';
-            overlayContainer.appendChild(SVGHelper$1('Icon-Play'));
+            overlayContainer.appendChild(SVGHelper$2('Icon-Play'));
             uiContainer.className = _this.uiContainerClassName;
             loadingSpinnerContainer.className = 'loading-spinner';
-            hideElement$1(loadingSpinnerContainer);
+            hideElement$2(loadingSpinnerContainer);
             loadingSpinnerAnimation.className = 'animation';
             loadingSpinnerContainer.appendChild(loadingSpinnerAnimation);
             controlBar.className = 'controlbar';
@@ -28398,20 +29562,20 @@ var UI$1 = /** @class */ (function () {
             };
             var showLoading = function (modus) {
                 if (modus) {
-                    hideElement$1(overlayContainer);
-                    showElement$1(loadingSpinnerContainer);
+                    hideElement$2(overlayContainer);
+                    showElement$2(loadingSpinnerContainer);
                 }
                 else {
-                    hideElement$1(loadingSpinnerContainer);
+                    hideElement$2(loadingSpinnerContainer);
                 }
             };
             var showBigPlayButton = function (modus) {
                 if (modus) {
-                    hideElement$1(loadingSpinnerContainer);
-                    showElement$1(overlayContainer);
+                    hideElement$2(loadingSpinnerContainer);
+                    showElement$2(overlayContainer);
                 }
                 else {
-                    hideElement$1(overlayContainer);
+                    hideElement$2(overlayContainer);
                 }
             };
             StroeerVideoplayer.loading = function (modus) {
@@ -28445,7 +29609,7 @@ var UI$1 = /** @class */ (function () {
                 }
             ]);
             if (videoEl.paused === false) {
-                hideElement$1(playButton);
+                hideElement$2(playButton);
             }
             var replayButton = _this.createButton(StroeerVideoplayer, 'button', 'replay', 'Replay', 'Icon-Replay', true, [
                 {
@@ -28474,6 +29638,7 @@ var UI$1 = /** @class */ (function () {
                         dispatchEvent('UIMute', videoEl.currentTime);
                         dispatchEvent('UIDefaultMute', videoEl.currentTime);
                         videoEl.muted = true;
+                        window.localStorage.setItem('StroeerVideoplayerMuted', '1');
                     }
                 }
             ]);
@@ -28484,6 +29649,7 @@ var UI$1 = /** @class */ (function () {
                         dispatchEvent('UIUnmute', videoEl.currentTime);
                         dispatchEvent('UIDefaultUnmute', videoEl.currentTime);
                         videoEl.muted = false;
+                        window.localStorage.setItem('StroeerVideoplayerMuted', '0');
                     }
                 }
             ]);
@@ -28580,7 +29746,7 @@ var UI$1 = /** @class */ (function () {
                     videoEl.play();
                 }
                 else {
-                    if (isTouchDevice$1()) {
+                    if (isTouchDevice$2()) {
                         return;
                     }
                     dispatchEvent('UIPause', videoEl.currentTime);
@@ -28591,7 +29757,7 @@ var UI$1 = /** @class */ (function () {
                 }
             });
             if (videoEl.paused === false) {
-                hideElement$1(overlayContainer);
+                hideElement$2(overlayContainer);
             }
             overlayContainer.addEventListener('click', function (evt) {
                 if (videoEl.paused === true) {
@@ -28615,7 +29781,7 @@ var UI$1 = /** @class */ (function () {
             });
             timelineContainer.addEventListener('mousemove', function (evt) {
                 // only for desktop devices
-                if (isTouchDevice$1()) {
+                if (isTouchDevice$2()) {
                     return;
                 }
                 if (_this.hlsErrorOccured === true) {
@@ -28624,7 +29790,7 @@ var UI$1 = /** @class */ (function () {
                 // it makes no sense to show a preview of the current frames of the video playing,
                 // so we bail out here..
                 if (evt.target === timelineElapsedBubble) {
-                    hideElement$1(seekPreviewContainer);
+                    hideElement$2(seekPreviewContainer);
                     return;
                 }
                 var videoSource = videoEl.querySelector('source');
@@ -28668,14 +29834,14 @@ var UI$1 = /** @class */ (function () {
                 seekPreviewTimeMinutes.innerHTML = Math.floor(time / 60).toString();
                 seekPreviewTimeSeconds.innerHTML = ('00' + (Math.floor(time) % 60).toString()).slice(-2);
                 seekPreviewVideo.currentTime = time;
-                showElement$1(seekPreviewContainer);
+                showElement$2(seekPreviewContainer);
             });
             timelineContainer.addEventListener('mouseout', function (evt) {
                 // only for desktop devices
-                if (isTouchDevice$1()) {
+                if (isTouchDevice$2()) {
                     return;
                 }
-                hideElement$1(seekPreviewContainer);
+                hideElement$2(seekPreviewContainer);
             });
             timelineContainer.appendChild(seekPreviewContainer);
             timelineContainer.appendChild(timelineElapsed);
@@ -28724,30 +29890,27 @@ var UI$1 = /** @class */ (function () {
             clearInterval(_this.toggleVolumeBarInterval);
             _this.toggleVolumeBarInterval = setInterval(toggleVolumeSliderTicker, 1000);
             _this.onVideoElPlay = function () {
-                hideElement$1(playButton);
-                hideElement$1(replayButton);
-                showElement$1(pauseButton);
-                hideElement$1(overlayContainer);
+                hideElement$2(playButton);
+                hideElement$2(replayButton);
+                showElement$2(pauseButton);
+                hideElement$2(overlayContainer);
                 overlayContainer.classList.remove('startscreen');
             };
             videoEl.addEventListener('play', _this.onVideoElPlay);
             _this.onVideoElPause = function () {
                 if (videoEl.duration === videoEl.currentTime) {
-                    showElement$1(replayButton);
+                    showElement$2(replayButton);
                 }
                 else {
-                    showElement$1(playButton);
+                    showElement$2(playButton);
                 }
-                showElement$1(overlayContainer);
-                hideElement$1(pauseButton);
+                showElement$2(overlayContainer);
+                hideElement$2(pauseButton);
             };
             videoEl.addEventListener('pause', _this.onVideoElPause);
             videoEl.addEventListener('loadedmetadata', function () {
                 _this.setTimeDisp(timeDisp, videoEl.currentTime, videoEl.duration);
             });
-            if (videoEl.paused === true && videoEl.currentTime === 0) {
-                videoEl.load();
-            }
             _this.onVideoElTimeupdate = function () {
                 var percentage = videoEl.currentTime / videoEl.duration * 100;
                 var percentageString = String(percentage);
@@ -28802,6 +29965,7 @@ var UI$1 = /** @class */ (function () {
                 }
                 var volume = percentageHeight / 100;
                 videoEl.volume = volume;
+                window.localStorage.setItem('StroeerVideoplayerVolume', volume.toFixed(2));
             };
             var calulateDurationPercentageBasedOnXCoords = function (x) {
                 var percentage = (100 / timelineContainer.offsetWidth) * x;
@@ -28919,24 +30083,24 @@ var UI$1 = /** @class */ (function () {
             });
             _this.onVideoElVolumeChange = function () {
                 if (videoEl.muted === true) {
-                    hideElement$1(muteButton);
-                    showElement$1(unmuteButton);
+                    hideElement$2(muteButton);
+                    showElement$2(unmuteButton);
                 }
                 else {
-                    showElement$1(muteButton);
-                    hideElement$1(unmuteButton);
+                    showElement$2(muteButton);
+                    hideElement$2(unmuteButton);
                 }
             };
             videoEl.addEventListener('volumechange', _this.onVideoElVolumeChange);
             muteButton.addEventListener('mouseover', function () {
-                if (isTouchDevice$1()) {
+                if (isTouchDevice$2()) {
                     return;
                 }
                 volumeContainer.style.opacity = '1';
                 toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
             });
             unmuteButton.addEventListener('mouseover', function () {
-                if (isTouchDevice$1()) {
+                if (isTouchDevice$2()) {
                     return;
                 }
                 volumeContainer.style.opacity = '1';
@@ -28945,13 +30109,13 @@ var UI$1 = /** @class */ (function () {
             _this.onDocumentFullscreenChange = function () {
                 if (document.fullscreenElement === rootEl || document.fullscreenElement === videoEl) {
                     videoEl.dispatchEvent(new Event('fullscreen'));
-                    hideElement$1(enterFullscreenButton);
-                    showElement$1(exitFullscreenButton);
+                    hideElement$2(enterFullscreenButton);
+                    showElement$2(exitFullscreenButton);
                 }
                 else {
                     videoEl.dispatchEvent(new Event('exitFullscreen'));
-                    showElement$1(enterFullscreenButton);
-                    hideElement$1(exitFullscreenButton);
+                    showElement$2(enterFullscreenButton);
+                    hideElement$2(exitFullscreenButton);
                 }
             };
             // @ts-expect-error
@@ -28960,28 +30124,28 @@ var UI$1 = /** @class */ (function () {
             videoEl.addEventListener('webkitendfullscreen', function () {
                 // @ts-expect-error
                 document.fullscreenElement = null;
-                showElement$1(enterFullscreenButton);
-                hideElement$1(exitFullscreenButton);
+                showElement$2(enterFullscreenButton);
+                hideElement$2(exitFullscreenButton);
             });
             document.addEventListener('webkitfullscreenchange', function () {
                 if (document.webkitFullscreenElement !== null) {
-                    showElement$1(exitFullscreenButton);
-                    hideElement$1(enterFullscreenButton);
+                    showElement$2(exitFullscreenButton);
+                    hideElement$2(enterFullscreenButton);
                 }
                 else {
-                    showElement$1(enterFullscreenButton);
-                    hideElement$1(exitFullscreenButton);
+                    showElement$2(enterFullscreenButton);
+                    hideElement$2(exitFullscreenButton);
                 }
             });
             // IE11 workaround
             document.addEventListener('MSFullscreenChange', function () {
                 if (document.msFullscreenElement !== null) {
-                    showElement$1(exitFullscreenButton);
-                    hideElement$1(enterFullscreenButton);
+                    showElement$2(exitFullscreenButton);
+                    hideElement$2(enterFullscreenButton);
                 }
                 else {
-                    hideElement$1(exitFullscreenButton);
-                    showElement$1(enterFullscreenButton);
+                    hideElement$2(exitFullscreenButton);
+                    showElement$2(enterFullscreenButton);
                 }
             });
         };
@@ -29034,7 +30198,7 @@ var UI$1 = /** @class */ (function () {
     return UI;
 }());
 
-var version$2 = "0.0.2";
+var version$2 = "1.0.1";
 
 var UIIcons = "<?xml version=\"1.0\" encoding=\"utf-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><symbol viewBox=\"0 0 24 24\" id=\"Icon-CaptionOff\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M22.5 5.5h-20a1 1 0 00-1 1v12a1 1 0 001 1h20a1 1 0 001-1v-12a1 1 0 00-1-1z\"/><path d=\"M10.92 15.241a4.375 4.375 0 01-1.557.259 2.49 2.49 0 01-1.963-.776 3.253 3.253 0 01-.691-2.224 3.593 3.593 0 01.333-1.593c.207-.439.543-.804.964-1.046.453-.25.964-.374 1.481-.361a3.68 3.68 0 011.653.375M18.072 15.241a4.384 4.384 0 01-1.557.259 2.49 2.49 0 01-1.968-.776 3.248 3.248 0 01-.687-2.224 3.593 3.593 0 01.333-1.593c.208-.439.544-.804.965-1.046.453-.25.964-.374 1.481-.361a3.673 3.673 0 011.652.375\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-CaptionOn\" xmlns=\"http://www.w3.org/2000/svg\"><g clip-path=\"url(#bclip0)\"><path d=\"M23 4H1a1 1 0 00-1 1v14a1 1 0 001 1h22a1 1 0 001-1V5a1 1 0 00-1-1zM9.215 14.3c.342 0 .682-.049 1.01-.146.334-.099.662-.215.983-.349V15.6c-.703.3-1.46.448-2.224.435a3.51 3.51 0 01-2.725-1.031 4.248 4.248 0 01-.949-2.981 4.77 4.77 0 01.459-2.143 3.3 3.3 0 011.322-1.42 3.993 3.993 0 012.027-.5 5.587 5.587 0 012.434.553l-.65 1.67a7.241 7.241 0 00-.871-.343A3.01 3.01 0 009.1 9.7a1.352 1.352 0 00-1.182.62 3 3 0 00-.424 1.711c-.002 1.513.572 2.269 1.721 2.269zm7.138 0c.342 0 .682-.049 1.01-.146.334-.099.662-.215.983-.349V15.6a5.44 5.44 0 01-2.224.435 3.513 3.513 0 01-2.722-1.03 4.248 4.248 0 01-.949-2.981 4.77 4.77 0 01.459-2.143 3.3 3.3 0 011.319-1.421 4 4 0 012.028-.5 5.586 5.586 0 012.433.553l-.65 1.67a7.304 7.304 0 00-.87-.343 3.017 3.017 0 00-.935-.14 1.352 1.352 0 00-1.182.62 3 3 0 00-.424 1.711c0 1.513.575 2.269 1.724 2.269z\"/></g><defs><clipPath id=\"bclip0\"><path d=\"M0 0h24v24H0z\"/></clipPath></defs></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Fullscreen\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M8.293 14.293L3 19.586V15H1v7a1 1 0 001 1h7v-2H4.414l5.293-5.293-1.414-1.414zM22 1h-7v2h4.586l-5.293 5.293 1.414 1.414L21 4.414V9h2V2a1 1 0 00-1-1zM9 3V1H2a1 1 0 00-1 1v7h2V4.414l5.293 5.293 1.414-1.414L4.414 3H9zM21 19.586l-5.293-5.293-1.414 1.414L19.586 21H15v2h7a1 1 0 001-1v-7h-2v4.586z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-FullscreenOff\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M2.414 23l5.293-5.293v4.586h2v-7a1 1 0 00-1-1h-7v2h4.586L1 21.586 2.414 23zM15.293 9.707h7v-2h-4.586L23 2.414 21.586 1l-5.293 5.293V1.707h-2v7a1 1 0 001 1zM1.707 7.707v2h7a1 1 0 001-1v-7h-2v4.586L2.414 1 1 2.414l5.293 5.293H1.707zM16.293 17.707L21.586 23 23 21.586l-5.293-5.293h4.586v-2h-7a1 1 0 00-1 1v7h2v-4.586z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Mute\" xmlns=\"http://www.w3.org/2000/svg\"><g clip-path=\"url(#eclip0)\"><path d=\"M10.567 17.675L17.4 22.8a.995.995 0 001.047.095c.339-.17.553-.516.553-.895V9.242l-8.433 8.433zM2 17h5L19 5V2a1.001 1.001 0 00-1.6-.8L9.667 7H2a1 1 0 00-1 1v8a1 1 0 001 1z\"/><path d=\"M1 24a.999.999 0 01-.707-1.707l22-22a.999.999 0 111.414 1.414l-22 22A.997.997 0 011 24z\"/></g><defs><clipPath id=\"eclip0\"><path d=\"M0 0h24v24H0z\"/></clipPath></defs></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-NextVideo\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M12.625 3.219A.999.999 0 0011 4v6.719l-9.375-7.5A.999.999 0 000 4v16a.999.999 0 001.625.781l9.375-7.5V20a.999.999 0 001.625.781l10-8a1 1 0 000-1.562l-10-8z\"/><rect x=\"21\" y=\"3.063\" width=\"2\" height=\"18\" rx=\"1\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Pause\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M8.455 2H3.909A.91.91 0 003 2.91v18.18a.91.91 0 00.91.91h4.545a.91.91 0 00.909-.91V2.91a.91.91 0 00-.91-.91zM19.818 2h-4.545a.91.91 0 00-.91.91v18.18a.909.909 0 00.91.91h4.545a.909.909 0 00.91-.91V2.91a.91.91 0 00-.91-.91z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-PiP\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M1 4.063h20v12H1v-12z\"/><path d=\"M11 12.563h12a.5.5 0 01.5.5v7a.5.5 0 01-.5.5H11a.5.5 0 01-.5-.5v-7a.5.5 0 01.5-.5z\"/></symbol><symbol viewBox=\"0 0 17 22\" id=\"Icon-Play\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M16.56 10.17l-15-10a1 1 0 00-1-.05A1 1 0 000 1v20a1 1 0 00.53.88A1 1 0 001 22a1 1 0 00.56-.17l15-10a1 1 0 000-1.66z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Quality\" xmlns=\"http://www.w3.org/2000/svg\"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M1 4h22a1 1 0 011 1v14a1 1 0 01-1 1H1a1 1 0 01-1-1V5a1 1 0 011-1zm8.186 12.531h1.757V8H9.186v3.457H5.758V8H4v8.531h1.758v-3.656h3.428v3.656zM13.444 8v8.531h2.643c.746-.004 1.416-.175 2.01-.515a3.484 3.484 0 001.377-1.436c.328-.617.492-1.322.492-2.115v-.393c0-.793-.166-1.5-.498-2.12a3.505 3.505 0 00-1.389-1.442c-.59-.34-1.26-.51-2.01-.51h-2.625zm1.758 7.12V9.423h.867c.692 0 1.217.224 1.576.674.36.445.54 1.101.54 1.968v.452c-.008.835-.194 1.478-.557 1.927-.363.45-.889.674-1.576.674h-.85z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Replay\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M21 20H3a1 1 0 01-1-1v-5a1 1 0 112 0v4h16V9H10v3L5 8l5-4v3h11a1 1 0 011 1v11a1 1 0 01-1 1z\"/></symbol><symbol viewBox=\"0 0 103 110\" id=\"Icon-Revolver\" xmlns=\"http://www.w3.org/2000/svg\"><g filter=\"url(#lfilter0_d)\"><path d=\"M62.073 37.89l-20-13.333A1.334 1.334 0 0040 25.667v26.666a1.334 1.334 0 002.073 1.11l20-13.334a1.335 1.335 0 000-2.218z\"/></g><circle cx=\"48\" cy=\"39\" r=\"30.667\" stroke=\"#fff\" stroke-width=\"2.667\"/><path d=\"M48 8.333a32 32 0 0112.246 2.436c3.882 1.608 7.45 4.593 10.42 7.564\" stroke=\"#E20074\" stroke-width=\"2.667\" stroke-linecap=\"round\"/><defs><filter id=\"lfilter0_d\" x=\"-5.333\" y=\"-1\" width=\"112\" height=\"112\" filterUnits=\"userSpaceOnUse\" color-interpolation-filters=\"sRGB\"><feFlood flood-opacity=\"0\" result=\"BackgroundImageFix\"/><feColorMatrix in=\"SourceAlpha\" values=\"0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0\" result=\"hardAlpha\"/><feOffset dy=\"16\"/><feGaussianBlur stdDeviation=\"20\"/><feColorMatrix values=\"0 0 0 0 0.490196 0 0 0 0 0.596078 0 0 0 0 0.698039 0 0 0 0.2 0\"/><feBlend mode=\"multiply\" in2=\"BackgroundImageFix\" result=\"effect1_dropShadow\"/><feBlend in=\"SourceGraphic\" in2=\"effect1_dropShadow\" result=\"shape\"/></filter></defs></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Settings\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M20.872 13.453c.082-.48.125-.966.128-1.453a9.026 9.026 0 00-.128-1.453l2.1-2.029a1 1 0 00.171-1.218l-1.5-2.6a1.009 1.009 0 00-1.143-.461l-2.8.8a9.018 9.018 0 00-2.527-1.451L14.47.758A1 1 0 0013.5 0h-3a1 1 0 00-.97.758l-.707 2.83A9.017 9.017 0 006.3 5.039l-2.8-.8a1.01 1.01 0 00-1.143.461l-1.5 2.6a1 1 0 00.171 1.219l2.1 2.029c-.082.48-.125.965-.128 1.452.003.487.046.973.128 1.453l-2.1 2.029A1 1 0 00.857 16.7l1.5 2.6a1 1 0 001.142.462l2.8-.8a9.017 9.017 0 002.527 1.451l.707 2.83A1 1 0 0010.5 24h3a1 1 0 00.97-.758l.707-2.83a9.019 9.019 0 002.523-1.451l2.8.8a1 1 0 001.142-.462l1.5-2.6a1 1 0 00-.171-1.219l-2.099-2.027zM12 16a4 4 0 110-8 4 4 0 010 8z\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Share\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"4.174\" cy=\"11.478\" r=\"4.174\"/><circle cx=\"19.826\" cy=\"4.174\" r=\"4.174\"/><circle cx=\"19.826\" cy=\"19.826\" r=\"4.174\"/><path d=\"M20.348 3.734L6.26 11.867 20.348 20\"/></symbol><symbol viewBox=\"0 0 24 24\" id=\"Icon-Volume\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M14.447 1.105A1.006 1.006 0 0013.4 1.2L5.667 7H1a1 1 0 00-1 1v8a1 1 0 001 1h4.667l7.733 5.8a.995.995 0 001.047.095c.339-.17.553-.516.553-.895V2c0-.379-.214-.725-.553-.895zM18.243 7.758l-.707-.707-1.414 1.414.707.707a4.003 4.003 0 010 5.656l-.707.707 1.414 1.414.707-.707a6.006 6.006 0 000-8.484z\"/><path d=\"M20.364 4.222L18.95 5.636l.707.707c3.119 3.119 3.119 8.195 0 11.314l-.707.707 1.414 1.414.707-.707c3.899-3.899 3.899-10.243 0-14.143l-.707-.706z\"/></symbol><symbol fill=\"none\" viewBox=\"0 0 56 16\" id=\"LiveIndicator\" xmlns=\"http://www.w3.org/2000/svg\"><circle opacity=\".2\" cx=\"8\" cy=\"8\" r=\"8\" fill=\"#E20074\"/><circle cx=\"8\" cy=\"8\" r=\"4\" fill=\"#E20074\"/><path d=\"M25.94 11.352h4.354V13h-6.405V3.047h2.05v8.305zM34.776 13h-2.05V3.047h2.05V13zm6.705-2.468l2.256-7.485h2.283L42.555 13h-2.14l-3.451-9.953h2.276l2.242 7.485zm12.59-1.845h-3.937v2.665h4.622V13h-6.672V3.047h6.658v1.661h-4.608V7.08h3.938v1.607z\" fill=\"#E20074\"/></symbol></svg>";
 
@@ -29044,7 +30208,7 @@ var noop$2 = function () {
 
 var debugMode$2 = false;
 if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-    if (window.localStorage.getItem('StroeerVideoplayerDebugMode') !== null) {
+    if (window.localStorage.getItem('StroeerVideoplayerLoggingEnabled') !== null) {
         debugMode$2 = true;
     }
 }
@@ -29061,7 +30225,7 @@ var Logger$1 = {
     }
 };
 
-function SVGHelper(type, opts) {
+function SVGHelper$1(type, opts) {
     var _a, _b;
     opts = opts !== null && opts !== void 0 ? opts : {};
     opts.svgAttributes = (_a = opts.svgAttributes) !== null && _a !== void 0 ? _a : [];
@@ -29090,14 +30254,14 @@ function SVGHelper(type, opts) {
     return icon;
 }
 
-var isTouchDevice = function () {
+var isTouchDevice$1 = function () {
     return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
 };
-var hideElement = function (element) {
+var hideElement$1 = function (element) {
     element.classList.add('hidden');
     element.setAttribute('aria-hidden', 'true');
 };
-var showElement = function (element) {
+var showElement$1 = function (element) {
     element.classList.remove('hidden');
     element.removeAttribute('aria-hidden');
 };
@@ -29109,14 +30273,14 @@ var showElement = function (element) {
 //   svgid - the id of the icon in the icon-svg
 //   ishidden - true to render hidden initially
 //   clickcb - a callback function called on 'click'
-var createButton = function (StroeerVideoplayer, tag, cls, aria, svgid, ishidden, evts) {
+var createButton$1 = function (StroeerVideoplayer, tag, cls, aria, svgid, ishidden, evts) {
     var buttonsContainer = StroeerVideoplayer.getUIEl().querySelector('.buttons');
     var el = document.createElement(tag);
     el.classList.add(cls);
     el.setAttribute('aria-label', aria);
-    el.appendChild(SVGHelper(svgid));
+    el.appendChild(SVGHelper$1(svgid));
     if (ishidden)
-        hideElement(el);
+        hideElement$1(el);
     var _loop_1 = function (i) {
         el.addEventListener(evts[i].name, function (ev) {
             evts[i].callb(ev);
@@ -29128,7 +30292,7 @@ var createButton = function (StroeerVideoplayer, tag, cls, aria, svgid, ishidden
     buttonsContainer.appendChild(el);
     return el;
 };
-var setTimeDisp = function (timeDisp, remainingTime) {
+var setTimeDisp$1 = function (timeDisp, remainingTime) {
     var secondsLeftString = String(Math.floor(remainingTime));
     if (isNaN(remainingTime)) {
         timeDisp.innerHTML = 'Werbung';
@@ -29137,6 +30301,39 @@ var setTimeDisp = function (timeDisp, remainingTime) {
         timeDisp.innerHTML = 'Werbung endet in ' + secondsLeftString + ' Sekunden';
     }
 };
+var convertLocalStorageIntegerToBoolean$1 = function (key) {
+    if (typeof window !== 'undefined') {
+        var localStorageItem = window.localStorage.getItem(key);
+        if (localStorageItem !== null) {
+            var probablyInteger = parseInt(localStorageItem, 10);
+            if (isNaN(probablyInteger)) {
+                return false;
+            }
+            else {
+                return Boolean(probablyInteger);
+            }
+        }
+    }
+    return false;
+};
+var convertLocalStorageStringToNumber$1 = function (key) {
+    if (typeof window !== 'undefined') {
+        var localStorageItem = window.localStorage.getItem(key);
+        if (localStorageItem !== null) {
+            var number = parseFloat(localStorageItem);
+            if (number >= 0 && number <= 1) {
+                return number;
+            }
+            else {
+                return 0.5;
+            }
+        }
+        else {
+            return 0.5;
+        }
+    }
+    return 0.5;
+};
 
 var UI = /** @class */ (function () {
     function UI(opts) {
@@ -29144,8 +30341,10 @@ var UI = /** @class */ (function () {
         this.init = function (StroeerVideoplayer, opts) {
             var _a;
             Logger$1.log('version', version$2);
+            _this.isMuted = convertLocalStorageIntegerToBoolean$1('StroeerVideoplayerMuted');
+            _this.volume = convertLocalStorageStringToNumber$1('StroeerVideoplayerVolume');
             opts = opts !== null && opts !== void 0 ? opts : {};
-            var adsManager = (_a = opts.adsManager) !== null && _a !== void 0 ? _a : null;
+            var adsLoader = (_a = opts.adsLoader) !== null && _a !== void 0 ? _a : null;
             var rootEl = StroeerVideoplayer.getRootEl();
             var videoEl = StroeerVideoplayer.getVideoEl();
             videoEl.removeAttribute('controls');
@@ -29178,7 +30377,7 @@ var UI = /** @class */ (function () {
             var overlayContainer = document.createElement('div');
             seekPreviewVideo.setAttribute('preload', 'auto');
             seekPreviewContainer.classList.add('seek-preview-container');
-            hideElement(seekPreviewContainer);
+            hideElement$1(seekPreviewContainer);
             seekPreview.classList.add('seek-preview');
             seekPreviewTime.classList.add('seek-preview-time');
             seekPreviewTimeMinutes.classList.add('seek-preview-time-minutes');
@@ -29202,7 +30401,7 @@ var UI = /** @class */ (function () {
             overlayContainer.className = 'video-overlay';
             uiContainer.className = _this.uiContainerClassName;
             loadingSpinnerContainer.className = 'loading-spinner';
-            hideElement(loadingSpinnerContainer);
+            hideElement$1(loadingSpinnerContainer);
             loadingSpinnerAnimation.className = 'animation';
             loadingSpinnerContainer.appendChild(loadingSpinnerAnimation);
             controlBar.className = 'controlbar';
@@ -29219,7 +30418,7 @@ var UI = /** @class */ (function () {
                     loadingSpinnerAnimation.appendChild(d);
                 }
             })();
-            if (isTouchDevice()) {
+            if (isTouchDevice$1()) {
                 var overlayTouchClickContainer = document.createElement('div');
                 overlayTouchClickContainer.className = 'video-overlay-touchclick';
                 overlayTouchClickContainer.innerHTML = 'Mehr Informationen';
@@ -29231,395 +30430,423 @@ var UI = /** @class */ (function () {
             };
             var showLoading = function (modus) {
                 if (modus) {
-                    showElement(loadingSpinnerContainer);
+                    showElement$1(loadingSpinnerContainer);
                 }
                 else {
-                    hideElement(loadingSpinnerContainer);
+                    hideElement$1(loadingSpinnerContainer);
                 }
             };
             StroeerVideoplayer.loading = function (modus) {
                 showLoading(modus);
             };
-            adsManager.addEventListener(google.ima.AdEvent.Type.AD_CAN_PLAY, function () {
-                showLoading(false);
-            });
-            adsManager.addEventListener(google.ima.AdEvent.Type.AD_BUFFERING, function () {
-                showLoading(true);
-            });
-            adsManager.addEventListener(google.ima.AdEvent.Type.AD_PROGRESS, function () {
-                showLoading(false);
-            });
-            // Create the Buttons
-            var playButton = createButton(StroeerVideoplayer, 'button', 'play', 'Play', 'Icon-Play', true, [
-                {
-                    name: 'click',
-                    callb: function () {
-                        dispatchEvent('UIPlay', videoEl.currentTime);
-                        dispatchEvent('uiima:play', videoEl.currentTime);
-                        if (videoEl.currentTime > 0) {
-                            dispatchEvent('uiima:resume', videoEl.currentTime);
+            // show initial loading status until ad is shown
+            showLoading(true);
+            _this.onAdsManagerLoaded = function (adsManagerLoadedEvent) {
+                var adsManager = adsManagerLoadedEvent.getAdsManager(videoEl);
+                adsManager.addEventListener(google.ima.AdEvent.Type.AD_CAN_PLAY, function () {
+                    showLoading(false);
+                });
+                adsManager.addEventListener(google.ima.AdEvent.Type.AD_BUFFERING, function () {
+                    showLoading(true);
+                });
+                adsManager.addEventListener(google.ima.AdEvent.Type.AD_PROGRESS, function () {
+                    showLoading(false);
+                });
+                // Create the Buttons
+                var playButton = createButton$1(StroeerVideoplayer, 'button', 'play', 'Play', 'Icon-Play', true, [
+                    {
+                        name: 'click',
+                        callb: function () {
+                            dispatchEvent('UIPlay', videoEl.currentTime);
+                            dispatchEvent('uiima:play', videoEl.currentTime);
+                            if (videoEl.currentTime > 0) {
+                                dispatchEvent('uiima:resume', videoEl.currentTime);
+                            }
+                            adsManager.resume();
                         }
-                        adsManager.resume();
                     }
-                }
-            ]);
-            var pauseButton = createButton(StroeerVideoplayer, 'button', 'pause', 'Pause', 'Icon-Pause', false, [
-                {
-                    name: 'click',
-                    callb: function () {
-                        dispatchEvent('UIPause', videoEl.currentTime);
-                        dispatchEvent('uiima:pause', videoEl.currentTime);
-                        adsManager.pause();
+                ]);
+                var pauseButton = createButton$1(StroeerVideoplayer, 'button', 'pause', 'Pause', 'Icon-Pause', false, [
+                    {
+                        name: 'click',
+                        callb: function () {
+                            dispatchEvent('UIPause', videoEl.currentTime);
+                            dispatchEvent('uiima:pause', videoEl.currentTime);
+                            adsManager.pause();
+                        }
                     }
-                }
-            ]);
-            var muteButton = createButton(StroeerVideoplayer, 'button', 'mute', 'Mute', 'Icon-Volume', false, [
-                {
-                    name: 'click',
-                    callb: function () {
-                        dispatchEvent('UIMute', videoEl.currentTime);
-                        dispatchEvent('uiima:mute', videoEl.currentTime);
-                        adsManager.setVolume(0);
+                ]);
+                var muteButton = createButton$1(StroeerVideoplayer, 'button', 'mute', 'Mute', 'Icon-Volume', false, [
+                    {
+                        name: 'click',
+                        callb: function () {
+                            dispatchEvent('UIMute', videoEl.currentTime);
+                            dispatchEvent('uiima:mute', videoEl.currentTime);
+                            _this.volume = adsManager.getVolume();
+                            _this.isMuted = true;
+                            adsManager.setVolume(0);
+                        }
                     }
-                }
-            ]);
-            var unmuteButton = createButton(StroeerVideoplayer, 'button', 'unmute', 'Unmute', 'Icon-Mute', true, [
-                {
-                    name: 'click',
-                    callb: function () {
-                        dispatchEvent('UIUnmute', videoEl.currentTime);
-                        dispatchEvent('uiima:unmute', videoEl.currentTime);
-                        adsManager.setVolume(0.5);
+                ]);
+                var unmuteButton = createButton$1(StroeerVideoplayer, 'button', 'unmute', 'Unmute', 'Icon-Mute', true, [
+                    {
+                        name: 'click',
+                        callb: function () {
+                            dispatchEvent('UIUnmute', videoEl.currentTime);
+                            dispatchEvent('uiima:unmute', videoEl.currentTime);
+                            adsManager.setVolume(_this.volume);
+                            _this.isMuted = false;
+                        }
                     }
-                }
-            ]);
-            // Time Display
-            var timeDisp = document.createElement('div');
-            timeDisp.classList.add('time');
-            controlBar.appendChild(timeDisp);
-            var isAlreadyInFullscreenMode = function () {
-                return (document.fullscreenElement === rootEl || document.fullscreenElement === videoEl);
-            };
-            StroeerVideoplayer.enterFullscreen = function () {
-                adsManager.resize(window.innerWidth, window.innerHeight, google.ima.ViewMode.FULLSCREEN);
-                if (typeof rootEl.requestFullscreen === 'function') {
-                    rootEl.requestFullscreen();
-                }
-                else if (typeof rootEl.webkitRequestFullscreen === 'function') {
-                    if (navigator.userAgent.includes('iPad')) {
-                        videoEl.webkitRequestFullscreen();
+                ]);
+                // Time Display
+                var timeDisp = document.createElement('div');
+                timeDisp.classList.add('time');
+                controlBar.appendChild(timeDisp);
+                var isAlreadyInFullscreenMode = function () {
+                    return (document.fullscreenElement === rootEl || document.fullscreenElement === videoEl);
+                };
+                StroeerVideoplayer.enterFullscreen = function () {
+                    adsManager.resize(window.innerWidth, window.innerHeight, google.ima.ViewMode.FULLSCREEN);
+                    if (typeof rootEl.requestFullscreen === 'function') {
+                        rootEl.requestFullscreen();
+                    }
+                    else if (typeof rootEl.webkitRequestFullscreen === 'function') {
+                        if (navigator.userAgent.includes('iPad')) {
+                            videoEl.webkitRequestFullscreen();
+                        }
+                        else {
+                            rootEl.webkitRequestFullscreen();
+                        }
+                    }
+                    else if (typeof rootEl.mozRequestFullScreen === 'function') {
+                        rootEl.mozRequestFullScreen();
+                    }
+                    else if (typeof rootEl.msRequestFullscreen === 'function') {
+                        rootEl.msRequestFullscreen();
+                    }
+                    else if (typeof rootEl.webkitEnterFullscreen === 'function') {
+                        rootEl.webkitEnterFullscreen();
+                    }
+                    else if (typeof videoEl.webkitEnterFullscreen === 'function') {
+                        videoEl.webkitEnterFullscreen();
                     }
                     else {
-                        rootEl.webkitRequestFullscreen();
+                        console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found');
                     }
-                }
-                else if (typeof rootEl.mozRequestFullScreen === 'function') {
-                    rootEl.mozRequestFullScreen();
-                }
-                else if (typeof rootEl.msRequestFullscreen === 'function') {
-                    rootEl.msRequestFullscreen();
-                }
-                else if (typeof rootEl.webkitEnterFullscreen === 'function') {
-                    rootEl.webkitEnterFullscreen();
-                }
-                else if (typeof videoEl.webkitEnterFullscreen === 'function') {
-                    videoEl.webkitEnterFullscreen();
-                }
-                else {
-                    console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found');
-                }
-            };
-            var enterFullscreenButtonIsHidden = isAlreadyInFullscreenMode();
-            // Fullscreen Button
-            var enterFullscreenButton = createButton(StroeerVideoplayer, 'button', 'enterFullscreen', 'Enter Fullscreen', 'Icon-Fullscreen', enterFullscreenButtonIsHidden, [{
-                    name: 'click',
-                    callb: function () {
-                        dispatchEvent('UIEnterFullscreen', videoEl.currentTime);
-                        dispatchEvent('uiima:enterFullscreen', videoEl.currentTime);
-                        StroeerVideoplayer.enterFullscreen();
+                };
+                var enterFullscreenButtonIsHidden = isAlreadyInFullscreenMode();
+                // Fullscreen Button
+                var enterFullscreenButton = createButton$1(StroeerVideoplayer, 'button', 'enterFullscreen', 'Enter Fullscreen', 'Icon-Fullscreen', enterFullscreenButtonIsHidden, [{
+                        name: 'click',
+                        callb: function () {
+                            dispatchEvent('UIEnterFullscreen', videoEl.currentTime);
+                            dispatchEvent('uiima:enterFullscreen', videoEl.currentTime);
+                            StroeerVideoplayer.enterFullscreen();
+                        }
+                    }]);
+                StroeerVideoplayer.exitFullscreen = function () {
+                    if (typeof document.exitFullscreen === 'function') {
+                        document.exitFullscreen().then(noop$2).catch(noop$2);
                     }
-                }]);
-            StroeerVideoplayer.exitFullscreen = function () {
-                if (typeof document.exitFullscreen === 'function') {
-                    document.exitFullscreen().then(noop$2).catch(noop$2);
-                }
-                else if (typeof document.webkitExitFullscreen === 'function') {
-                    document.webkitExitFullscreen();
-                }
-                else if (typeof document.mozCancelFullScreen === 'function') {
-                    document.mozCancelFullScreen().then(noop$2).catch(noop$2);
-                }
-                else if (typeof document.msExitFullscreen === 'function') {
-                    document.msExitFullscreen();
-                }
-                else if (typeof videoEl.webkitExitFullscreen === 'function') {
-                    videoEl.webkitExitFullscreen();
-                }
-                else {
-                    console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found');
-                }
-                adsManager.resize(videoEl.clientWidth, videoEl.clientHeight, google.ima.ViewMode.NORMAL);
-            };
-            var exitFullscreenButtonIsHidden = !isAlreadyInFullscreenMode();
-            var exitFullscreenButton = createButton(StroeerVideoplayer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'Icon-FullscreenOff', exitFullscreenButtonIsHidden, [{
-                    name: 'click',
-                    callb: function () {
-                        dispatchEvent('UIExitFullscreen', videoEl.currentTime);
-                        dispatchEvent('uiima:ExitFullscreen', videoEl.currentTime);
-                        StroeerVideoplayer.exitFullscreen();
+                    else if (typeof document.webkitExitFullscreen === 'function') {
+                        document.webkitExitFullscreen();
                     }
-                }]);
-            seekPreviewVideo.src = videoEl.querySelector('source').src;
-            controlBar.appendChild(buttonsContainer);
-            var controlBarContainer = document.createElement('div');
-            controlBarContainer.classList.add('controlbar-container');
-            controlBarContainer.appendChild(controlBar);
-            uiContainer.appendChild(controlBarContainer);
-            uiEl.appendChild(uiContainer);
-            var toggleControlbarInSeconds = 5;
-            var toggleControlbarSecondsLeft = toggleControlbarInSeconds;
-            var toggleControlbarTicker = function () {
-                // TODO change to adsManager
-                if (videoEl.paused === true) {
-                    controlBarContainer.style.opacity = '1';
+                    else if (typeof document.mozCancelFullScreen === 'function') {
+                        document.mozCancelFullScreen().then(noop$2).catch(noop$2);
+                    }
+                    else if (typeof document.msExitFullscreen === 'function') {
+                        document.msExitFullscreen();
+                    }
+                    else if (typeof videoEl.webkitExitFullscreen === 'function') {
+                        videoEl.webkitExitFullscreen();
+                    }
+                    else {
+                        console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found');
+                    }
+                    adsManager.resize(videoEl.clientWidth, videoEl.clientHeight, google.ima.ViewMode.NORMAL);
+                };
+                var exitFullscreenButtonIsHidden = !isAlreadyInFullscreenMode();
+                var exitFullscreenButton = createButton$1(StroeerVideoplayer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'Icon-FullscreenOff', exitFullscreenButtonIsHidden, [{
+                        name: 'click',
+                        callb: function () {
+                            dispatchEvent('UIExitFullscreen', videoEl.currentTime);
+                            dispatchEvent('uiima:exitFullscreen', videoEl.currentTime);
+                            StroeerVideoplayer.exitFullscreen();
+                        }
+                    }]);
+                seekPreviewVideo.src = videoEl.querySelector('source').src;
+                controlBar.appendChild(buttonsContainer);
+                var controlBarContainer = document.createElement('div');
+                controlBarContainer.classList.add('controlbar-container');
+                controlBarContainer.appendChild(controlBar);
+                uiContainer.appendChild(controlBarContainer);
+                uiEl.appendChild(uiContainer);
+                var toggleControlbarInSeconds = 5;
+                var toggleControlbarSecondsLeft = toggleControlbarInSeconds;
+                var toggleControlbarTicker = function () {
+                    if (toggleControlbarSecondsLeft === 0) {
+                        controlBarContainer.style.opacity = '0';
+                    }
+                    else {
+                        toggleControlbarSecondsLeft = toggleControlbarSecondsLeft - 1;
+                    }
+                };
+                rootEl.addEventListener('mousemove', function () {
                     toggleControlbarSecondsLeft = toggleControlbarInSeconds;
-                    return;
-                }
-                if (toggleControlbarSecondsLeft === 0) {
-                    controlBarContainer.style.opacity = '0';
-                }
-                else {
-                    toggleControlbarSecondsLeft = toggleControlbarSecondsLeft - 1;
-                }
-            };
-            rootEl.addEventListener('mousemove', function () {
-                toggleControlbarSecondsLeft = toggleControlbarInSeconds;
-                controlBarContainer.style.opacity = '1';
-            });
-            clearInterval(_this.toggleControlBarInterval);
-            _this.toggleControlBarInterval = setInterval(toggleControlbarTicker, 1000);
-            var toggleVolumeSliderInSeconds = 2;
-            var toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
-            var toggleVolumeSliderTicker = function () {
-                if (toggleVolumeSliderSecondsLeft === 0) {
-                    volumeContainer.style.opacity = '0';
-                }
-                else {
-                    toggleVolumeSliderSecondsLeft = toggleVolumeSliderSecondsLeft - 1;
-                }
-            };
-            volumeContainer.addEventListener('mousemove', function () {
-                toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
-            });
-            clearInterval(_this.toggleVolumeBarInterval);
-            _this.toggleVolumeBarInterval = setInterval(toggleVolumeSliderTicker, 1000);
-            _this.onVideoElPlay = function () {
-                hideElement(playButton);
-                showElement(pauseButton);
-            };
-            adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, _this.onVideoElPlay);
-            adsManager.addEventListener(google.ima.AdEvent.Type.RESUMED, _this.onVideoElPlay);
-            _this.onVideoElPause = function () {
-                showElement(playButton);
-                hideElement(pauseButton);
-            };
-            adsManager.addEventListener(google.ima.AdEvent.Type.PAUSED, _this.onVideoElPause);
-            adsManager.addEventListener(google.ima.AdEvent.Type.AD_METADATA, function () {
-                setTimeDisp(timeDisp, adsManager.getRemainingTime());
-            });
-            // TODO preload still needed?
-            /* if (videoEl.paused === true && videoEl.currentTime === 0) {
-              videoEl.load()
-            } */
-            _this.onVideoElTimeupdate = function () {
-                setTimeDisp(timeDisp, adsManager.getRemainingTime());
-            };
-            adsManager.addEventListener(google.ima.AdEvent.Type.AD_PROGRESS, _this.onVideoElTimeupdate);
-            // set initial value of volume bar
-            volumeLevel.style.height = String(adsManager.getVolume() * 100) + '%';
-            if (adsManager.getVolume() <= 0.9) {
-                volumeLevelBubble.style.bottom = String(adsManager.getVolume() * 100) + '%';
-            }
-            var calulateVolumePercentageBasedOnYCoords = function (y) {
-                var percentage = (100 / volumeRange.offsetHeight) * y;
-                return percentage;
-            };
-            var updateVolumeWhileDragging = function (evt) {
-                var clientY = evt.clientY;
-                if (clientY === undefined) {
-                    if ('touches' in evt && evt.touches.length > 0) {
-                        clientY = evt.touches[0].clientY;
+                    controlBarContainer.style.opacity = '1';
+                });
+                clearInterval(_this.toggleControlBarInterval);
+                _this.toggleControlBarInterval = setInterval(toggleControlbarTicker, 1000);
+                var toggleVolumeSliderInSeconds = 2;
+                var toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
+                var toggleVolumeSliderTicker = function () {
+                    if (toggleVolumeSliderSecondsLeft === 0) {
+                        volumeContainer.style.opacity = '0';
                     }
                     else {
-                        clientY = false;
+                        toggleVolumeSliderSecondsLeft = toggleVolumeSliderSecondsLeft - 1;
                     }
-                }
-                if (clientY === false)
-                    return;
-                var volumeRangeBoundingClientRect = volumeRange.getBoundingClientRect();
-                var volumeContainerOffsetY = 0;
-                if ('x' in volumeRangeBoundingClientRect) {
-                    volumeContainerOffsetY = volumeRangeBoundingClientRect.y;
-                }
-                else {
-                    volumeContainerOffsetY = volumeRangeBoundingClientRect.top;
-                }
-                var y = clientY - volumeContainerOffsetY;
-                if (y < 0)
-                    y = 0;
-                if (y > volumeRangeBoundingClientRect.height) {
-                    y = volumeRangeBoundingClientRect.height;
-                }
-                var percentageY = calulateVolumePercentageBasedOnYCoords(y);
-                var percentageHeight = 100 - percentageY;
-                var percentageHeightString = String(percentageHeight);
-                var percentageYString = String(percentageY);
-                volumeLevel.style.height = percentageHeightString + '%';
-                if (percentageY < 90) {
-                    volumeLevelBubble.style.top = percentageYString + '%';
-                }
-                var volume = percentageHeight / 100;
-                adsManager.setVolume(volume);
-            };
-            var draggingWhat = '';
-            _this.onDragStart = function (evt) {
-                switch (evt.target) {
-                    case volumeRange:
-                    case volumeLevel:
-                    case volumeLevelBubble:
-                        dispatchEvent('UIVolumeChangeStart', {
+                };
+                volumeContainer.addEventListener('mousemove', function () {
+                    toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
+                });
+                clearInterval(_this.toggleVolumeBarInterval);
+                _this.toggleVolumeBarInterval = setInterval(toggleVolumeSliderTicker, 1000);
+                _this.onVideoElPlay = function () {
+                    hideElement$1(playButton);
+                    showElement$1(pauseButton);
+                };
+                adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, _this.onVideoElPlay);
+                adsManager.addEventListener(google.ima.AdEvent.Type.RESUMED, _this.onVideoElPlay);
+                _this.onVideoElPause = function () {
+                    showElement$1(playButton);
+                    hideElement$1(pauseButton);
+                };
+                adsManager.addEventListener(google.ima.AdEvent.Type.PAUSED, _this.onVideoElPause);
+                adsManager.addEventListener(google.ima.AdEvent.Type.AD_METADATA, function () {
+                    setTimeDisp$1(timeDisp, adsManager.getRemainingTime());
+                });
+                _this.onVideoElTimeupdate = function () {
+                    setTimeDisp$1(timeDisp, adsManager.getRemainingTime());
+                };
+                adsManager.addEventListener(google.ima.AdEvent.Type.AD_PROGRESS, _this.onVideoElTimeupdate);
+                var calculateVolumePercentageBasedOnYCoords = function (y) {
+                    var percentage = (100 / volumeRange.offsetHeight) * y;
+                    return percentage;
+                };
+                var updateVolumeWhileDragging = function (evt) {
+                    var clientY = evt.clientY;
+                    if (clientY === undefined) {
+                        if ('touches' in evt && evt.touches.length > 0) {
+                            clientY = evt.touches[0].clientY;
+                        }
+                        else {
+                            clientY = false;
+                        }
+                    }
+                    if (clientY === false)
+                        return;
+                    var volumeRangeBoundingClientRect = volumeRange.getBoundingClientRect();
+                    var volumeContainerOffsetY = 0;
+                    if ('x' in volumeRangeBoundingClientRect) {
+                        volumeContainerOffsetY = volumeRangeBoundingClientRect.y;
+                    }
+                    else {
+                        volumeContainerOffsetY = volumeRangeBoundingClientRect.top;
+                    }
+                    var y = clientY - volumeContainerOffsetY;
+                    if (y < 0)
+                        y = 0;
+                    if (y > volumeRangeBoundingClientRect.height) {
+                        y = volumeRangeBoundingClientRect.height;
+                    }
+                    var percentageY = calculateVolumePercentageBasedOnYCoords(y);
+                    var percentageHeight = 100 - percentageY;
+                    var percentageHeightString = String(percentageHeight);
+                    var percentageYString = String(percentageY);
+                    volumeLevel.style.height = percentageHeightString + '%';
+                    if (percentageY < 90) {
+                        volumeLevelBubble.style.top = percentageYString + '%';
+                    }
+                    var volume = percentageHeight / 100;
+                    _this.volume = volume;
+                    window.localStorage.setItem('StroeerVideoplayerVolume', _this.volume.toFixed(2));
+                    if (_this.isMuted === false) {
+                        adsManager.setVolume(volume);
+                    }
+                };
+                var draggingWhat = '';
+                _this.onDragStart = function (evt) {
+                    switch (evt.target) {
+                        case volumeRange:
+                        case volumeLevel:
+                        case volumeLevelBubble:
+                            dispatchEvent('UIVolumeChangeStart', {
+                                volume: adsManager.getVolume(),
+                                currentTime: adsManager.getRemainingTime()
+                            });
+                            dispatchEvent('uiima:volumeChangeStart', {
+                                volume: adsManager.getVolume(),
+                                currentTime: adsManager.getRemainingTime()
+                            });
+                            draggingWhat = 'volume';
+                            break;
+                    }
+                };
+                _this.onDragEnd = function (evt) {
+                    if (draggingWhat === 'volume') {
+                        draggingWhat = '';
+                        updateVolumeWhileDragging(evt);
+                        dispatchEvent('UIVolumeChangeEnd', {
                             volume: adsManager.getVolume(),
                             currentTime: adsManager.getRemainingTime()
                         });
-                        dispatchEvent('uiima:VolumeChangeStart', {
+                        dispatchEvent('uiima:volumeChangeEnd', {
                             volume: adsManager.getVolume(),
                             currentTime: adsManager.getRemainingTime()
                         });
-                        draggingWhat = 'volume';
-                        break;
-                }
-            };
-            _this.onDragEnd = function (evt) {
-                if (draggingWhat === 'volume') {
-                    draggingWhat = '';
-                    updateVolumeWhileDragging(evt);
-                    dispatchEvent('UIVolumeChangeEnd', {
-                        volume: adsManager.getVolume(),
-                        currentTime: adsManager.getRemainingTime()
-                    });
-                    dispatchEvent('uiima:VolumeChangeEnd', {
-                        volume: adsManager.getVolume(),
-                        currentTime: adsManager.getRemainingTime()
-                    });
-                }
-            };
-            _this.onDrag = function (evt) {
-                if (draggingWhat === 'volume') {
-                    updateVolumeWhileDragging(evt);
-                }
-            };
-            document.body.addEventListener('touchstart', _this.onDragStart, {
-                passive: true
-            });
-            document.body.addEventListener('touchend', _this.onDragEnd, {
-                passive: true
-            });
-            document.body.addEventListener('touchmove', _this.onDrag, {
-                passive: true
-            });
-            document.body.addEventListener('mousedown', _this.onDragStart, {
-                passive: true
-            });
-            document.body.addEventListener('mouseup', _this.onDragEnd, {
-                passive: true
-            });
-            document.body.addEventListener('mousemove', _this.onDrag, {
-                passive: true
-            });
-            _this.onVideoElVolumeChange = function () {
-                if (adsManager.getVolume() === 0) {
-                    hideElement(muteButton);
-                    showElement(unmuteButton);
-                    volumeLevelBubble.style.bottom = '0%';
-                }
-                else {
-                    showElement(muteButton);
-                    hideElement(unmuteButton);
-                    volumeLevelBubble.style.bottom = '50%';
-                }
-            };
-            adsManager.addEventListener(google.ima.AdEvent.Type.VOLUME_CHANGED, _this.onVideoElVolumeChange);
-            muteButton.addEventListener('mouseover', function () {
-                if (isTouchDevice()) {
-                    return;
-                }
-                volumeContainer.style.opacity = '1';
-                toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
-            });
-            unmuteButton.addEventListener('mouseover', function () {
-                if (isTouchDevice()) {
-                    return;
-                }
-                volumeContainer.style.opacity = '1';
-                toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
-            });
-            _this.onDocumentFullscreenChange = function () {
-                if (document.fullscreenElement === rootEl || document.fullscreenElement === videoEl) {
-                    videoEl.dispatchEvent(new Event('fullscreen'));
-                    hideElement(enterFullscreenButton);
-                    showElement(exitFullscreenButton);
-                }
-                else {
-                    videoEl.dispatchEvent(new Event('exitFullscreen'));
-                    showElement(enterFullscreenButton);
-                    hideElement(exitFullscreenButton);
-                }
-            };
-            // @ts-expect-error
-            document.addEventListener('fullscreenchange', _this.onDocumentFullscreenChange);
-            // iOS Workarounds
-            videoEl.addEventListener('webkitendfullscreen', function () {
+                    }
+                };
+                _this.onDrag = function (evt) {
+                    if (draggingWhat === 'volume') {
+                        updateVolumeWhileDragging(evt);
+                    }
+                };
+                document.body.addEventListener('touchstart', _this.onDragStart, {
+                    passive: true
+                });
+                document.body.addEventListener('touchend', _this.onDragEnd, {
+                    passive: true
+                });
+                document.body.addEventListener('touchmove', _this.onDrag, {
+                    passive: true
+                });
+                document.body.addEventListener('mousedown', _this.onDragStart, {
+                    passive: true
+                });
+                document.body.addEventListener('mouseup', _this.onDragEnd, {
+                    passive: true
+                });
+                document.body.addEventListener('mousemove', _this.onDrag, {
+                    passive: true
+                });
+                _this.onVideoElVolumeChange = function () {
+                    if (_this.isMuted === false) {
+                        _this.volume = adsManager.getVolume();
+                    }
+                    if (adsManager.getVolume() === 0) {
+                        hideElement$1(muteButton);
+                        showElement$1(unmuteButton);
+                    }
+                    else {
+                        showElement$1(muteButton);
+                        hideElement$1(unmuteButton);
+                    }
+                    window.localStorage.setItem('StroeerVideoplayerMuted', _this.isMuted === true ? '1' : '0');
+                    if (_this.isMuted === false) {
+                        window.localStorage.setItem('StroeerVideoplayerVolume', _this.volume.toFixed(2));
+                    }
+                };
+                adsManager.addEventListener(google.ima.AdEvent.Type.VOLUME_CHANGED, _this.onVideoElVolumeChange);
+                // set initial muted state from local storage
+                _this.onAdStarted = function () {
+                    if (_this.isMuted === true) {
+                        adsManager.setVolume(0);
+                        hideElement$1(muteButton);
+                        showElement$1(unmuteButton);
+                    }
+                    else {
+                        adsManager.setVolume(_this.volume);
+                        showElement$1(muteButton);
+                        hideElement$1(unmuteButton);
+                    }
+                };
+                adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, _this.onAdStarted);
+                // set initial value of volume bar from local storage
+                var volumeHeight = String(_this.volume * 100) + '%';
+                volumeLevel.style.height = volumeHeight;
+                volumeLevelBubble.style.bottom = 'calc(' + volumeHeight + ' - 4px)';
+                muteButton.addEventListener('mouseover', function () {
+                    if (isTouchDevice$1()) {
+                        return;
+                    }
+                    volumeContainer.style.opacity = '1';
+                    toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
+                });
+                unmuteButton.addEventListener('mouseover', function () {
+                    if (isTouchDevice$1()) {
+                        return;
+                    }
+                    volumeContainer.style.opacity = '1';
+                    toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
+                });
+                _this.onDocumentFullscreenChange = function () {
+                    if (document.fullscreenElement === rootEl || document.fullscreenElement === videoEl) {
+                        videoEl.dispatchEvent(new Event('fullscreen'));
+                        hideElement$1(enterFullscreenButton);
+                        showElement$1(exitFullscreenButton);
+                    }
+                    else {
+                        videoEl.dispatchEvent(new Event('exitFullscreen'));
+                        showElement$1(enterFullscreenButton);
+                        hideElement$1(exitFullscreenButton);
+                    }
+                };
                 // @ts-expect-error
-                document.fullscreenElement = null;
-                showElement(enterFullscreenButton);
-                hideElement(exitFullscreenButton);
-            });
-            document.addEventListener('webkitfullscreenchange', function () {
-                if (document.webkitFullscreenElement !== null) {
-                    showElement(exitFullscreenButton);
-                    hideElement(enterFullscreenButton);
-                }
-                else {
-                    showElement(enterFullscreenButton);
-                    hideElement(exitFullscreenButton);
-                }
-            });
-            // IE11 workaround
-            document.addEventListener('MSFullscreenChange', function () {
-                if (document.msFullscreenElement !== null) {
-                    showElement(exitFullscreenButton);
-                    hideElement(enterFullscreenButton);
-                }
-                else {
-                    hideElement(exitFullscreenButton);
-                    showElement(enterFullscreenButton);
-                }
-            });
+                document.addEventListener('fullscreenchange', _this.onDocumentFullscreenChange);
+                // iOS Workarounds
+                videoEl.addEventListener('webkitendfullscreen', function () {
+                    // @ts-expect-error
+                    document.fullscreenElement = null;
+                    showElement$1(enterFullscreenButton);
+                    hideElement$1(exitFullscreenButton);
+                });
+                document.addEventListener('webkitfullscreenchange', function () {
+                    if (document.webkitFullscreenElement !== null) {
+                        showElement$1(exitFullscreenButton);
+                        hideElement$1(enterFullscreenButton);
+                    }
+                    else {
+                        showElement$1(enterFullscreenButton);
+                        hideElement$1(exitFullscreenButton);
+                    }
+                });
+                // IE11 workaround
+                document.addEventListener('MSFullscreenChange', function () {
+                    if (document.msFullscreenElement !== null) {
+                        showElement$1(exitFullscreenButton);
+                        hideElement$1(enterFullscreenButton);
+                    }
+                    else {
+                        hideElement$1(exitFullscreenButton);
+                        showElement$1(enterFullscreenButton);
+                    }
+                });
+            };
+            adsLoader === null || adsLoader === void 0 ? void 0 : adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, _this.onAdsManagerLoaded);
         };
         this.deinit = function (StroeerVideoplayer, opts) {
-            var _a;
+            var _a, _b;
             opts = opts !== null && opts !== void 0 ? opts : {};
             var adsManager = (_a = opts.adsManager) !== null && _a !== void 0 ? _a : null;
+            var adsLoader = (_b = opts.adsLoader) !== null && _b !== void 0 ? _b : null;
             var videoEl = StroeerVideoplayer.getVideoEl();
             var uiEl = StroeerVideoplayer.getUIEl();
             var uiContainer = uiEl.firstChild;
             videoEl.setAttribute('controls', '');
-            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-            if (adsManager && uiContainer !== undefined && uiContainer.className === _this.uiContainerClassName) {
+            if (adsManager !== null) {
+                adsManager.removeEventListener(google.ima.AdEvent.Type.STARTED, _this.onAdStarted);
                 adsManager.removeEventListener(google.ima.AdEvent.Type.STARTED, _this.onVideoElPlay);
                 adsManager.removeEventListener(google.ima.AdEvent.Type.RESUMED, _this.onVideoElPlay);
                 adsManager.removeEventListener(google.ima.AdEvent.Type.AD_PROGRESS, _this.onVideoElTimeupdate);
                 adsManager.removeEventListener(google.ima.AdEvent.Type.VOLUME_CHANGED, _this.onVideoElVolumeChange);
+            }
+            if (adsLoader !== null) {
+                adsLoader.removeEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, _this.onAdsManagerLoaded);
+            }
+            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+            if (uiContainer !== undefined && uiContainer.className === _this.uiContainerClassName) {
                 document.body.removeEventListener('touchstart', _this.onDragStart);
                 document.body.removeEventListener('touchend', _this.onDragEnd);
                 document.body.removeEventListener('touchmove', _this.onDrag);
@@ -29640,12 +30867,16 @@ var UI = /** @class */ (function () {
         this.onVideoElTimeupdate = noop$2;
         this.onVideoElVolumeChange = noop$2;
         this.onLoadedMetaData = noop$2;
+        this.onAdsManagerLoaded = noop$2;
+        this.onAdStarted = noop$2;
         this.onDragStart = noop$2;
         this.onDrag = noop$2;
         this.onDragEnd = noop$2;
         this.toggleControlBarInterval = setInterval(noop$2, 1000);
         this.toggleVolumeBarInterval = setInterval(noop$2, 1000);
         this.isMouseDown = false;
+        this.isMuted = false;
+        this.volume = 0;
         return this;
     }
     UI.version = version$2;
@@ -29784,12 +31015,9 @@ var getCircleProgress = function (value) {
 var updateCircleStyle = function (el, value) {
     el.style.strokeDashoffset = String(value);
 };
-var ticker = function (time, remainingTime, el, cb) {
+var ticker = function (time, remainingTime, el) {
     var value = ((time - remainingTime) / time) * 100;
     updateCircleStyle(el, getCircleProgress(value));
-    if (remainingTime < 0) {
-        cb();
-    }
 };
 
 var getTile = function (index, obj, revolverplayTime) {
@@ -29833,19 +31061,24 @@ var EndcardPlugin = /** @class */ (function () {
             var progressSvgCircle = _this.endcardContainer.querySelector('[data-role="plugin-endcard-progress-value"]');
             var remainingTime = _this.revolverplayTime;
             var revolverplayTicker = function () {
-                ticker(_this.revolverplayTime, remainingTime, progressSvgCircle, function () {
+                ticker(_this.revolverplayTime, remainingTime, progressSvgCircle);
+                remainingTime--;
+                if (remainingTime < 0) {
+                    _this.clearRevolverplayTimer();
                     _this.play(0, true);
                     _this.dispatchEvent('plugin-endcard:revolverplay');
                     _this.onRevolverplayCallback();
-                });
-                remainingTime--;
+                }
             };
             revolverplayTicker();
-            _this.intervalTicker = setInterval(revolverplayTicker, 1000);
+            if (_this.intervalTicker === null) {
+                _this.intervalTicker = setInterval(revolverplayTicker, 1000);
+            }
         };
         this.clearRevolverplayTimer = function () {
             if (_this.intervalTicker !== null) {
                 clearInterval(_this.intervalTicker);
+                _this.intervalTicker = null;
             }
         };
         this.replay = function () {
@@ -30023,7 +31256,7 @@ var EndcardPlugin = /** @class */ (function () {
     return EndcardPlugin;
 }());
 
-var version$1 = "2.0.1";
+var version$1 = "2.0.2";
 
 var Plugin$1 = /** @class */ (function () {
     function Plugin() {
@@ -30067,7 +31300,7 @@ var Plugin$1 = /** @class */ (function () {
     return Plugin;
 }());
 
-var version = "0.0.1";
+var version = "2.0.0";
 
 var noop = function () {
     return false;
@@ -30082,11 +31315,10 @@ var eventWrapper = function (eventName, eventData) {
     return ev;
 };
 
+var _a, _b;
 var debugMode = false;
-if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-    if (window.localStorage.getItem('StroeerVideoplayerDebugMode') !== null) {
-        debugMode = true;
-    }
+if (((_b = (_a = window.localStorage) === null || _a === void 0 ? void 0 : _a.getItem) === null || _b === void 0 ? void 0 : _b.call(_a, 'StroeerVideoplayerLoggingEnabled')) !== null) {
+    debugMode = true;
 }
 var Logger = {
     log: function () {
@@ -30153,6 +31385,35 @@ function __generator(thisArg, body) {
     }
 }
 
+function SVGHelper(type, opts) {
+    var _a, _b;
+    opts = opts !== null && opts !== void 0 ? opts : {};
+    opts.svgAttributes = (_a = opts.svgAttributes) !== null && _a !== void 0 ? _a : [];
+    opts.svgAttributes.push(['role', 'presentation']);
+    opts.svgAttributes.push(['focusable', 'false']);
+    var namespace = 'http://www.w3.org/2000/svg';
+    var iconPrefix = '';
+    var iconPath = '#' + iconPrefix;
+    var icon = document.createElementNS(namespace, 'svg');
+    opts.svgAttributes.forEach(function (attr) {
+        icon.setAttribute(attr[0], attr[1]);
+    });
+    var use = document.createElementNS(namespace, 'use');
+    var path = iconPath + type;
+    if ('href' in use) {
+        use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', path);
+    }
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    if ((_b = opts.useAttributes) === null || _b === void 0 ? void 0 : _b.length) {
+        opts.useAttributes.forEach(function (attr) {
+            use.setAttribute(attr[0], attr[1]);
+        });
+    }
+    use.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', path);
+    icon.appendChild(use);
+    return icon;
+}
+
 function loadScript(url) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -30160,6 +31421,7 @@ function loadScript(url) {
                 case 0: return [4 /*yield*/, new Promise(function (resolve, reject) {
                         var script = document.createElement('script');
                         script.src = url;
+                        script.className = 'loaded-script';
                         script.async = true;
                         script.onload = function () {
                             script.remove();
@@ -30167,7 +31429,7 @@ function loadScript(url) {
                         };
                         script.onerror = function () {
                             script.remove();
-                            reject(new Error("".concat(url, " could not be loaded")));
+                            reject(new Error(url + " could not be loaded"));
                         };
                         // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
                         if (document.head) {
@@ -30179,6 +31441,137 @@ function loadScript(url) {
         });
     });
 }
+var convertLocalStorageIntegerToBoolean = function (key) {
+    if (typeof window !== 'undefined') {
+        var localStorageItem = window.localStorage.getItem(key);
+        if (localStorageItem !== null) {
+            var probablyInteger = parseInt(localStorageItem, 10);
+            if (isNaN(probablyInteger)) {
+                return false;
+            }
+            else {
+                return Boolean(probablyInteger);
+            }
+        }
+    }
+    return false;
+};
+var convertLocalStorageStringToNumber = function (key) {
+    if (typeof window !== 'undefined') {
+        var localStorageItem = window.localStorage.getItem(key);
+        if (localStorageItem !== null) {
+            var number = parseFloat(localStorageItem);
+            if (number >= 0 && number <= 1) {
+                return number;
+            }
+            else {
+                return 0.5;
+            }
+        }
+        else {
+            return 0.5;
+        }
+    }
+    return 0.5;
+};
+var hideElement = function (element) {
+    element.classList.add('hidden');
+    element.setAttribute('aria-hidden', 'true');
+};
+var showElement = function (element) {
+    element.classList.remove('hidden');
+    element.removeAttribute('aria-hidden');
+};
+var createButton = function (container, tag, cls, aria, svgid, ishidden) {
+    var el = document.createElement(tag);
+    el.classList.add(cls);
+    el.setAttribute('aria-label', aria);
+    el.appendChild(SVGHelper(svgid));
+    if (ishidden)
+        hideElement(el);
+    container.appendChild(el);
+    return el;
+};
+var dispatchEvent = function (target, eventName, data) {
+    var event = new CustomEvent(eventName, { detail: data });
+    target.dispatchEvent(event);
+};
+var calculateVolumePercentageBasedOnYCoords = function (y, offsetHeight) {
+    var percentage = (100 / offsetHeight) * y;
+    return percentage;
+};
+var setTimeDisp = function (timeDisp, remainingTime) {
+    var secondsLeftString = String(Math.floor(remainingTime));
+    if (isNaN(remainingTime)) {
+        timeDisp.innerHTML = 'Werbung';
+    }
+    else {
+        timeDisp.innerHTML = 'Werbung endet in ' + secondsLeftString + ' Sekunden';
+    }
+};
+var isTouchDevice = function () {
+    return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
+};
+var isAlreadyInFullscreenMode = function (rootElement, videoElement) {
+    return (document.fullscreenElement === rootElement || document.fullscreenElement === videoElement);
+};
+
+var createUI = function (videoElement, isMuted, isFullscreen) {
+    var adContainer = document.createElement('div');
+    adContainer.classList.add('ima-ad-container');
+    videoElement.after(adContainer);
+    var uiContainer = document.createElement('div');
+    uiContainer.className = 'ima';
+    adContainer.appendChild(uiContainer);
+    var controlBarContainer = document.createElement('div');
+    controlBarContainer.classList.add('controlbar-container');
+    uiContainer.appendChild(controlBarContainer);
+    var controlBar = document.createElement('div');
+    controlBar.className = 'controlbar';
+    controlBarContainer.appendChild(controlBar);
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.className = 'buttons';
+    controlBar.appendChild(buttonsContainer);
+    createButton(buttonsContainer, 'button', 'play', 'Play', 'Icon-Play', true);
+    createButton(buttonsContainer, 'button', 'pause', 'Pause', 'Icon-Pause', false);
+    createButton(buttonsContainer, 'button', 'mute', 'Mute', 'Icon-Volume', isMuted);
+    createButton(buttonsContainer, 'button', 'unmute', 'Unmute', 'Icon-Mute', !isMuted);
+    createButton(buttonsContainer, 'button', 'enterFullscreen', 'Enter Fullscreen', 'Icon-Fullscreen', isFullscreen);
+    createButton(buttonsContainer, 'button', 'exitFullscreen', 'Exit Fullscreen', 'Icon-FullscreenOff', !isFullscreen);
+    var volumeContainer = document.createElement('div');
+    volumeContainer.className = 'volume-container';
+    volumeContainer.style.opacity = '0';
+    controlBar.appendChild(volumeContainer);
+    var volumeRange = document.createElement('div');
+    volumeRange.className = 'volume-range';
+    volumeContainer.appendChild(volumeRange);
+    var volumeLevel = document.createElement('div');
+    volumeLevel.className = 'volume-level';
+    volumeRange.appendChild(volumeLevel);
+    var volumeLevelBubble = document.createElement('div');
+    volumeLevelBubble.className = 'volume-level-bubble';
+    volumeRange.appendChild(volumeLevelBubble);
+    var timeDisp = document.createElement('div');
+    timeDisp.classList.add('time');
+    controlBar.appendChild(timeDisp);
+    if (isTouchDevice()) {
+        var overlayTouchClickContainer = document.createElement('div');
+        overlayTouchClickContainer.className = 'video-overlay-touchclick';
+        overlayTouchClickContainer.innerHTML = 'Mehr Informationen';
+        uiContainer.appendChild(overlayTouchClickContainer);
+    }
+    var loadingSpinnerContainer = document.createElement('div');
+    var loadingSpinnerAnimation = document.createElement('div');
+    loadingSpinnerContainer.className = 'loading-spinner';
+    hideElement(loadingSpinnerContainer);
+    loadingSpinnerAnimation.className = 'animation';
+    loadingSpinnerContainer.appendChild(loadingSpinnerAnimation);
+    uiContainer.appendChild(loadingSpinnerContainer);
+    for (var i = 0; i < 12; i++) {
+        var d = document.createElement('div');
+        loadingSpinnerAnimation.appendChild(d);
+    }
+};
 
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 var Plugin = /** @class */ (function () {
@@ -30190,9 +31583,9 @@ var Plugin = /** @class */ (function () {
             var promise = loadScript('//imasdk.googleapis.com/js/sdkloader/ima3.js');
             promise
                 .then(function () {
-                _this.load(StroeerVideoplayer);
+                _this.requestAds(StroeerVideoplayer);
             })
-                .catch(function (erro) {
+                .catch(function () {
                 videoElement.dispatchEvent(eventWrapper('ima:error', {
                     errorCode: 301,
                     errorMessage: 'IMA could not be loaded'
@@ -30203,40 +31596,355 @@ var Plugin = /** @class */ (function () {
                 });
             });
         };
-        this.load = function (StroeerVideoplayer) {
+        this.requestAds = function (StroeerVideoplayer) {
             var videoElement = StroeerVideoplayer.getVideoEl();
-            var videoElementWidth = videoElement.clientWidth;
-            var videoElementHeight = videoElement.clientHeight;
-            var adContainer = document.createElement('div');
-            adContainer.classList.add('ad-container');
-            videoElement.after(adContainer);
-            var adsManager;
-            var adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, videoElement);
-            var adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+            var rootElement = StroeerVideoplayer.getRootEl();
+            _this.isMuted = convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted');
+            _this.volume = convertLocalStorageStringToNumber('StroeerVideoplayerVolume');
+            createUI(videoElement, _this.isMuted, isAlreadyInFullscreenMode(rootElement, videoElement));
+            var adContainer = document.querySelector('.ima-ad-container');
+            var loadingSpinnerContainer = adContainer === null || adContainer === void 0 ? void 0 : adContainer.querySelector('.loading-spinner');
+            var controlbarContainer = adContainer === null || adContainer === void 0 ? void 0 : adContainer.querySelector('.controlbar-container');
+            var playButton = adContainer === null || adContainer === void 0 ? void 0 : adContainer.querySelector('.buttons .play');
+            var pauseButton = adContainer === null || adContainer === void 0 ? void 0 : adContainer.querySelector('.buttons .pause');
+            var muteButton = adContainer === null || adContainer === void 0 ? void 0 : adContainer.querySelector('.buttons .mute');
+            var unmuteButton = adContainer === null || adContainer === void 0 ? void 0 : adContainer.querySelector('.buttons .unmute');
+            var timeDisp = adContainer === null || adContainer === void 0 ? void 0 : adContainer.querySelector('.controlbar .time');
+            var enterFullscreenButton = adContainer === null || adContainer === void 0 ? void 0 : adContainer.querySelector('.buttons .enterFullscreen');
+            var exitFullscreenButton = adContainer === null || adContainer === void 0 ? void 0 : adContainer.querySelector('.buttons .exitFullscreen');
+            var volumeContainer = adContainer === null || adContainer === void 0 ? void 0 : adContainer.querySelector('.volume-container');
+            var volumeRange = volumeContainer === null || volumeContainer === void 0 ? void 0 : volumeContainer.querySelector('.volume-range');
+            var volumeLevel = volumeContainer === null || volumeContainer === void 0 ? void 0 : volumeContainer.querySelector('.volume-level');
+            var volumeLevelBubble = volumeContainer === null || volumeContainer === void 0 ? void 0 : volumeContainer.querySelector('.volume-level-bubble');
+            var toggleControlbarInSeconds = 5;
+            var toggleControlbarSecondsLeft = toggleControlbarInSeconds;
+            var toggleControlbarTicker = function () {
+                if (toggleControlbarSecondsLeft === 0) {
+                    controlbarContainer.style.opacity = '0';
+                }
+                else {
+                    toggleControlbarSecondsLeft = toggleControlbarSecondsLeft - 1;
+                }
+            };
+            var showLoading = function (modus) {
+                if (modus) {
+                    showElement(loadingSpinnerContainer);
+                }
+                else {
+                    hideElement(loadingSpinnerContainer);
+                }
+            };
+            showLoading(true);
+            rootElement.addEventListener('mousemove', function () {
+                toggleControlbarSecondsLeft = toggleControlbarInSeconds;
+                controlbarContainer.style.opacity = '1';
+            });
+            clearInterval(_this.toggleControlBarInterval);
+            _this.toggleControlBarInterval = setInterval(toggleControlbarTicker, 1000);
+            var toggleVolumeSliderInSeconds = 2;
+            var toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
+            var toggleVolumeSliderTicker = function () {
+                if (toggleVolumeSliderSecondsLeft === 0) {
+                    volumeContainer.style.opacity = '0';
+                }
+                else {
+                    toggleVolumeSliderSecondsLeft = toggleVolumeSliderSecondsLeft - 1;
+                }
+            };
+            var volumeHeight = String((_this.volume * 100).toFixed(2)) + '%';
+            volumeLevel.style.height = volumeHeight;
+            volumeLevelBubble.style.bottom = 'calc(' + volumeHeight + ' - 4px)';
+            volumeContainer.addEventListener('mousemove', function () {
+                toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
+            });
+            clearInterval(_this.toggleVolumeBarInterval);
+            _this.toggleVolumeBarInterval = setInterval(toggleVolumeSliderTicker, 1000);
             window.addEventListener('resize', function (event) {
+                adsManager === null || adsManager === void 0 ? void 0 : adsManager.resize(videoElement.clientWidth, videoElement.clientHeight, google.ima.ViewMode.NORMAL);
+            });
+            playButton.addEventListener('click', function () {
+                adsManager === null || adsManager === void 0 ? void 0 : adsManager.resume();
+            });
+            pauseButton.addEventListener('click', function () {
+                adsManager === null || adsManager === void 0 ? void 0 : adsManager.pause();
+            });
+            muteButton.addEventListener('click', function () {
                 if (adsManager) {
+                    _this.volume = adsManager.getVolume() || _this.volume;
+                    _this.isMuted = true;
+                    adsManager.setVolume(0);
+                    hideElement(muteButton);
+                    showElement(unmuteButton);
+                }
+            });
+            unmuteButton.addEventListener('click', function () {
+                if (adsManager) {
+                    adsManager.setVolume(_this.volume);
+                    _this.isMuted = false;
+                    hideElement(unmuteButton);
+                    showElement(muteButton);
+                }
+            });
+            muteButton.addEventListener('mouseover', function () {
+                if (!isTouchDevice()) {
+                    volumeContainer.style.opacity = '1';
+                    toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
+                }
+            });
+            unmuteButton.addEventListener('mouseover', function () {
+                if (!isTouchDevice()) {
+                    volumeContainer.style.opacity = '1';
+                    toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds;
+                }
+            });
+            enterFullscreenButton.addEventListener('click', function () {
+                if (adsManager) {
+                    dispatchEvent(videoElement, 'UIEnterFullscreen', adsManager.getRemainingTime());
+                    dispatchEvent(videoElement, 'uiima:enterFullscreen', adsManager.getRemainingTime());
+                    adsManager.resize(window.innerWidth, window.innerHeight, google.ima.ViewMode.FULLSCREEN);
+                    if (typeof rootElement.requestFullscreen === 'function') {
+                        rootElement.requestFullscreen();
+                    }
+                    else if (typeof rootElement.webkitRequestFullscreen === 'function') {
+                        if (navigator.userAgent.includes('iPad')) {
+                            videoElement.webkitRequestFullscreen();
+                        }
+                        else {
+                            rootElement.webkitRequestFullscreen();
+                        }
+                    }
+                    else if (typeof rootElement.mozRequestFullScreen === 'function') {
+                        rootElement.mozRequestFullScreen();
+                    }
+                    else if (typeof rootElement.msRequestFullscreen === 'function') {
+                        rootElement.msRequestFullscreen();
+                    }
+                    else if (typeof rootElement.webkitEnterFullscreen === 'function') {
+                        rootElement.webkitEnterFullscreen();
+                    }
+                    else if (typeof videoElement.webkitEnterFullscreen === 'function') {
+                        videoElement.webkitEnterFullscreen();
+                    }
+                    else {
+                        console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found');
+                    }
+                }
+            });
+            exitFullscreenButton.addEventListener('click', function () {
+                if (adsManager) {
+                    dispatchEvent(videoElement, 'UIExitFullscreen', adsManager.getRemainingTime());
+                    dispatchEvent(videoElement, 'uiima:exitFullscreen', adsManager.getRemainingTime());
+                    if (typeof document.exitFullscreen === 'function') {
+                        document.exitFullscreen().then(noop).catch(noop);
+                    }
+                    else if (typeof document.webkitExitFullscreen === 'function') {
+                        document.webkitExitFullscreen();
+                    }
+                    else if (typeof document.mozCancelFullScreen === 'function') {
+                        document.mozCancelFullScreen().then(noop).catch(noop);
+                    }
+                    else if (typeof document.msExitFullscreen === 'function') {
+                        document.msExitFullscreen();
+                    }
+                    else if (typeof videoElement.webkitExitFullscreen === 'function') {
+                        videoElement.webkitExitFullscreen();
+                    }
+                    else {
+                        console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found');
+                    }
                     adsManager.resize(videoElement.clientWidth, videoElement.clientHeight, google.ima.ViewMode.NORMAL);
                 }
             });
+            _this.onDocumentFullscreenChange = function () {
+                if (document.fullscreenElement === rootElement || document.fullscreenElement === videoElement) {
+                    videoElement.dispatchEvent(new Event('fullscreen'));
+                    hideElement(enterFullscreenButton);
+                    showElement(exitFullscreenButton);
+                }
+                else {
+                    videoElement.dispatchEvent(new Event('exitFullscreen'));
+                    showElement(enterFullscreenButton);
+                    hideElement(exitFullscreenButton);
+                }
+            };
+            // @ts-expect-error
+            document.addEventListener('fullscreenchange', _this.onDocumentFullscreenChange);
+            // iOS Workarounds
+            videoElement.addEventListener('webkitendfullscreen', function () {
+                // @ts-expect-error
+                document.fullscreenElement = null;
+                showElement(enterFullscreenButton);
+                hideElement(exitFullscreenButton);
+            });
+            document.addEventListener('webkitfullscreenchange', function () {
+                if (document.webkitFullscreenElement !== null) {
+                    showElement(exitFullscreenButton);
+                    hideElement(enterFullscreenButton);
+                }
+                else {
+                    showElement(enterFullscreenButton);
+                    hideElement(exitFullscreenButton);
+                }
+            });
+            // IE11 workaround
+            document.addEventListener('MSFullscreenChange', function () {
+                if (document.msFullscreenElement !== null) {
+                    showElement(exitFullscreenButton);
+                    hideElement(enterFullscreenButton);
+                }
+                else {
+                    hideElement(exitFullscreenButton);
+                    showElement(enterFullscreenButton);
+                }
+            });
+            var updateVolumeWhileDragging = function (evt) {
+                if (evt.target === volumeContainer ||
+                    evt.target === volumeLevel ||
+                    evt.target === volumeLevelBubble ||
+                    evt.target === volumeRange) {
+                    var clientY = evt.clientY;
+                    if (clientY === undefined) {
+                        if ('touches' in evt && evt.touches.length > 0) {
+                            clientY = evt.touches[0].clientY;
+                        }
+                        else {
+                            clientY = false;
+                        }
+                    }
+                    if (clientY === false)
+                        return;
+                    var volumeRangeBoundingClientRect = volumeRange.getBoundingClientRect();
+                    var volumeContainerOffsetY = 0;
+                    if ('y' in volumeRangeBoundingClientRect) {
+                        volumeContainerOffsetY = volumeRangeBoundingClientRect.y;
+                    }
+                    else {
+                        volumeContainerOffsetY = volumeRangeBoundingClientRect.top;
+                    }
+                    var y = clientY - volumeContainerOffsetY;
+                    if (y < 0) {
+                        y = 0;
+                    }
+                    if (y > volumeRangeBoundingClientRect.height) {
+                        y = volumeRangeBoundingClientRect.height;
+                    }
+                    var percentageY = calculateVolumePercentageBasedOnYCoords(y, volumeRange.offsetHeight);
+                    var percentageHeight = 100 - percentageY;
+                    var percentageHeightString = String(percentageHeight);
+                    var percentageYString = String(percentageY);
+                    volumeLevel.style.height = percentageHeightString + '%';
+                    if (percentageY < 90) {
+                        volumeLevelBubble.style.top = percentageYString + '%';
+                    }
+                    var volume = percentageHeight / 100;
+                    _this.volume = volume;
+                    window.localStorage.setItem('StroeerVideoplayerVolume', _this.volume.toFixed(2));
+                    if (!_this.isMuted) {
+                        adsManager.setVolume(volume);
+                    }
+                }
+            };
+            var draggingWhat = '';
+            _this.onDragStart = function (evt) {
+                switch (evt.target) {
+                    case volumeRange:
+                    case volumeLevel:
+                    case volumeLevelBubble:
+                        dispatchEvent(videoElement, 'UIVolumeChangeStart', {
+                            volume: adsManager.getVolume(),
+                            currentTime: adsManager.getRemainingTime()
+                        });
+                        dispatchEvent(videoElement, 'uiima:volumeChangeStart', {
+                            volume: adsManager.getVolume(),
+                            currentTime: adsManager.getRemainingTime()
+                        });
+                        draggingWhat = 'volume';
+                        break;
+                }
+            };
+            _this.onDragEnd = function (evt) {
+                if (draggingWhat === 'volume') {
+                    draggingWhat = '';
+                    updateVolumeWhileDragging(evt);
+                    dispatchEvent(videoElement, 'UIVolumeChangeEnd', {
+                        volume: adsManager.getVolume(),
+                        currentTime: adsManager.getRemainingTime()
+                    });
+                    dispatchEvent(videoElement, 'uiima:volumeChangeEnd', {
+                        volume: adsManager.getVolume(),
+                        currentTime: adsManager.getRemainingTime()
+                    });
+                }
+            };
+            _this.onDrag = function (evt) {
+                if (draggingWhat === 'volume') {
+                    updateVolumeWhileDragging(evt);
+                }
+            };
+            document.body.addEventListener('touchstart', _this.onDragStart, { passive: true });
+            document.body.addEventListener('touchend', _this.onDragEnd, { passive: true });
+            document.body.addEventListener('touchmove', _this.onDrag, { passive: true });
+            document.body.addEventListener('mousedown', _this.onDragStart, { passive: true });
+            document.body.addEventListener('mouseup', _this.onDragEnd, { passive: true });
+            document.body.addEventListener('mousemove', _this.onDrag, { passive: true });
+            // ima settings
+            google.ima.settings.setNumRedirects(10);
+            google.ima.settings.setLocale('de');
+            var adsManager;
+            var adDisplayContainer = new google.ima.AdDisplayContainer(adContainer);
+            var adsLoader = new google.ima.AdsLoader(adDisplayContainer);
             _this.assignEvent = function (event) {
                 switch (event.type) {
+                    case google.ima.AdEvent.Type.AD_CAN_PLAY:
+                        showLoading(false);
+                        break;
+                    case google.ima.AdEvent.Type.AD_BUFFERING:
+                        showLoading(true);
+                        break;
+                    case google.ima.AdEvent.Type.AD_METADATA:
+                        setTimeDisp(timeDisp, adsManager.getRemainingTime());
+                        break;
+                    case google.ima.AdEvent.Type.AD_PROGRESS:
+                        // showLoading(false)
+                        setTimeDisp(timeDisp, adsManager.getRemainingTime());
+                        break;
                     case google.ima.AdEvent.Type.STARTED:
-                        StroeerVideoplayer.deinitUI('default');
-                        StroeerVideoplayer.initUI('ima', { adsManager: adsManager });
                         adContainer.style.display = 'block';
+                        hideElement(playButton);
+                        showElement(pauseButton);
+                        if (_this.isMuted) {
+                            adsManager.setVolume(0);
+                            hideElement(muteButton);
+                            showElement(unmuteButton);
+                        }
+                        else {
+                            adsManager.setVolume(_this.volume);
+                            showElement(muteButton);
+                            hideElement(unmuteButton);
+                        }
                         Logger.log('Event', 'ima:impression');
                         videoElement.dispatchEvent(eventWrapper('ima:impression'));
+                        dispatchEvent(videoElement, 'UIPlay', adsManager.getRemainingTime());
+                        dispatchEvent(videoElement, 'uiima:play', adsManager.getRemainingTime());
                         break;
+                    case google.ima.AdEvent.Type.RESUMED:
+                        hideElement(playButton);
+                        showElement(pauseButton);
+                        dispatchEvent(videoElement, 'uiima:resume', adsManager.getRemainingTime());
+                        break;
+                    case google.ima.AdEvent.Type.SKIPPED:
                     case google.ima.AdEvent.Type.COMPLETE:
-                        StroeerVideoplayer.deinitUI('ima', { adsManager: adsManager });
-                        StroeerVideoplayer.initUI('default');
                         adContainer.style.display = 'none';
                         Logger.log('Event', 'ima:ended');
                         videoElement.dispatchEvent(eventWrapper('ima:ended'));
                         break;
                     case google.ima.AdEvent.Type.PAUSED:
+                        showElement(playButton);
+                        hideElement(pauseButton);
                         Logger.log('Event', 'ima:pause');
                         videoElement.dispatchEvent(eventWrapper('ima:pause'));
+                        dispatchEvent(videoElement, 'UIPause', adsManager.getRemainingTime());
+                        dispatchEvent(videoElement, 'uiima:pause', adsManager.getRemainingTime());
                         break;
                     case google.ima.AdEvent.Type.CLICK:
                         Logger.log('Event', 'ima:click');
@@ -30254,12 +31962,42 @@ var Plugin = /** @class */ (function () {
                         Logger.log('Event', 'ima:thirdQuartile');
                         videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'));
                         break;
+                    case google.ima.AdEvent.Type.VOLUME_CHANGED:
+                        if (!_this.isMuted) {
+                            _this.volume = adsManager.getVolume();
+                            window.localStorage.setItem('StroeerVideoplayerVolume', _this.volume.toFixed(2));
+                            dispatchEvent(videoElement, 'UIUnmute', adsManager.getRemainingTime());
+                            dispatchEvent(videoElement, 'uiima:unmute', adsManager.getRemainingTime());
+                        }
+                        window.localStorage.setItem('StroeerVideoplayerMuted', _this.isMuted ? '1' : '0');
+                        break;
+                    case google.ima.AdEvent.Type.VOLUME_MUTED:
+                        window.localStorage.setItem('StroeerVideoplayerMuted', '1');
+                        dispatchEvent(videoElement, 'UIMute', adsManager.getRemainingTime());
+                        dispatchEvent(videoElement, 'uiima:mute', adsManager.getRemainingTime());
+                        break;
+                    case google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED:
+                        videoElement.pause();
+                        break;
+                    case google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED:
+                        videoElement.play();
+                        break;
                 }
             };
             adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, function (adsManagerLoadedEvent) {
-                adsManager = adsManagerLoadedEvent.getAdsManager(videoElement);
+                var adsRenderingSettings = new google.ima.AdsRenderingSettings();
+                adsRenderingSettings.loadVideoTimeout = -1;
+                adsRenderingSettings.uiElements = [];
+                adsManager = adsManagerLoadedEvent.getAdsManager(videoElement, adsRenderingSettings);
+                Logger.log('IMA AdsManager loaded');
+                if (!_this.isMuted) {
+                    adsManager.setVolume(convertLocalStorageStringToNumber('StroeerVideoplayerVolume'));
+                }
+                else {
+                    adsManager.setVolume(convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted'));
+                }
                 try {
-                    adsManager.init(videoElementWidth, videoElementHeight, google.ima.ViewMode.NORMAL);
+                    adsManager.init(videoElement.clientWidth, videoElement.clientHeight, google.ima.ViewMode.NORMAL);
                     adsManager.start();
                 }
                 catch (adError) {
@@ -30272,41 +32010,29 @@ var Plugin = /** @class */ (function () {
                         errorCode: error.getVastErrorCode(),
                         errorMessage: error.getMessage()
                     }));
-                    Logger.log('Event', 'ima:error', {
+                    Logger.log('adsManager ', 'ima:error', {
                         errorCode: error.getVastErrorCode(),
                         errorMessage: error.getMessage()
                     });
                 });
-                adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, function () {
-                    videoElement.pause();
-                });
-                adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, function () {
-                    videoElement.play();
-                });
                 var events = [
-                    google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
-                    google.ima.AdEvent.Type.CLICK,
-                    google.ima.AdEvent.Type.AD_PROGRESS,
                     google.ima.AdEvent.Type.AD_BUFFERING,
-                    google.ima.AdEvent.Type.IMPRESSION,
-                    google.ima.AdEvent.Type.DURATION_CHANGE,
-                    google.ima.AdEvent.Type.USER_CLOSE,
-                    google.ima.AdEvent.Type.LINEAR_CHANGED,
+                    google.ima.AdEvent.Type.AD_CAN_PLAY,
                     google.ima.AdEvent.Type.AD_METADATA,
-                    google.ima.AdEvent.Type.INTERACTION,
+                    google.ima.AdEvent.Type.AD_PROGRESS,
+                    google.ima.AdEvent.Type.CLICK,
                     google.ima.AdEvent.Type.COMPLETE,
                     google.ima.AdEvent.Type.FIRST_QUARTILE,
-                    google.ima.AdEvent.Type.LOADED,
                     google.ima.AdEvent.Type.MIDPOINT,
                     google.ima.AdEvent.Type.PAUSED,
                     google.ima.AdEvent.Type.RESUMED,
-                    google.ima.AdEvent.Type.USER_CLOSE,
+                    google.ima.AdEvent.Type.SKIPPED,
                     google.ima.AdEvent.Type.STARTED,
                     google.ima.AdEvent.Type.THIRD_QUARTILE,
-                    google.ima.AdEvent.Type.SKIPPED,
                     google.ima.AdEvent.Type.VOLUME_CHANGED,
                     google.ima.AdEvent.Type.VOLUME_MUTED,
-                    google.ima.AdEvent.Type.LOG
+                    google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
+                    google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED
                 ];
                 events.forEach(function (event) {
                     adsManager.addEventListener(event, _this.assignEvent);
@@ -30318,25 +32044,14 @@ var Plugin = /** @class */ (function () {
                 }
                 // eslint-disable-next-line
                 videoElement.play();
-                /*
-                const error = adErrorEvent.getError()
+                var error = adErrorEvent.getError();
                 videoElement.dispatchEvent(eventWrapper('ima:error', {
-                  errorCode: error.getVastErrorCode(),
-                  errorMessage: error.getMessage()
-                }))
-                logger.log('Event', 'ima:error', {
-                  errorCode: error.getVastErrorCode(),
-                  errorMessage: error.getMessage()
-                })
-                */
-                // let homad take over
-                videoElement.dispatchEvent(eventWrapper('ima:error', {
-                    errorCode: 301,
-                    errorMessage: 'VAST redirect timeout reached'
+                    errorCode: error.getVastErrorCode(),
+                    errorMessage: error.getMessage()
                 }));
-                Logger.log('event', 'ima:error', {
-                    errorCode: 301,
-                    errorMessage: 'VAST redirect timeout reached'
+                Logger.log('adsLoader ', 'ima:error', {
+                    errorCode: error.getVastErrorCode(),
+                    errorMessage: error.getMessage()
                 });
             });
             _this.onVideoElPlay = function (event) {
@@ -30360,17 +32075,10 @@ var Plugin = /** @class */ (function () {
                         if (adsManager) {
                             adsManager.destroy();
                         }
-                        // test adtag for better ad delivery
-                        var referrerUrl = window.document.location.href;
-                        var cacheBuster = String(Math.floor(Math.random() * 100000000));
-                        var adTag = 'https://vh.adscale.de/vah?sid=9781ea9a-d459-49ee-9690-f4724bd2a3e2&ref=%%REFERRER_URL%%&gdpr=%%GDPR%%&gdpr_consent=%%GDPR_CONSENT_STRING%%&bust=%%CACHEBUSTER%%';
-                        adTag = adTag.replace('%%GDPR%%', '0');
-                        adTag = adTag.replace('%%GDPR_CONSENT_STRING%%', '');
-                        adTag = adTag.replace('%%REFERRER_URL%%', encodeURIComponent(referrerUrl));
-                        adTag = adTag.replace('%%CACHEBUSTER%%', cacheBuster);
                         var adsRequest = new google.ima.AdsRequest();
-                        adsRequest.adTagUrl = adTag;
-                        // videoElement.getAttribute('data-ivad-preroll-adtag')
+                        adsRequest.adTagUrl = videoElement.getAttribute('data-ivad-preroll-adtag');
+                        adsRequest.omidAccessModeRules = {};
+                        adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.GOOGLE] = google.ima.OmidAccessMode.FULL;
                         // Specify the linear and nonlinear slot sizes. This helps the SDK to
                         // select the correct creative if multiple are returned.
                         adsRequest.linearAdSlotWidth = videoElement.clientWidth;
@@ -30379,8 +32087,6 @@ var Plugin = /** @class */ (function () {
                         adsRequest.nonLinearAdSlotHeight = videoElement.clientHeight / 3;
                         // Pass the request to the adsLoader to request ads
                         adsLoader.requestAds(adsRequest);
-                        videoElementWidth = videoElement.clientWidth;
-                        videoElementHeight = videoElement.clientHeight;
                         // TODO: Initialize the container Must be done via a user action on mobile devices.
                         adDisplayContainer.initialize();
                     }
@@ -30389,11 +32095,10 @@ var Plugin = /** @class */ (function () {
             _this.onVideoElContentVideoEnded = function () {
                 videoElement.addEventListener('play', _this.onVideoElPlay);
             };
-            videoElement.addEventListener('play', _this.onVideoElPlay);
             videoElement.addEventListener('contentVideoEnded', function () {
-                adsLoader.contentComplete();
                 _this.onVideoElContentVideoEnded();
             });
+            videoElement.addEventListener('play', _this.onVideoElPlay);
         };
         this.deinit = function (StroeerVideoplayer) {
             var videoElement = StroeerVideoplayer.getVideoEl();
@@ -30402,7 +32107,15 @@ var Plugin = /** @class */ (function () {
         };
         this.onVideoElPlay = noop;
         this.onVideoElContentVideoEnded = noop;
+        this.onDocumentFullscreenChange = noop;
+        this.onDrag = noop;
+        this.onDragStart = noop;
+        this.onDragEnd = noop;
         this.assignEvent = noop;
+        this.toggleControlBarInterval = setInterval(noop, 1000);
+        this.toggleVolumeBarInterval = setInterval(noop, 1000);
+        this.isMuted = false;
+        this.volume = 0;
         return this;
     }
     Plugin.version = version;
