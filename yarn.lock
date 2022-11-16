@@ -1410,7 +1410,7 @@
 
 "balanced-match@^2.0.0":
   "integrity" "sha512-1ugUSr8BHXRnK23KfuYS+gVMC3LB8QGH9W1iGtDPsNWoQbgtXSExkBu2aDR4epiGWZOjZsj6lDl/N/AqqTC3UA=="
-  "resolved" "https://npm.stroeermediabrands.de/balanced-match/-/balanced-match-2.0.0.tgz"
+  "resolved" "https://registry.npmjs.org/balanced-match/-/balanced-match-2.0.0.tgz"
   "version" "2.0.0"
 
 "base64id@~2.0.0", "base64id@2.0.0":
@@ -2922,7 +2922,7 @@
 
 "ignore@^5.2.0":
   "integrity" "sha512-CmxgYGiEPCLhfLnpPp1MoRmifwEIOgjcHXxOBjv7mY96c+eWScsOP9c112ZyLdWHi0FxHjI+4uVhKYp/gcdRmQ=="
-  "resolved" "https://npm.stroeermediabrands.de/ignore/-/ignore-5.2.0.tgz"
+  "resolved" "https://registry.npmjs.org/ignore/-/ignore-5.2.0.tgz"
   "version" "5.2.0"
 
 "immutable@^3":
@@ -4626,7 +4626,7 @@
 
 "resolve-from@^5.0.0":
   "integrity" "sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw=="
-  "resolved" "https://npm.stroeermediabrands.de/resolve-from/-/resolve-from-5.0.0.tgz"
+  "resolved" "https://registry.npmjs.org/resolve-from/-/resolve-from-5.0.0.tgz"
   "version" "5.0.0"
 
 "resolve.exports@^1.1.0":
@@ -5204,7 +5204,7 @@
 
 "stylelint-config-recommended-scss@^8.0.0":
   "integrity" "sha512-BxjxEzRaZoQb7Iinc3p92GS6zRdRAkIuEu2ZFLTxJK2e1AIcCb5B5MXY9KOXdGTnYFZ+KKx6R4Fv9zU6CtMYPQ=="
-  "resolved" "https://npm.stroeermediabrands.de/stylelint-config-recommended-scss/-/stylelint-config-recommended-scss-8.0.0.tgz"
+  "resolved" "https://registry.npmjs.org/stylelint-config-recommended-scss/-/stylelint-config-recommended-scss-8.0.0.tgz"
   "version" "8.0.0"
   dependencies:
     "postcss-scss" "^4.0.2"
@@ -5213,12 +5213,12 @@
 
 "stylelint-config-recommended@^9.0.0":
   "integrity" "sha512-9YQSrJq4NvvRuTbzDsWX3rrFOzOlYBmZP+o513BJN/yfEmGSr0AxdvrWs0P/ilSpVV/wisamAHu5XSk8Rcf4CQ=="
-  "resolved" "https://npm.stroeermediabrands.de/stylelint-config-recommended/-/stylelint-config-recommended-9.0.0.tgz"
+  "resolved" "https://registry.npmjs.org/stylelint-config-recommended/-/stylelint-config-recommended-9.0.0.tgz"
   "version" "9.0.0"
 
 "stylelint-config-standard-scss@^6.1.0":
   "integrity" "sha512-iZ2B5kQT2G3rUzx+437cEpdcnFOQkwnwqXuY8Z0QUwIHQVE8mnYChGAquyKFUKZRZ0pRnrciARlPaR1RBtPb0Q=="
-  "resolved" "https://npm.stroeermediabrands.de/stylelint-config-standard-scss/-/stylelint-config-standard-scss-6.1.0.tgz"
+  "resolved" "https://registry.npmjs.org/stylelint-config-standard-scss/-/stylelint-config-standard-scss-6.1.0.tgz"
   "version" "6.1.0"
   dependencies:
     "stylelint-config-recommended-scss" "^8.0.0"
@@ -5226,14 +5226,14 @@
 
 "stylelint-config-standard@^29.0.0":
   "integrity" "sha512-uy8tZLbfq6ZrXy4JKu3W+7lYLgRQBxYTUUB88vPgQ+ZzAxdrvcaSUW9hOMNLYBnwH+9Kkj19M2DHdZ4gKwI7tg=="
-  "resolved" "https://npm.stroeermediabrands.de/stylelint-config-standard/-/stylelint-config-standard-29.0.0.tgz"
+  "resolved" "https://registry.npmjs.org/stylelint-config-standard/-/stylelint-config-standard-29.0.0.tgz"
   "version" "29.0.0"
   dependencies:
     "stylelint-config-recommended" "^9.0.0"
 
 "stylelint-scss@^4.0.0":
   "integrity" "sha512-GvSaKCA3tipzZHoz+nNO7S02ZqOsdBzMiCx9poSmLlb3tdJlGddEX/8QzCOD8O7GQan9bjsvLMsO5xiw6IhhIQ=="
-  "resolved" "https://npm.stroeermediabrands.de/stylelint-scss/-/stylelint-scss-4.3.0.tgz"
+  "resolved" "https://registry.npmjs.org/stylelint-scss/-/stylelint-scss-4.3.0.tgz"
   "version" "4.3.0"
   dependencies:
     "lodash" "^4.17.21"
@@ -5244,7 +5244,7 @@
 
 "stylelint@^14.10.0", "stylelint@^14.14.0", "stylelint@^14.15.0", "stylelint@^14.5.1":
   "integrity" "sha512-JOgDAo5QRsqiOZPZO+B9rKJvBm64S0xasbuRPAbPs6/vQDgDCnZLIiw6XcAS6GQKk9k1sBWR6rmH3Mfj8OknKg=="
-  "resolved" "https://npm.stroeermediabrands.de/stylelint/-/stylelint-14.15.0.tgz"
+  "resolved" "https://registry.npmjs.org/stylelint/-/stylelint-14.15.0.tgz"
   "version" "14.15.0"
   dependencies:
     "@csstools/selector-specificity" "^2.0.2"
@@ -5783,7 +5783,7 @@
 
 "write-file-atomic@^4.0.2":
   "integrity" "sha512-7KxauUdBmSdWnmpaGFg+ppNjKF8uNLry8LyzjauQDOVONfFLNKrKvQOxZ/VuTIcS/gge/YNahf5RIIQWTSarlg=="
-  "resolved" "https://npm.stroeermediabrands.de/write-file-atomic/-/write-file-atomic-4.0.2.tgz"
+  "resolved" "https://registry.npmjs.org/write-file-atomic/-/write-file-atomic-4.0.2.tgz"
   "version" "4.0.2"
   dependencies:
     "imurmurhash" "^0.1.4"
