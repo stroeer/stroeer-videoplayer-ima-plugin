@@ -1,14 +1,7 @@
 import { createButton, hideElement, isTouchDevice } from './utils'
+declare const google: any
 
-export const createUI = (videoElement: HTMLVideoElement, isMuted: boolean, isFullscreen: boolean): void => {
-  const adContainer = document.createElement('div')
-  adContainer.classList.add('ima-ad-container')
-  videoElement.after(adContainer)
-
-  const uiContainer = document.createElement('div')
-  uiContainer.className = 'ima'
-  adContainer.appendChild(uiContainer)
-
+export const createUI = (uiContainer: HTMLElement, videoElement: HTMLVideoElement, isMuted: boolean, isFullscreen: boolean): void => {
   const controlBarContainer = document.createElement('div')
   controlBarContainer.classList.add('controlbar-container')
   uiContainer.appendChild(controlBarContainer)
