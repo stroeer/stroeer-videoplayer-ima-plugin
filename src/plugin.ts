@@ -36,24 +36,26 @@ class Plugin {
   assignEvent: Function
   toggleControlBarInterval: ReturnType<typeof setInterval>
   toggleVolumeBarInterval: ReturnType<typeof setInterval>
+
   isMuted: boolean
   volume: number
   loadIMAScript: Promise<unknown>
+  autoplay: boolean
 
   adsManager: any
   adsLoader: any
   adsDisplayContainer: any
 
   constructor () {
-    this.videoElement = new HTMLVideoElement()
-    this.rootElement = new HTMLElement()
-    this.adContainer = new HTMLElement()
-    this.loadingSpinnerContainer = new HTMLElement()
-    this.timeDisp = new HTMLElement()
-    this.playButton = new HTMLElement()
-    this.pauseButton = new HTMLElement()
-    this.muteButton = new HTMLElement()
-    this.unmuteButton = new HTMLElement()
+    this.videoElement = document.createElement('video')
+    this.rootElement = document.createElement('div')
+    this.adContainer = document.createElement('div')
+    this.loadingSpinnerContainer = document.createElement('div')
+    this.timeDisp = document.createElement('div')
+    this.playButton = document.createElement('div')
+    this.pauseButton = document.createElement('div')
+    this.muteButton = document.createElement('div')
+    this.unmuteButton = document.createElement('div')
 
     this.onDocumentFullscreenChange = noop
     this.onDrag = noop
@@ -62,9 +64,11 @@ class Plugin {
     this.assignEvent = noop
     this.toggleControlBarInterval = setInterval(noop, 1000)
     this.toggleVolumeBarInterval = setInterval(noop, 1000)
+
     this.isMuted = false
     this.volume = 0
     this.loadIMAScript = new Promise((resolve, reject) => {})
+    this.autoplay = false
 
     this.adsManager = null
     this.adsLoader = null
@@ -80,6 +84,7 @@ class Plugin {
 
     this.videoElement = StroeerVideoplayer.getVideoEl()
     this.rootElement = StroeerVideoplayer.getRootEl()
+    this.autoplay = this.videoElement.getAttribute('data-autoplay') === 'true'
 
     this.adContainer = document.createElement('div')
     this.adContainer.classList.add('ima-ad-container')
@@ -102,15 +107,7 @@ class Plugin {
     if (prerollAdTag === null) return
 
     if (prerollAdTag === 'adblocked') {
-      // TODO: logAndDispatch(301, 'IMA could not be loaded')
-      this.videoElement.dispatchEvent(eventWrapper('ima:error', {
-        errorCode: 301,
-        errorMessage: 'VAST redirect timeout reached'
-      }))
-      logger.log('event', 'ima:error', {
-        errorCode: 301,
-        errorMessage: 'VAST redirect timeout reached'
-      })
+      this.dispatchAndLogError(301, 'IMA could not be loaded')
 
       return
     }
@@ -135,16 +132,7 @@ class Plugin {
         this.requestAds()
       })
       .catch(() => {
-        // TODO: logAndDispatch(301, 'IMA could not be loaded')
-        this.videoElement.dispatchEvent(eventWrapper('ima:error', {
-          errorCode: 301,
-          errorMessage: 'IMA could not be loaded'
-        }))
-
-        logger.log('event', 'ima:error', {
-          errorCode: 301,
-          errorMessage: 'IMA could not be loaded'
-        })
+        this.dispatchAndLogError(301, 'IMA could not be loaded')
       })
   }
 
@@ -208,21 +196,13 @@ class Plugin {
 
     this.videoElement.play()
 
-    // TODO: logAndDispatch(301, 'IMA could not be loaded')
-    this.videoElement.dispatchEvent(eventWrapper('ima:error', {
-      errorCode: error.getVastErrorCode(),
-      errorMessage: error.getMessage()
-    }))
-
-    logger.log('adsLoader ', 'ima:error', {
-      errorCode: error.getVastErrorCode(),
-      errorMessage: error.getMessage()
-    })
+    this.dispatchAndLogError(error.getVastErrorCode(), error.getMessage())
   }
 
   requestAds = (): void => {
     const adsRequest = new google.ima.AdsRequest()
     adsRequest.adTagUrl = this.videoElement.getAttribute('data-ivad-preroll-adtag')
+    adsRequest.setAdWillPlayMuted(this.autoplay)
 
     adsRequest.omidAccessModeRules = {}
     adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.GOOGLE] = google.ima.OmidAccessMode.FULL
@@ -235,6 +215,8 @@ class Plugin {
 
     this.adsLoader.requestAds(adsRequest)
     this.videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
+
+    // TODO mobile devices
     this.adsDisplayContainer.initialize()
   }
 
@@ -242,15 +224,7 @@ class Plugin {
     this.adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,
       (adErrorEvent: any) => {
         const error = adErrorEvent.getError()
-        // TODO: logAndDispatch(301, 'IMA could not be loaded')
-        this.videoElement.dispatchEvent(eventWrapper('ima:error', {
-          errorCode: error.getVastErrorCode(),
-          errorMessage: error.getMessage()
-        }))
-        logger.log('adsManager ', 'ima:error', {
-          errorCode: error.getVastErrorCode(),
-          errorMessage: error.getMessage()
-        })
+        this.dispatchAndLogError(error.getVastErrorCode(), error.getMessage())
       })
 
     this.adsManager.addEventListener(google.ima.AdEvent.Type.AD_CAN_PLAY, () => {
@@ -467,7 +441,7 @@ class Plugin {
       if (typeof this.rootElement.requestFullscreen === 'function') {
         this.rootElement.requestFullscreen()
       } else if (typeof this.rootElement.webkitRequestFullscreen === 'function') {
-        if (navigator.userAgent.includes('iPad')) {
+        if (navigator.userAgent.includes('iPad') && this.videoElement.webkitRequestFullscreen) {
           this.videoElement.webkitRequestFullscreen()
         } else {
           this.rootElement.webkitRequestFullscreen()
@@ -724,6 +698,17 @@ class Plugin {
     } else {
       this.timeDisp.innerHTML = 'Werbung endet in ' + String(Math.floor(remainingTime)) + ' Sekunden'
     }
+  }
+
+  dispatchAndLogError = (code: number, message: string): void => {
+    this.videoElement.dispatchEvent(eventWrapper('ima:error', {
+      errorCode: code,
+      errorMessage: message
+    }))
+    logger.log('event', 'ima:error', {
+      errorCode: code,
+      errorMessage: message
+    })
   }
 
   deinit = (StroeerVideoplayer: IStroeerVideoplayer): void => {

@@ -30830,6 +30830,7 @@ var Plugin = /** @class */ (function () {
             _this.volume = convertLocalStorageStringToNumber('StroeerVideoplayerVolume');
             _this.videoElement = StroeerVideoplayer.getVideoEl();
             _this.rootElement = StroeerVideoplayer.getRootEl();
+            _this.autoplay = _this.videoElement.getAttribute('data-autoplay') === 'true';
             _this.adContainer = document.createElement('div');
             _this.adContainer.classList.add('ima-ad-container');
             _this.videoElement.after(_this.adContainer);
@@ -30846,15 +30847,7 @@ var Plugin = /** @class */ (function () {
             if (prerollAdTag === null)
                 return;
             if (prerollAdTag === 'adblocked') {
-                // TODO: logAndDispatch(301, 'IMA could not be loaded')
-                _this.videoElement.dispatchEvent(eventWrapper('ima:error', {
-                    errorCode: 301,
-                    errorMessage: 'VAST redirect timeout reached'
-                }));
-                Logger.log('event', 'ima:error', {
-                    errorCode: 301,
-                    errorMessage: 'VAST redirect timeout reached'
-                });
+                _this.dispatchAndLogError(301, 'IMA could not be loaded');
                 return;
             }
             // TODO: check if needed
@@ -30872,15 +30865,7 @@ var Plugin = /** @class */ (function () {
                 _this.requestAds();
             })
                 .catch(function () {
-                // TODO: logAndDispatch(301, 'IMA could not be loaded')
-                _this.videoElement.dispatchEvent(eventWrapper('ima:error', {
-                    errorCode: 301,
-                    errorMessage: 'IMA could not be loaded'
-                }));
-                Logger.log('event', 'ima:error', {
-                    errorCode: 301,
-                    errorMessage: 'IMA could not be loaded'
-                });
+                _this.dispatchAndLogError(301, 'IMA could not be loaded');
             });
         };
         this.onContentVideoEnded = function (event) {
@@ -30926,19 +30911,12 @@ var Plugin = /** @class */ (function () {
                 _this.adsManager.destroy();
             }
             _this.videoElement.play();
-            // TODO: logAndDispatch(301, 'IMA could not be loaded')
-            _this.videoElement.dispatchEvent(eventWrapper('ima:error', {
-                errorCode: error.getVastErrorCode(),
-                errorMessage: error.getMessage()
-            }));
-            Logger.log('adsLoader ', 'ima:error', {
-                errorCode: error.getVastErrorCode(),
-                errorMessage: error.getMessage()
-            });
+            _this.dispatchAndLogError(error.getVastErrorCode(), error.getMessage());
         };
         this.requestAds = function () {
             var adsRequest = new google.ima.AdsRequest();
             adsRequest.adTagUrl = _this.videoElement.getAttribute('data-ivad-preroll-adtag');
+            adsRequest.setAdWillPlayMuted(_this.autoplay);
             adsRequest.omidAccessModeRules = {};
             adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.GOOGLE] = google.ima.OmidAccessMode.FULL;
             adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.OTHER] = google.ima.OmidAccessMode.FULL;
@@ -30948,20 +30926,13 @@ var Plugin = /** @class */ (function () {
             adsRequest.nonLinearAdSlotHeight = _this.videoElement.clientHeight / 3;
             _this.adsLoader.requestAds(adsRequest);
             _this.videoElement.dispatchEvent(new CustomEvent('ima:adcall'));
+            // TODO mobile devices
             _this.adsDisplayContainer.initialize();
         };
         this.addAdsManagerEvents = function () {
             _this.adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, function (adErrorEvent) {
                 var error = adErrorEvent.getError();
-                // TODO: logAndDispatch(301, 'IMA could not be loaded')
-                _this.videoElement.dispatchEvent(eventWrapper('ima:error', {
-                    errorCode: error.getVastErrorCode(),
-                    errorMessage: error.getMessage()
-                }));
-                Logger.log('adsManager ', 'ima:error', {
-                    errorCode: error.getVastErrorCode(),
-                    errorMessage: error.getMessage()
-                });
+                _this.dispatchAndLogError(error.getVastErrorCode(), error.getMessage());
             });
             _this.adsManager.addEventListener(google.ima.AdEvent.Type.AD_CAN_PLAY, function () {
                 _this.showLoadingSpinner(false);
@@ -31144,7 +31115,7 @@ var Plugin = /** @class */ (function () {
                     _this.rootElement.requestFullscreen();
                 }
                 else if (typeof _this.rootElement.webkitRequestFullscreen === 'function') {
-                    if (navigator.userAgent.includes('iPad')) {
+                    if (navigator.userAgent.includes('iPad') && _this.videoElement.webkitRequestFullscreen) {
                         _this.videoElement.webkitRequestFullscreen();
                     }
                     else {
@@ -31389,19 +31360,29 @@ var Plugin = /** @class */ (function () {
                 _this.timeDisp.innerHTML = 'Werbung endet in ' + String(Math.floor(remainingTime)) + ' Sekunden';
             }
         };
+        this.dispatchAndLogError = function (code, message) {
+            _this.videoElement.dispatchEvent(eventWrapper('ima:error', {
+                errorCode: code,
+                errorMessage: message
+            }));
+            Logger.log('event', 'ima:error', {
+                errorCode: code,
+                errorMessage: message
+            });
+        };
         this.deinit = function (StroeerVideoplayer) {
             _this.videoElement.removeEventListener('play', _this.onVideoElementPlay);
             _this.videoElement.removeEventListener('contentVideoEnded', _this.onContentVideoEnded);
         };
-        this.videoElement = new HTMLVideoElement();
-        this.rootElement = new HTMLElement();
-        this.adContainer = new HTMLElement();
-        this.loadingSpinnerContainer = new HTMLElement();
-        this.timeDisp = new HTMLElement();
-        this.playButton = new HTMLElement();
-        this.pauseButton = new HTMLElement();
-        this.muteButton = new HTMLElement();
-        this.unmuteButton = new HTMLElement();
+        this.videoElement = document.createElement('video');
+        this.rootElement = document.createElement('div');
+        this.adContainer = document.createElement('div');
+        this.loadingSpinnerContainer = document.createElement('div');
+        this.timeDisp = document.createElement('div');
+        this.playButton = document.createElement('div');
+        this.pauseButton = document.createElement('div');
+        this.muteButton = document.createElement('div');
+        this.unmuteButton = document.createElement('div');
         this.onDocumentFullscreenChange = noop;
         this.onDrag = noop;
         this.onDragStart = noop;
@@ -31412,6 +31393,7 @@ var Plugin = /** @class */ (function () {
         this.isMuted = false;
         this.volume = 0;
         this.loadIMAScript = new Promise(function (resolve, reject) { });
+        this.autoplay = false;
         this.adsManager = null;
         this.adsLoader = null;
         this.adsDisplayContainer = null;
