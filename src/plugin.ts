@@ -32,7 +32,10 @@ class Plugin {
   toggleVolumeBarInterval: ReturnType<typeof setInterval>
   isMuted: boolean
   volume: number
-  promise: Promise<unknown>
+  loadIMAScript: Promise<unknown>
+  adsManager: any
+  adsLoader: any
+  adsDisplayContainer: any
 
   constructor () {
     this.videoElement = new HTMLVideoElement()
@@ -47,7 +50,10 @@ class Plugin {
     this.toggleVolumeBarInterval = setInterval(noop, 1000)
     this.isMuted = false
     this.volume = 0
-    this.promise = new Promise((resolve, reject) => {})
+    this.loadIMAScript = new Promise((resolve, reject) => {})
+    this.adsManager = null
+    this.adsLoader = null
+    this.adsDisplayContainer = null
 
     return this
   }
@@ -70,15 +76,9 @@ class Plugin {
 
     createUI(uiContainer, this.videoElement, this.isMuted, utils.isAlreadyInFullscreenMode(this.rootElement, this.videoElement))
 
-    this.videoElement.addEventListener('contentVideoEnded', this.onVideoElContentVideoEnded)
-
     this.videoElement.addEventListener('play', this.onVideoElementPlay)
-
-    this.promise = utils.loadScript('//imasdk.googleapis.com/js/sdkloader/ima3.js')
-  }
-
-  onVideoElContentVideoEnded = (event: Event): void => {
-    this.videoElement.addEventListener('play', this.onVideoElementPlay)
+    this.videoElement.addEventListener('contentVideoEnded', this.onContentVideoEnded)
+    this.loadIMAScript = utils.loadScript('//imasdk.googleapis.com/js/sdkloader/ima3.js')
   }
 
   onVideoElementPlay = (event: Event): void => {
@@ -87,6 +87,7 @@ class Plugin {
     if (prerollAdTag === null) return
 
     if (prerollAdTag === 'adblocked') {
+      // TODO: logAndDispatch(301, 'IMA could not be loaded')
       this.videoElement.dispatchEvent(eventWrapper('ima:error', {
         errorCode: 301,
         errorMessage: 'VAST redirect timeout reached'
@@ -99,26 +100,31 @@ class Plugin {
       return
     }
 
-    event.preventDefault()
+    // TDÒDO: check if needed
+    // event.preventDefault()
+
+    // TODO: Comment why this is needed
     this.videoElement.removeEventListener('play', this.onVideoElementPlay)
 
     // show loading spinner
 
     this.videoElement.pause()
 
-    // check for multiple play events
-    this.promise
+    this.loadIMAScript
       .then(() => {
-        // only once
-        this.createAdManager()
-        // call on every play
+        if (!this.adsManager) {
+          this.createAdsManager()
+        }
+
         this.requestAds()
       })
       .catch(() => {
+        // TODO: logAndDispatch(301, 'IMA could not be loaded')
         this.videoElement.dispatchEvent(eventWrapper('ima:error', {
           errorCode: 301,
           errorMessage: 'IMA could not be loaded'
         }))
+
         logger.log('event', 'ima:error', {
           errorCode: 301,
           errorMessage: 'IMA could not be loaded'
@@ -126,167 +132,75 @@ class Plugin {
       })
   }
 
-  createAdManager = (): void => {
-    // ima settings
+  onContentVideoEnded = (event: Event): void => {
+    this.videoElement.addEventListener('play', this.onVideoElementPlay)
+  }
+
+  createAdsManager = (): void => {
     google.ima.settings.setNumRedirects(10)
     google.ima.settings.setLocale('de')
 
-    const adDisplayContainer = new google.ima.AdDisplayContainer(this.adContainer)
-    const adsLoader = new google.ima.AdsLoader(adDisplayContainer)
+    this.adsDisplayContainer = new google.ima.AdDisplayContainer(this.adContainer)
+    this.adsLoader = new google.ima.AdsLoader(this.adsDisplayContainer)
 
-    adsLoader.addEventListener(
+    this.adsLoader.addEventListener(
       google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
       (adsManagerLoadedEvent: any) => {
-        const adsRenderingSettings = new google.ima.AdsRenderingSettings()
-        adsRenderingSettings.loadVideoTimeout = -1
-        adsRenderingSettings.uiElements = []
-
-        const adsManager = adsManagerLoadedEvent.getAdsManager(this.videoElement, adsRenderingSettings)
-        logger.log('IMA AdsManager loaded')
-
-        this.addAdsManagerEvents(adsManager)
-
-        this.addUiFunctions(adsManager)
-
-        if (!this.isMuted) {
-          adsManager.setVolume(convertLocalStorageStringToNumber('StroeerVideoplayerVolume'))
-        } else {
-          adsManager.setVolume(convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted'))
-        }
-
-        try {
-          adsManager.init(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
-          adsManager.start()
-        } catch (adError) {
-          this.videoElement.play()
-        }
+        this.onAdsManagerLoaded(adsManagerLoadedEvent)
       })
 
-    // adsManager Error Event Listener
+    this.adsLoader.addEventListener(
+      google.ima.AdErrorEvent.Type.AD_ERROR,
+      (adErrorEvent: any) => {
+        this.onAdsManagerError(adErrorEvent)
+      })
   }
 
-  addAdsManagerEvents = (adsManager: any): void => {
-    adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,
-      (adErrorEvent: any) => {
-        const error = adErrorEvent.getError()
-        this.videoElement.dispatchEvent(eventWrapper('ima:error', {
-          errorCode: error.getVastErrorCode(),
-          errorMessage: error.getMessage()
-        }))
-        logger.log('adsManager ', 'ima:error', {
-          errorCode: error.getVastErrorCode(),
-          errorMessage: error.getMessage()
-        })
-      })
+  onAdsManagerLoaded = (adsManagerLoadedEvent: any): void => {
+    const adsRenderingSettings = new google.ima.AdsRenderingSettings()
 
-    adsManager.addEventListener(google.ima.AdEvent.Type.AD_CAN_PLAY, () => {
-      showLoading(false)
-    })
+    adsRenderingSettings.loadVideoTimeout = -1
+    adsRenderingSettings.uiElements = []
 
-    adsManager.addEventListener(google.ima.AdEvent.Type.AD_BUFFERING, () => {
-      showLoading(true)
-    })
+    this.adsManager = adsManagerLoadedEvent.getAdsManager(this.videoElement, adsRenderingSettings)
+    logger.log('IMA AdsManager loaded')
 
-    adsManager.addEventListener(google.ima.AdEvent.Type.AD_METADATA, () => {
-      setTimeDisp(timeDisp, adsManager.getRemainingTime())
-    })
+    this.addAdsManagerEvents()
 
-    adsManager.addEventListener(google.ima.AdEvent.Type.AD_PROGRESS, () => {
-      // showLoading(false)
-      setTimeDisp(timeDisp, adsManager.getRemainingTime())
-    })
+    this.connectUiWithAdsManager()
 
-    adsManager.addEventListener(google.ima.AdEvent.Type.CLICK, () => {
-      logger.log('Event', 'ima:click')
-      this.videoElement.dispatchEvent(eventWrapper('ima:click'))
-    })
+    if (!this.isMuted) {
+      this.adsManager.setVolume(convertLocalStorageStringToNumber('StroeerVideoplayerVolume'))
+    } else {
+      this.adsManager.setVolume(convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted'))
+    }
 
-    adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, () => {
-      this.adContainer.style.display = 'none'
-      logger.log('Event', 'ima:ended')
-      this.videoElement.dispatchEvent(eventWrapper('ima:ended'))
-    })
-
-    adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED, () => {
-      this.adContainer.style.display = 'none'
-      logger.log('Event', 'ima:ended')
-      this.videoElement.dispatchEvent(eventWrapper('ima:ended'))
-    })
-
-    adsManager.addEventListener(google.ima.AdEvent.Type.FIRST_QUARTILE, () => {
-      logger.log('Event', 'ima:firstQuartile')
-      this.videoElement.dispatchEvent(eventWrapper('ima:firstQuartile'))
-    })
-
-    adsManager.addEventListener(google.ima.AdEvent.Type.MIDPOINT, () => {
-      logger.log('Event', 'ima:midpoint')
-      this.videoElement.dispatchEvent(eventWrapper('ima:midpoint'))
-    })
-
-    adsManager.addEventListener(google.ima.AdEvent.Type.PAUSED, () => {
-      showElement(playButton)
-      hideElement(pauseButton)
-
-      logger.log('Event', 'ima:pause')
-      this.videoElement.dispatchEvent(eventWrapper('ima:pause'))
-      dispatchEvent(this.videoElement, 'UIPause', adsManager.getRemainingTime())
-      dispatchEvent(this.videoElement, 'uiima:pause', adsManager.getRemainingTime())
-    })
-
-    adsManager.addEventListener(google.ima.AdEvent.Type.RESUMED, () => {
-      hideElement(playButton)
-      showElement(pauseButton)
-      dispatchEvent(this.videoElement, 'uiima:resume', adsManager.getRemainingTime())
-    })
-
-    adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, () => {
-      this.adContainer.style.display = 'block'
-      hideElement(playButton)
-      showElement(pauseButton)
-
-      if (this.isMuted) {
-        adsManager.setVolume(0)
-        hideElement(muteButton)
-        showElement(unmuteButton)
-      } else {
-        adsManager.setVolume(this.volume)
-        showElement(muteButton)
-        hideElement(unmuteButton)
-      }
-
-      logger.log('Event', 'ima:impression')
-      this.videoElement.dispatchEvent(eventWrapper('ima:impression'))
-      dispatchEvent(this.videoElement, 'UIPlay', adsManager.getRemainingTime())
-      dispatchEvent(this.videoElement, 'uiima:play', adsManager.getRemainingTime())
-    })
-
-    adsManager.addEventListener(google.ima.AdEvent.Type.THIRD_QUARTILE, () => {
-      logger.log('Event', 'ima:thirdQuartile')
-      this.videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'))
-    })
-
-    adsManager.addEventListener(google.ima.AdEvent.Type.VOLUME_CHANGED, () => {
-      if (!this.isMuted) {
-        this.volume = adsManager.getVolume()
-        window.localStorage.setItem('StroeerVideoplayerVolume', this.volume.toFixed(2))
-        dispatchEvent(this.videoElement, 'UIUnmute', adsManager.getRemainingTime())
-        dispatchEvent(this.videoElement, 'uiima:unmute', adsManager.getRemainingTime())
-      }
-      window.localStorage.setItem('StroeerVideoplayerMuted', this.isMuted ? '1' : '0')
-    })
-
-    adsManager.addEventListener(google.ima.AdEvent.Type.VOLUME_MUTED, () => {
-      window.localStorage.setItem('StroeerVideoplayerMuted', '1')
-      dispatchEvent(this.videoElement, 'UIMute', adsManager.getRemainingTime())
-      dispatchEvent(this.videoElement, 'uiima:mute', adsManager.getRemainingTime())
-    })
-
-    adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, () => {
-      this.videoElement.pause()
-    })
-
-    adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, () => {
+    try {
+      this.adsManager.init(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
+      this.adsManager.start()
+    } catch (adError) {
       this.videoElement.play()
+    }
+  }
+
+  onAdsManagerError = (adErrorEvent: any): void => {
+    const error = adErrorEvent.getError()
+
+    if (this.adsManager) {
+      this.adsManager.destroy()
+    }
+
+    this.videoElement.play()
+
+    // TODO: logAndDispatch(301, 'IMA could not be loaded')
+    this.videoElement.dispatchEvent(eventWrapper('ima:error', {
+      errorCode: error.getVastErrorCode(),
+      errorMessage: error.getMessage()
+    }))
+
+    logger.log('adsLoader ', 'ima:error', {
+      errorCode: error.getVastErrorCode(),
+      errorMessage: error.getMessage()
     })
   }
 
@@ -305,35 +219,139 @@ class Plugin {
     adsRequest.nonLinearAdSlotWidth = this.videoElement.clientWidth
     adsRequest.nonLinearAdSlotHeight = this.videoElement.clientHeight / 3
 
-    adsLoader.addEventListener(
-      google.ima.AdErrorEvent.Type.AD_ERROR,
-      (adErrorEvent: any) => {
-        if (adsManager) {
-          adsManager.destroy()
-        }
-        // eslint-disable-next-line
-        videoElement.play()
+    // Pass the request to the adsLoader to request ads
+    this.adsLoader.requestAds(adsRequest)
+    this.videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
+    this.adsDisplayContainer.initialize()
+  }
 
+  addAdsManagerEvents = (): void => {
+    this.adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,
+      (adErrorEvent: any) => {
         const error = adErrorEvent.getError()
-        videoElement.dispatchEvent(eventWrapper('ima:error', {
+        // TODO: logAndDispatch(301, 'IMA could not be loaded')
+        this.videoElement.dispatchEvent(eventWrapper('ima:error', {
           errorCode: error.getVastErrorCode(),
           errorMessage: error.getMessage()
         }))
-        logger.log('adsLoader ', 'ima:error', {
+        logger.log('adsManager ', 'ima:error', {
           errorCode: error.getVastErrorCode(),
           errorMessage: error.getMessage()
         })
       })
 
-    // Pass the request to the adsLoader to request ads
-    adsLoader.requestAds(adsRequest)
-    this.videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.AD_CAN_PLAY, () => {
+      showLoading(false)
+    })
 
-    // TODO: Initialize the container Must be done via a user action on mobile devices.
-    adDisplayContainer.initialize()
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.AD_BUFFERING, () => {
+      showLoading(true)
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.AD_METADATA, () => {
+      setTimeDisp(timeDisp, this.adsManager.getRemainingTime())
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.AD_PROGRESS, () => {
+      // showLoading(false)
+      setTimeDisp(timeDisp, this.adsManager.getRemainingTime())
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.CLICK, () => {
+      logger.log('Event', 'ima:click')
+      this.videoElement.dispatchEvent(eventWrapper('ima:click'))
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, () => {
+      this.adContainer.style.display = 'none'
+      logger.log('Event', 'ima:ended')
+      this.videoElement.dispatchEvent(eventWrapper('ima:ended'))
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED, () => {
+      this.adContainer.style.display = 'none'
+      logger.log('Event', 'ima:ended')
+      this.videoElement.dispatchEvent(eventWrapper('ima:ended'))
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.FIRST_QUARTILE, () => {
+      logger.log('Event', 'ima:firstQuartile')
+      this.videoElement.dispatchEvent(eventWrapper('ima:firstQuartile'))
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.MIDPOINT, () => {
+      logger.log('Event', 'ima:midpoint')
+      this.videoElement.dispatchEvent(eventWrapper('ima:midpoint'))
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.PAUSED, () => {
+      showElement(playButton)
+      hideElement(pauseButton)
+
+      logger.log('Event', 'ima:pause')
+      this.videoElement.dispatchEvent(eventWrapper('ima:pause'))
+      dispatchEvent(this.videoElement, 'UIPause', this.adsManager.getRemainingTime())
+      dispatchEvent(this.videoElement, 'uiima:pause', this.adsManager.getRemainingTime())
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.RESUMED, () => {
+      hideElement(playButton)
+      showElement(pauseButton)
+      dispatchEvent(this.videoElement, 'uiima:resume', this.adsManager.getRemainingTime())
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, () => {
+      this.adContainer.style.display = 'block'
+      hideElement(playButton)
+      showElement(pauseButton)
+
+      if (this.isMuted) {
+        this.adsManager.setVolume(0)
+        hideElement(muteButton)
+        showElement(unmuteButton)
+      } else {
+        this.adsManager.setVolume(this.volume)
+        showElement(muteButton)
+        hideElement(unmuteButton)
+      }
+
+      logger.log('Event', 'ima:impression')
+      this.videoElement.dispatchEvent(eventWrapper('ima:impression'))
+      dispatchEvent(this.videoElement, 'UIPlay', this.adsManager.getRemainingTime())
+      dispatchEvent(this.videoElement, 'uiima:play', this.adsManager.getRemainingTime())
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.THIRD_QUARTILE, () => {
+      logger.log('Event', 'ima:thirdQuartile')
+      this.videoElement.dispatchEvent(eventWrapper('ima:thirdQuartile'))
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.VOLUME_CHANGED, () => {
+      if (!this.isMuted) {
+        this.volume = this.adsManager.getVolume()
+        window.localStorage.setItem('StroeerVideoplayerVolume', this.volume.toFixed(2))
+        dispatchEvent(this.videoElement, 'UIUnmute', this.adsManager.getRemainingTime())
+        dispatchEvent(this.videoElement, 'uiima:unmute', this.adsManager.getRemainingTime())
+      }
+      window.localStorage.setItem('StroeerVideoplayerMuted', this.isMuted ? '1' : '0')
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.VOLUME_MUTED, () => {
+      window.localStorage.setItem('StroeerVideoplayerMuted', '1')
+      dispatchEvent(this.videoElement, 'UIMute', this.adsManager.getRemainingTime())
+      dispatchEvent(this.videoElement, 'uiima:mute', this.adsManager.getRemainingTime())
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, () => {
+      this.videoElement.pause()
+    })
+
+    this.adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, () => {
+      this.videoElement.play()
+    })
   }
 
-  addUiFunctions = (adsManager: any): void => {
+  connectUiWithAdsManager = (): void => {
     // const loadingSpinnerContainer = this.adContainer.querySelector('.loading-spinner') as HTMLElement
     // const timeDisp = this.adContainer.querySelector('.controlbar .time') as HTMLElement
     const controlbarContainer = this.adContainer.querySelector('.controlbar-container') as HTMLElement
@@ -389,34 +407,30 @@ class Plugin {
     this.toggleVolumeBarInterval = setInterval(toggleVolumeSliderTicker, 1000)
 
     window.addEventListener('resize', (event) => {
-      adsManager?.resize(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
+      this.adsManager?.resize(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
     })
 
     playButton.addEventListener('click', () => {
-      adsManager?.resume()
+      this.adsManager?.resume()
     })
 
     pauseButton.addEventListener('click', () => {
-      adsManager?.pause()
+      this.adsManager?.pause()
     })
 
     muteButton.addEventListener('click', () => {
-      if (adsManager) {
-        this.volume = adsManager.getVolume() || this.volume
-        this.isMuted = true
-        adsManager.setVolume(0)
-        hideElement(muteButton)
-        showElement(unmuteButton)
-      }
+      this.volume = this.adsManager.getVolume() || this.volume
+      this.isMuted = true
+      this.adsManager.setVolume(0)
+      hideElement(muteButton)
+      showElement(unmuteButton)
     })
 
     unmuteButton.addEventListener('click', () => {
-      if (adsManager) {
-        adsManager.setVolume(this.volume)
-        this.isMuted = false
-        hideElement(unmuteButton)
-        showElement(muteButton)
-      }
+      this.adsManager.setVolume(this.volume)
+      this.isMuted = false
+      hideElement(unmuteButton)
+      showElement(muteButton)
     })
 
     muteButton.addEventListener('mouseover', () => {
@@ -434,54 +448,50 @@ class Plugin {
     })
 
     enterFullscreenButton.addEventListener('click', () => {
-      if (adsManager) {
-        dispatchEvent(this.videoElement, 'UIEnterFullscreen', adsManager.getRemainingTime())
-        dispatchEvent(this.videoElement, 'uiima:enterFullscreen', adsManager.getRemainingTime())
-        adsManager.resize(window.innerWidth, window.innerHeight, google.ima.ViewMode.FULLSCREEN)
+      dispatchEvent(this.videoElement, 'UIEnterFullscreen', this.adsManager.getRemainingTime())
+      dispatchEvent(this.videoElement, 'uiima:enterFullscreen', this.adsManager.getRemainingTime())
+      this.adsManager.resize(window.innerWidth, window.innerHeight, google.ima.ViewMode.FULLSCREEN)
 
-        if (typeof this.rootElement.requestFullscreen === 'function') {
-          this.rootElement.requestFullscreen()
-        } else if (typeof this.rootElement.webkitRequestFullscreen === 'function') {
-          if (navigator.userAgent.includes('iPad')) {
-            this.videoElement.webkitRequestFullscreen()
-          } else {
-            this.rootElement.webkitRequestFullscreen()
-          }
-        } else if (typeof this.rootElement.mozRequestFullScreen === 'function') {
-          this.rootElement.mozRequestFullScreen()
-        } else if (typeof this.rootElement.msRequestFullscreen === 'function') {
-          this.rootElement.msRequestFullscreen()
-        } else if (typeof this.rootElement.webkitEnterFullscreen === 'function') {
-          this.rootElement.webkitEnterFullscreen()
-        } else if (typeof this.videoElement.webkitEnterFullscreen === 'function') {
-          this.videoElement.webkitEnterFullscreen()
+      if (typeof this.rootElement.requestFullscreen === 'function') {
+        this.rootElement.requestFullscreen()
+      } else if (typeof this.rootElement.webkitRequestFullscreen === 'function') {
+        if (navigator.userAgent.includes('iPad')) {
+          this.videoElement.webkitRequestFullscreen()
         } else {
-          console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
+          this.rootElement.webkitRequestFullscreen()
         }
+      } else if (typeof this.rootElement.mozRequestFullScreen === 'function') {
+        this.rootElement.mozRequestFullScreen()
+      } else if (typeof this.rootElement.msRequestFullscreen === 'function') {
+        this.rootElement.msRequestFullscreen()
+      } else if (typeof this.rootElement.webkitEnterFullscreen === 'function') {
+        this.rootElement.webkitEnterFullscreen()
+      } else if (typeof this.videoElement.webkitEnterFullscreen === 'function') {
+        this.videoElement.webkitEnterFullscreen()
+      } else {
+        console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
       }
     })
 
     exitFullscreenButton.addEventListener('click', () => {
-      if (adsManager) {
-        dispatchEvent(this.videoElement, 'UIExitFullscreen', adsManager.getRemainingTime())
-        dispatchEvent(this.videoElement, 'uiima:exitFullscreen', adsManager.getRemainingTime())
+      dispatchEvent(this.videoElement, 'UIExitFullscreen', this.adsManager.getRemainingTime())
+      dispatchEvent(this.videoElement, 'uiima:exitFullscreen', this.adsManager.getRemainingTime())
 
-        if (typeof document.exitFullscreen === 'function') {
-          document.exitFullscreen().then(noop).catch(noop)
-        } else if (typeof document.webkitExitFullscreen === 'function') {
-          document.webkitExitFullscreen()
-        } else if (typeof document.mozCancelFullScreen === 'function') {
-          document.mozCancelFullScreen().then(noop).catch(noop)
-        } else if (typeof document.msExitFullscreen === 'function') {
-          document.msExitFullscreen()
-        } else if (typeof this.videoElement.webkitExitFullscreen === 'function') {
-          this.videoElement.webkitExitFullscreen()
-        } else {
-          console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
-        }
-
-        adsManager.resize(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
+      if (typeof document.exitFullscreen === 'function') {
+        document.exitFullscreen().then(noop).catch(noop)
+      } else if (typeof document.webkitExitFullscreen === 'function') {
+        document.webkitExitFullscreen()
+      } else if (typeof document.mozCancelFullScreen === 'function') {
+        document.mozCancelFullScreen().then(noop).catch(noop)
+      } else if (typeof document.msExitFullscreen === 'function') {
+        document.msExitFullscreen()
+      } else if (typeof this.videoElement.webkitExitFullscreen === 'function') {
+        this.videoElement.webkitExitFullscreen()
+      } else {
+        console.log('Error trying to enter Fullscreen mode: No Request Fullscreen Function found')
       }
+
+      this.adsManager.resize(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
     })
 
     this.onDocumentFullscreenChange = () => {
@@ -570,7 +580,7 @@ class Plugin {
         this.volume = volume
         window.localStorage.setItem('StroeerVideoplayerVolume', this.volume.toFixed(2))
         if (!this.isMuted) {
-          adsManager.setVolume(volume)
+          this.adsManager.setVolume(volume)
         }
       }
     }
@@ -583,12 +593,12 @@ class Plugin {
         case volumeLevel:
         case volumeLevelBubble:
           dispatchEvent(this.videoElement, 'UIVolumeChangeStart', {
-            volume: adsManager.getVolume(),
-            currentTime: adsManager.getRemainingTime()
+            volume: this.adsManager.getVolume(),
+            currentTime: this.adsManager.getRemainingTime()
           })
           dispatchEvent(this.videoElement, 'uiima:volumeChangeStart', {
-            volume: adsManager.getVolume(),
-            currentTime: adsManager.getRemainingTime()
+            volume: this.adsManager.getVolume(),
+            currentTime: this.adsManager.getRemainingTime()
           })
           draggingWhat = 'volume'
           break
@@ -602,12 +612,12 @@ class Plugin {
         draggingWhat = ''
         updateVolumeWhileDragging(evt)
         dispatchEvent(this.videoElement, 'UIVolumeChangeEnd', {
-          volume: adsManager.getVolume(),
-          currentTime: adsManager.getRemainingTime()
+          volume: this.adsManager.getVolume(),
+          currentTime: this.adsManager.getRemainingTime()
         })
         dispatchEvent(this.videoElement, 'uiima:volumeChangeEnd', {
-          volume: adsManager.getVolume(),
-          currentTime: adsManager.getRemainingTime()
+          volume: this.adsManager.getVolume(),
+          currentTime: this.adsManager.getRemainingTime()
         })
       }
     }
@@ -627,9 +637,8 @@ class Plugin {
   }
 
   deinit = (StroeerVideoplayer: IStroeerVideoplayer): void => {
-    // const videoElement = StroeerVideoplayer.getVideoEl()
     this.videoElement.removeEventListener('play', this.onVideoElementPlay)
-    this.videoElement.removeEventListener('contentVideoEnded', this.onVideoElContentVideoEnded)
+    this.videoElement.removeEventListener('contentVideoEnded', this.onContentVideoEnded)
   }
 }
 

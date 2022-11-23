@@ -70,6 +70,7 @@ export const createButton = (container: HTMLElement, cls: string, aria: string, 
   el.appendChild(SVGHelper(svgid))
   if (ishidden) hideElement(el)
   container.appendChild(el)
+
   return el
 }
 
@@ -80,6 +81,7 @@ export const dispatchEvent = (target: HTMLVideoElement, eventName: string, data?
 
 export const calculateVolumePercentageBasedOnYCoords = (y: number, offsetHeight: number): number => {
   const percentage = (100 / offsetHeight) * y
+
   return percentage
 }
 

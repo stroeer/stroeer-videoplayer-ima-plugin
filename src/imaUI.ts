@@ -1,5 +1,4 @@
 import { createButton, hideElement, isTouchDevice } from './utils'
-declare const google: any
 
 export const createUI = (uiContainer: HTMLElement, videoElement: HTMLVideoElement, isMuted: boolean, isFullscreen: boolean): void => {
   const controlBarContainer = document.createElement('div')
