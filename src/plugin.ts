@@ -6,12 +6,11 @@ import noop from './noop'
 import eventWrapper from './eventWrapper'
 import logger from './logger'
 import { IStroeerVideoplayer } from '../types/types'
-import { createUI } from './imaUI'
 import * as utils from './utils'
 import {
   convertLocalStorageIntegerToBoolean, convertLocalStorageStringToNumber,
-  dispatchEvent, hideElement, showElement, setTimeDisp, isTouchDevice,
-  calculateVolumePercentageBasedOnYCoords
+  dispatchEvent, hideElement, showElement, isTouchDevice,
+  calculateVolumePercentageBasedOnYCoords, createButton
 } from './utils'
 
 declare const google: any
@@ -23,6 +22,13 @@ class Plugin {
   videoElement: HTMLVideoElement
   rootElement: HTMLElement
   adContainer: HTMLElement
+  loadingSpinnerContainer: HTMLElement
+  timeDisp: HTMLElement
+  playButton: HTMLElement
+  pauseButton: HTMLElement
+  muteButton: HTMLElement
+  unmuteButton: HTMLElement
+
   onDocumentFullscreenChange: Function
   onDrag: EventListener
   onDragStart: EventListener
@@ -33,14 +39,22 @@ class Plugin {
   isMuted: boolean
   volume: number
   loadIMAScript: Promise<unknown>
+
   adsManager: any
   adsLoader: any
   adsDisplayContainer: any
 
   constructor () {
     this.videoElement = new HTMLVideoElement()
-    this.rootElement = new HTMLElement()
-    this.adContainer = new HTMLElement()
+    this.rootElement = new HTMLVideoElement()
+    this.adContainer = new HTMLVideoElement()
+    this.loadingSpinnerContainer = new HTMLVideoElement()
+    this.timeDisp = new HTMLVideoElement()
+    this.playButton = new HTMLVideoElement()
+    this.pauseButton = new HTMLVideoElement()
+    this.muteButton = new HTMLVideoElement()
+    this.unmuteButton = new HTMLVideoElement()
+
     this.onDocumentFullscreenChange = noop
     this.onDrag = noop
     this.onDragStart = noop
@@ -51,6 +65,7 @@ class Plugin {
     this.isMuted = false
     this.volume = 0
     this.loadIMAScript = new Promise((resolve, reject) => {})
+
     this.adsManager = null
     this.adsLoader = null
     this.adsDisplayContainer = null
@@ -74,7 +89,7 @@ class Plugin {
     uiContainer.className = 'ima'
     this.adContainer.appendChild(uiContainer)
 
-    createUI(uiContainer, this.videoElement, this.isMuted, utils.isAlreadyInFullscreenMode(this.rootElement, this.videoElement))
+    this.createUI(uiContainer, this.videoElement, this.isMuted, utils.isAlreadyInFullscreenMode(this.rootElement, this.videoElement))
 
     this.videoElement.addEventListener('play', this.onVideoElementPlay)
     this.videoElement.addEventListener('contentVideoEnded', this.onContentVideoEnded)
@@ -100,13 +115,14 @@ class Plugin {
       return
     }
 
-    // TDÒDO: check if needed
+    // TODO: check if needed
     // event.preventDefault()
 
-    // TODO: Comment why this is needed
+    // no new play event until content video is ended
     this.videoElement.removeEventListener('play', this.onVideoElementPlay)
 
     // show loading spinner
+    this.showLoadingSpinner(true)
 
     this.videoElement.pause()
 
@@ -212,14 +228,11 @@ class Plugin {
     adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.GOOGLE] = google.ima.OmidAccessMode.FULL
     adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.OTHER] = google.ima.OmidAccessMode.FULL
 
-    // Specify the linear and nonlinear slot sizes. This helps the SDK to
-    // select the correct creative if multiple are returned.
     adsRequest.linearAdSlotWidth = this.videoElement.clientWidth
     adsRequest.linearAdSlotHeight = this.videoElement.clientHeight
     adsRequest.nonLinearAdSlotWidth = this.videoElement.clientWidth
     adsRequest.nonLinearAdSlotHeight = this.videoElement.clientHeight / 3
 
-    // Pass the request to the adsLoader to request ads
     this.adsLoader.requestAds(adsRequest)
     this.videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
     this.adsDisplayContainer.initialize()
@@ -241,20 +254,20 @@ class Plugin {
       })
 
     this.adsManager.addEventListener(google.ima.AdEvent.Type.AD_CAN_PLAY, () => {
-      showLoading(false)
+      this.showLoadingSpinner(false)
     })
 
     this.adsManager.addEventListener(google.ima.AdEvent.Type.AD_BUFFERING, () => {
-      showLoading(true)
+      this.showLoadingSpinner(true)
     })
 
     this.adsManager.addEventListener(google.ima.AdEvent.Type.AD_METADATA, () => {
-      setTimeDisp(timeDisp, this.adsManager.getRemainingTime())
+      this.setTimeDisp(this.adsManager.getRemainingTime())
     })
 
     this.adsManager.addEventListener(google.ima.AdEvent.Type.AD_PROGRESS, () => {
-      // showLoading(false)
-      setTimeDisp(timeDisp, this.adsManager.getRemainingTime())
+      // showLoadingSpinner(false)
+      this.setTimeDisp(this.adsManager.getRemainingTime())
     })
 
     this.adsManager.addEventListener(google.ima.AdEvent.Type.CLICK, () => {
@@ -285,8 +298,8 @@ class Plugin {
     })
 
     this.adsManager.addEventListener(google.ima.AdEvent.Type.PAUSED, () => {
-      showElement(playButton)
-      hideElement(pauseButton)
+      showElement(this.playButton)
+      hideElement(this.pauseButton)
 
       logger.log('Event', 'ima:pause')
       this.videoElement.dispatchEvent(eventWrapper('ima:pause'))
@@ -295,24 +308,24 @@ class Plugin {
     })
 
     this.adsManager.addEventListener(google.ima.AdEvent.Type.RESUMED, () => {
-      hideElement(playButton)
-      showElement(pauseButton)
+      hideElement(this.playButton)
+      showElement(this.pauseButton)
       dispatchEvent(this.videoElement, 'uiima:resume', this.adsManager.getRemainingTime())
     })
 
     this.adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, () => {
       this.adContainer.style.display = 'block'
-      hideElement(playButton)
-      showElement(pauseButton)
+      hideElement(this.playButton)
+      showElement(this.pauseButton)
 
       if (this.isMuted) {
         this.adsManager.setVolume(0)
-        hideElement(muteButton)
-        showElement(unmuteButton)
+        hideElement(this.muteButton)
+        showElement(this.unmuteButton)
       } else {
         this.adsManager.setVolume(this.volume)
-        showElement(muteButton)
-        hideElement(unmuteButton)
+        showElement(this.muteButton)
+        hideElement(this.unmuteButton)
       }
 
       logger.log('Event', 'ima:impression')
@@ -352,13 +365,12 @@ class Plugin {
   }
 
   connectUiWithAdsManager = (): void => {
-    // const loadingSpinnerContainer = this.adContainer.querySelector('.loading-spinner') as HTMLElement
-    // const timeDisp = this.adContainer.querySelector('.controlbar .time') as HTMLElement
     const controlbarContainer = this.adContainer.querySelector('.controlbar-container') as HTMLElement
-    const playButton = this.adContainer.querySelector('.buttons .play') as HTMLElement
-    const pauseButton = this.adContainer.querySelector('.buttons .pause') as HTMLElement
-    const muteButton = this.adContainer.querySelector('.buttons .mute') as HTMLElement
-    const unmuteButton = this.adContainer.querySelector('.buttons .unmute') as HTMLElement
+    this.playButton = this.adContainer.querySelector('.buttons .play') as HTMLElement
+    this.pauseButton = this.adContainer.querySelector('.buttons .pause') as HTMLElement
+    this.muteButton = this.adContainer.querySelector('.buttons .mute') as HTMLElement
+    this.unmuteButton = this.adContainer.querySelector('.buttons .unmute') as HTMLElement
+
     const enterFullscreenButton = this.adContainer.querySelector('.buttons .enterFullscreen') as HTMLElement
     const exitFullscreenButton = this.adContainer.querySelector('.buttons .exitFullscreen') as HTMLElement
 
@@ -410,37 +422,37 @@ class Plugin {
       this.adsManager?.resize(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
     })
 
-    playButton.addEventListener('click', () => {
-      this.adsManager?.resume()
+    this.playButton.addEventListener('click', () => {
+      this.adsManager.resume()
     })
 
-    pauseButton.addEventListener('click', () => {
-      this.adsManager?.pause()
+    this.pauseButton.addEventListener('click', () => {
+      this.adsManager.pause()
     })
 
-    muteButton.addEventListener('click', () => {
+    this.muteButton.addEventListener('click', () => {
       this.volume = this.adsManager.getVolume() || this.volume
       this.isMuted = true
       this.adsManager.setVolume(0)
-      hideElement(muteButton)
-      showElement(unmuteButton)
+      hideElement(this.muteButton)
+      showElement(this.unmuteButton)
     })
 
-    unmuteButton.addEventListener('click', () => {
+    this.unmuteButton.addEventListener('click', () => {
       this.adsManager.setVolume(this.volume)
       this.isMuted = false
-      hideElement(unmuteButton)
-      showElement(muteButton)
+      hideElement(this.unmuteButton)
+      showElement(this.muteButton)
     })
 
-    muteButton.addEventListener('mouseover', () => {
+    this.muteButton.addEventListener('mouseover', () => {
       if (!isTouchDevice()) {
         volumeContainer.style.opacity = '1'
         toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds
       }
     })
 
-    unmuteButton.addEventListener('mouseover', () => {
+    this.unmuteButton.addEventListener('mouseover', () => {
       if (!isTouchDevice()) {
         volumeContainer.style.opacity = '1'
         toggleVolumeSliderSecondsLeft = toggleVolumeSliderInSeconds
@@ -460,8 +472,8 @@ class Plugin {
         } else {
           this.rootElement.webkitRequestFullscreen()
         }
-      } else if (typeof this.rootElement.mozRequestFullScreen === 'function') {
-        this.rootElement.mozRequestFullScreen()
+      } else if (typeof this.rootElement.mozRequestFullscreen === 'function') {
+        this.rootElement.mozRequestFullscreen()
       } else if (typeof this.rootElement.msRequestFullscreen === 'function') {
         this.rootElement.msRequestFullscreen()
       } else if (typeof this.rootElement.webkitEnterFullscreen === 'function') {
@@ -634,6 +646,84 @@ class Plugin {
     document.body.addEventListener('mousedown', this.onDragStart, { passive: true })
     document.body.addEventListener('mouseup', this.onDragEnd, { passive: true })
     document.body.addEventListener('mousemove', this.onDrag, { passive: true })
+  }
+
+  createUI = (uiContainer: HTMLElement, videoElement: HTMLVideoElement, isMuted: boolean, isFullscreen: boolean): void => {
+    const controlBarContainer = document.createElement('div')
+    controlBarContainer.classList.add('controlbar-container')
+    uiContainer.appendChild(controlBarContainer)
+
+    const controlBar = document.createElement('div')
+    controlBar.className = 'controlbar'
+    controlBarContainer.appendChild(controlBar)
+
+    const buttonsContainer = document.createElement('div')
+    buttonsContainer.className = 'buttons'
+    controlBar.appendChild(buttonsContainer)
+
+    createButton(buttonsContainer, 'play', 'Play', 'Icon-Play', true)
+    createButton(buttonsContainer, 'pause', 'Pause', 'Icon-Pause', false)
+    createButton(buttonsContainer, 'mute', 'Mute', 'Icon-Volume', isMuted)
+    createButton(buttonsContainer, 'unmute', 'Unmute', 'Icon-Mute', !isMuted)
+    createButton(buttonsContainer, 'enterFullscreen', 'Enter Fullscreen', 'Icon-Fullscreen', isFullscreen)
+    createButton(buttonsContainer, 'exitFullscreen', 'Exit Fullscreen', 'Icon-FullscreenOff', !isFullscreen)
+
+    const volumeContainer = document.createElement('div')
+    volumeContainer.className = 'volume-container'
+    volumeContainer.style.opacity = '0'
+    controlBar.appendChild(volumeContainer)
+
+    const volumeRange = document.createElement('div')
+    volumeRange.className = 'volume-range'
+    volumeContainer.appendChild(volumeRange)
+
+    const volumeLevel = document.createElement('div')
+    volumeLevel.className = 'volume-level'
+    volumeRange.appendChild(volumeLevel)
+
+    const volumeLevelBubble = document.createElement('div')
+    volumeLevelBubble.className = 'volume-level-bubble'
+    volumeRange.appendChild(volumeLevelBubble)
+
+    this.timeDisp = document.createElement('div')
+    this.timeDisp.classList.add('time')
+    controlBar.appendChild(this.timeDisp)
+
+    if (isTouchDevice()) {
+      const overlayTouchClickContainer = document.createElement('div')
+      overlayTouchClickContainer.className = 'video-overlay-touchclick'
+      overlayTouchClickContainer.innerHTML = 'Mehr Informationen'
+      uiContainer.appendChild(overlayTouchClickContainer)
+    }
+
+    this.loadingSpinnerContainer = document.createElement('div')
+    const loadingSpinnerAnimation = document.createElement('div')
+    this.loadingSpinnerContainer.className = 'loading-spinner'
+    hideElement(this.loadingSpinnerContainer)
+    loadingSpinnerAnimation.className = 'animation'
+    this.loadingSpinnerContainer.appendChild(loadingSpinnerAnimation)
+    uiContainer.appendChild(this.loadingSpinnerContainer)
+
+    for (let i = 0; i < 12; i++) {
+      const d = document.createElement('div')
+      loadingSpinnerAnimation.appendChild(d)
+    }
+  }
+
+  showLoadingSpinner = (modus: boolean): void => {
+    if (modus) {
+      showElement(this.loadingSpinnerContainer)
+    } else {
+      hideElement(this.loadingSpinnerContainer)
+    }
+  }
+
+  setTimeDisp = (remainingTime: number): void => {
+    if (isNaN(remainingTime)) {
+      this.timeDisp.innerHTML = 'Werbung'
+    } else {
+      this.timeDisp.innerHTML = 'Werbung endet in ' + String(Math.floor(remainingTime)) + ' Sekunden'
+    }
   }
 
   deinit = (StroeerVideoplayer: IStroeerVideoplayer): void => {

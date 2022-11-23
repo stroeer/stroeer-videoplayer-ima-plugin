@@ -85,14 +85,6 @@ export const calculateVolumePercentageBasedOnYCoords = (y: number, offsetHeight:
   return percentage
 }
 
-export const setTimeDisp = (timeDisp: HTMLElement, remainingTime: number): void => {
-  if (isNaN(remainingTime)) {
-    timeDisp.innerHTML = 'Werbung'
-  } else {
-    timeDisp.innerHTML = 'Werbung endet in ' + String(Math.floor(remainingTime)) + ' Sekunden'
-  }
-}
-
 export const isTouchDevice = (): boolean => {
   return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0))
 }
