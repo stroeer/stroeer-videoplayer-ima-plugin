@@ -46,14 +46,14 @@ class Plugin {
 
   constructor () {
     this.videoElement = new HTMLVideoElement()
-    this.rootElement = new HTMLVideoElement()
-    this.adContainer = new HTMLVideoElement()
-    this.loadingSpinnerContainer = new HTMLVideoElement()
-    this.timeDisp = new HTMLVideoElement()
-    this.playButton = new HTMLVideoElement()
-    this.pauseButton = new HTMLVideoElement()
-    this.muteButton = new HTMLVideoElement()
-    this.unmuteButton = new HTMLVideoElement()
+    this.rootElement = new HTMLElement()
+    this.adContainer = new HTMLElement()
+    this.loadingSpinnerContainer = new HTMLElement()
+    this.timeDisp = new HTMLElement()
+    this.playButton = new HTMLElement()
+    this.pauseButton = new HTMLElement()
+    this.muteButton = new HTMLElement()
+    this.unmuteButton = new HTMLElement()
 
     this.onDocumentFullscreenChange = noop
     this.onDrag = noop
