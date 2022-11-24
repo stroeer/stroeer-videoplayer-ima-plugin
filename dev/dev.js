@@ -14,8 +14,6 @@ video.addEventListener('error', function () {
 })
 
 const myvideoplayer = new StroeerVideoplayer(video)
-myvideoplayer.loadStreamSource()
-// myvideoplayer.loadFirstChunk()
 
 myvideoplayer.initPlugin('ima')
 myvideoplayer.initPlugin('endcard', {
@@ -28,3 +26,10 @@ myvideoplayer.initPlugin('endcard', {
     poster: 'preview_image'
   }
 })
+
+myvideoplayer.loadStreamSource()
+// myvideoplayer.loadFirstChunk()
+
+// autoplay video
+video.muted = true
+video.play()

@@ -45,6 +45,7 @@ class Plugin {
   adsManager: any
   adsLoader: any
   adsDisplayContainer: any
+  adsInitialized: boolean
 
   constructor () {
     this.videoElement = document.createElement('video')
@@ -73,20 +74,19 @@ class Plugin {
     this.adsManager = null
     this.adsLoader = null
     this.adsDisplayContainer = null
+    this.adsInitialized = false
 
     return this
   }
 
   init = (StroeerVideoplayer: IStroeerVideoplayer, opts?: any): void => {
     opts = opts ?? {}
+    this.videoElement = StroeerVideoplayer.getVideoEl()
+    this.rootElement = StroeerVideoplayer.getRootEl()
+
     this.isMuted = convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted')
     this.volume = convertLocalStorageStringToNumber('StroeerVideoplayerVolume')
 
-    this.videoElement = StroeerVideoplayer.getVideoEl()
-    this.rootElement = StroeerVideoplayer.getRootEl()
-    this.autoplay = this.videoElement.getAttribute('data-autoplay') === 'true'
-
-    this.adContainer = document.createElement('div')
     this.adContainer.classList.add('ima-ad-container')
     this.videoElement.after(this.adContainer)
 
@@ -118,10 +118,12 @@ class Plugin {
     // no new play event until content video is ended
     this.videoElement.removeEventListener('play', this.onVideoElementPlay)
 
-    // show loading spinner
     this.showLoadingSpinner(true)
-
     this.videoElement.pause()
+
+    if (this.videoElement.muted) {
+      this.isMuted = true
+    }
 
     this.loadIMAScript
       .then(() => {
@@ -176,7 +178,12 @@ class Plugin {
     if (!this.isMuted) {
       this.adsManager.setVolume(convertLocalStorageStringToNumber('StroeerVideoplayerVolume'))
     } else {
-      this.adsManager.setVolume(convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted'))
+      this.adsManager.setVolume(0)
+    }
+
+    if (!this.adsInitialized) {
+      this.adsDisplayContainer.initialize()
+      this.adsInitialized = true
     }
 
     try {
@@ -193,16 +200,18 @@ class Plugin {
     if (this.adsManager) {
       this.adsManager.destroy()
     }
-
     this.videoElement.play()
-
     this.dispatchAndLogError(error.getVastErrorCode(), error.getMessage())
   }
 
   requestAds = (): void => {
     const adsRequest = new google.ima.AdsRequest()
     adsRequest.adTagUrl = this.videoElement.getAttribute('data-ivad-preroll-adtag')
-    adsRequest.setAdWillPlayMuted(this.autoplay)
+
+    if (this.autoplay) {
+      adsRequest.setAdWillAutoPlay(true)
+      adsRequest.setAdWillPlayMuted(true)
+    }
 
     adsRequest.omidAccessModeRules = {}
     adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.GOOGLE] = google.ima.OmidAccessMode.FULL
@@ -215,9 +224,6 @@ class Plugin {
 
     this.adsLoader.requestAds(adsRequest)
     this.videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
-
-    // TODO mobile devices
-    this.adsDisplayContainer.initialize()
   }
 
   addAdsManagerEvents = (): void => {
@@ -240,7 +246,6 @@ class Plugin {
     })
 
     this.adsManager.addEventListener(google.ima.AdEvent.Type.AD_PROGRESS, () => {
-      // showLoadingSpinner(false)
       this.setTimeDisp(this.adsManager.getRemainingTime())
     })
 
@@ -255,6 +260,7 @@ class Plugin {
       this.videoElement.dispatchEvent(eventWrapper('ima:ended'))
     })
 
+    // same as ended
     this.adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED, () => {
       this.adContainer.style.display = 'none'
       logger.log('Event', 'ima:ended')
@@ -659,7 +665,6 @@ class Plugin {
     volumeLevelBubble.className = 'volume-level-bubble'
     volumeRange.appendChild(volumeLevelBubble)
 
-    this.timeDisp = document.createElement('div')
     this.timeDisp.classList.add('time')
     controlBar.appendChild(this.timeDisp)
 
@@ -670,7 +675,6 @@ class Plugin {
       uiContainer.appendChild(overlayTouchClickContainer)
     }
 
-    this.loadingSpinnerContainer = document.createElement('div')
     const loadingSpinnerAnimation = document.createElement('div')
     this.loadingSpinnerContainer.className = 'loading-spinner'
     hideElement(this.loadingSpinnerContainer)

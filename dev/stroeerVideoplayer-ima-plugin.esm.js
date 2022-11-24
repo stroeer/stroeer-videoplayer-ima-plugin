@@ -210,12 +210,10 @@ var Plugin = /** @class */ (function () {
     function Plugin() {
         var _this = this;
         this.init = function (StroeerVideoplayer, opts) {
-            _this.isMuted = convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted');
-            _this.volume = convertLocalStorageStringToNumber('StroeerVideoplayerVolume');
             _this.videoElement = StroeerVideoplayer.getVideoEl();
             _this.rootElement = StroeerVideoplayer.getRootEl();
-            _this.autoplay = _this.videoElement.getAttribute('data-autoplay') === 'true';
-            _this.adContainer = document.createElement('div');
+            _this.isMuted = convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted');
+            _this.volume = convertLocalStorageStringToNumber('StroeerVideoplayerVolume');
             _this.adContainer.classList.add('ima-ad-container');
             _this.videoElement.after(_this.adContainer);
             var uiContainer = document.createElement('div');
@@ -238,9 +236,11 @@ var Plugin = /** @class */ (function () {
             // event.preventDefault()
             // no new play event until content video is ended
             _this.videoElement.removeEventListener('play', _this.onVideoElementPlay);
-            // show loading spinner
             _this.showLoadingSpinner(true);
             _this.videoElement.pause();
+            if (_this.videoElement.muted) {
+                _this.isMuted = true;
+            }
             _this.loadIMAScript
                 .then(function () {
                 if (!_this.adsManager) {
@@ -279,7 +279,11 @@ var Plugin = /** @class */ (function () {
                 _this.adsManager.setVolume(convertLocalStorageStringToNumber('StroeerVideoplayerVolume'));
             }
             else {
-                _this.adsManager.setVolume(convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted'));
+                _this.adsManager.setVolume(0);
+            }
+            if (!_this.adsInitialized) {
+                _this.adsDisplayContainer.initialize();
+                _this.adsInitialized = true;
             }
             try {
                 _this.adsManager.init(_this.videoElement.clientWidth, _this.videoElement.clientHeight, google.ima.ViewMode.NORMAL);
@@ -300,7 +304,10 @@ var Plugin = /** @class */ (function () {
         this.requestAds = function () {
             var adsRequest = new google.ima.AdsRequest();
             adsRequest.adTagUrl = _this.videoElement.getAttribute('data-ivad-preroll-adtag');
-            adsRequest.setAdWillPlayMuted(_this.autoplay);
+            if (_this.autoplay) {
+                adsRequest.setAdWillAutoPlay(true);
+                adsRequest.setAdWillPlayMuted(true);
+            }
             adsRequest.omidAccessModeRules = {};
             adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.GOOGLE] = google.ima.OmidAccessMode.FULL;
             adsRequest.omidAccessModeRules[google.ima.OmidVerificationVendor.OTHER] = google.ima.OmidAccessMode.FULL;
@@ -310,8 +317,6 @@ var Plugin = /** @class */ (function () {
             adsRequest.nonLinearAdSlotHeight = _this.videoElement.clientHeight / 3;
             _this.adsLoader.requestAds(adsRequest);
             _this.videoElement.dispatchEvent(new CustomEvent('ima:adcall'));
-            // TODO mobile devices
-            _this.adsDisplayContainer.initialize();
         };
         this.addAdsManagerEvents = function () {
             _this.adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, function (adErrorEvent) {
@@ -328,7 +333,6 @@ var Plugin = /** @class */ (function () {
                 _this.setTimeDisp(_this.adsManager.getRemainingTime());
             });
             _this.adsManager.addEventListener(google.ima.AdEvent.Type.AD_PROGRESS, function () {
-                // showLoadingSpinner(false)
                 _this.setTimeDisp(_this.adsManager.getRemainingTime());
             });
             _this.adsManager.addEventListener(google.ima.AdEvent.Type.CLICK, function () {
@@ -340,6 +344,7 @@ var Plugin = /** @class */ (function () {
                 Logger.log('Event', 'ima:ended');
                 _this.videoElement.dispatchEvent(eventWrapper('ima:ended'));
             });
+            // same as ended
             _this.adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED, function () {
                 _this.adContainer.style.display = 'none';
                 Logger.log('Event', 'ima:ended');
@@ -707,7 +712,6 @@ var Plugin = /** @class */ (function () {
             var volumeLevelBubble = document.createElement('div');
             volumeLevelBubble.className = 'volume-level-bubble';
             volumeRange.appendChild(volumeLevelBubble);
-            _this.timeDisp = document.createElement('div');
             _this.timeDisp.classList.add('time');
             controlBar.appendChild(_this.timeDisp);
             if (isTouchDevice()) {
@@ -716,7 +720,6 @@ var Plugin = /** @class */ (function () {
                 overlayTouchClickContainer.innerHTML = 'Mehr Informationen';
                 uiContainer.appendChild(overlayTouchClickContainer);
             }
-            _this.loadingSpinnerContainer = document.createElement('div');
             var loadingSpinnerAnimation = document.createElement('div');
             _this.loadingSpinnerContainer.className = 'loading-spinner';
             hideElement(_this.loadingSpinnerContainer);
@@ -781,6 +784,7 @@ var Plugin = /** @class */ (function () {
         this.adsManager = null;
         this.adsLoader = null;
         this.adsDisplayContainer = null;
+        this.adsInitialized = false;
         return this;
     }
     Plugin.version = version;
