@@ -30614,7 +30614,7 @@ var Plugin$1 = /** @class */ (function () {
     return Plugin;
 }());
 
-var version = "2.0.0";
+var version = "2.1.0";
 
 var noop = function () {
     return false;
