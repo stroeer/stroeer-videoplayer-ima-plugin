@@ -22,5 +22,7 @@ declare global {
     msRequestFullscreen?: () => Promise<void>
     mozRequestFullscreen?: () => Promise<void>
     webkitRequestFullscreen?: () => Promise<void>
+    webkitEnterFullscreen?: () => Promise<void>
+    webkitExitFullscreen?: () => void
   }
 }
