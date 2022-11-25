@@ -30848,8 +30848,6 @@ var Plugin = /** @class */ (function () {
                 _this.dispatchAndLogError(301, 'IMA could not be loaded');
                 return;
             }
-            // TODO: check if needed
-            // event.preventDefault()
             // no new play event until content video is ended
             _this.videoElement.removeEventListener('play', _this.onVideoElementPlay);
             _this.showLoadingSpinner(true);
@@ -31382,10 +31380,10 @@ var Plugin = /** @class */ (function () {
         this.adContainer = document.createElement('div');
         this.loadingSpinnerContainer = document.createElement('div');
         this.timeDisp = document.createElement('div');
-        this.playButton = document.createElement('div');
-        this.pauseButton = document.createElement('div');
-        this.muteButton = document.createElement('div');
-        this.unmuteButton = document.createElement('div');
+        this.playButton = document.createElement('button');
+        this.pauseButton = document.createElement('button');
+        this.muteButton = document.createElement('button');
+        this.unmuteButton = document.createElement('button');
         this.onDocumentFullscreenChange = noop;
         this.onDrag = noop;
         this.onDragStart = noop;

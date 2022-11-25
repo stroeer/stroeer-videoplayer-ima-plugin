@@ -6,11 +6,11 @@ import noop from './noop'
 import eventWrapper from './eventWrapper'
 import logger from './logger'
 import { IStroeerVideoplayer } from '../types/types'
-import * as utils from './utils'
 import {
   convertLocalStorageIntegerToBoolean, convertLocalStorageStringToNumber,
   dispatchEvent, hideElement, showElement, isTouchDevice,
-  calculateVolumePercentageBasedOnYCoords, createButton
+  calculateVolumePercentageBasedOnYCoords, createButton, loadScript,
+  isAlreadyInFullscreenMode
 } from './utils'
 
 declare const google: any
@@ -53,10 +53,10 @@ class Plugin {
     this.adContainer = document.createElement('div')
     this.loadingSpinnerContainer = document.createElement('div')
     this.timeDisp = document.createElement('div')
-    this.playButton = document.createElement('div')
-    this.pauseButton = document.createElement('div')
-    this.muteButton = document.createElement('div')
-    this.unmuteButton = document.createElement('div')
+    this.playButton = document.createElement('button')
+    this.pauseButton = document.createElement('button')
+    this.muteButton = document.createElement('button')
+    this.unmuteButton = document.createElement('button')
 
     this.onDocumentFullscreenChange = noop
     this.onDrag = noop
@@ -94,11 +94,11 @@ class Plugin {
     uiContainer.className = 'ima'
     this.adContainer.appendChild(uiContainer)
 
-    this.createUI(uiContainer, this.videoElement, this.isMuted, utils.isAlreadyInFullscreenMode(this.rootElement, this.videoElement))
+    this.createUI(uiContainer, this.videoElement, this.isMuted, isAlreadyInFullscreenMode(this.rootElement, this.videoElement))
 
     this.videoElement.addEventListener('play', this.onVideoElementPlay)
     this.videoElement.addEventListener('contentVideoEnded', this.onContentVideoEnded)
-    this.loadIMAScript = utils.loadScript('//imasdk.googleapis.com/js/sdkloader/ima3.js')
+    this.loadIMAScript = loadScript('//imasdk.googleapis.com/js/sdkloader/ima3.js')
   }
 
   onVideoElementPlay = (event: Event): void => {
@@ -111,9 +111,6 @@ class Plugin {
 
       return
     }
-
-    // TODO: check if needed
-    // event.preventDefault()
 
     // no new play event until content video is ended
     this.videoElement.removeEventListener('play', this.onVideoElementPlay)
