@@ -279,6 +279,20 @@ var Plugin = /** @class */ (function () {
             else {
                 _this.adsManager.setVolume(0);
             }
+            if (_this.clickLayerClicked) {
+                try {
+                    _this.adsManager.init(_this.videoElement.clientWidth, _this.videoElement.clientHeight, google.ima.ViewMode.NORMAL);
+                    _this.adsManager.start();
+                }
+                catch (adError) {
+                    _this.videoElement.play();
+                }
+            }
+        };
+        this.onClickLayerClick = function () {
+            var _a;
+            (_a = _this.clickLayer.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(_this.clickLayer);
+            _this.clickLayerClicked = true;
             if (!_this.adsInitialized) {
                 _this.adsDisplayContainer.initialize();
                 _this.adsInitialized = true;
@@ -728,6 +742,10 @@ var Plugin = /** @class */ (function () {
                 var d = document.createElement('div');
                 loadingSpinnerAnimation.appendChild(d);
             }
+            // add ClickLayer
+            _this.clickLayer.className = 'ima-click-layer';
+            videoElement.after(_this.clickLayer);
+            _this.clickLayer.addEventListener('click', _this.onClickLayerClick);
         };
         this.showLoadingSpinner = function (modus) {
             if (modus) {
@@ -762,6 +780,7 @@ var Plugin = /** @class */ (function () {
         this.videoElement = document.createElement('video');
         this.rootElement = document.createElement('div');
         this.adContainer = document.createElement('div');
+        this.clickLayer = document.createElement('div');
         this.loadingSpinnerContainer = document.createElement('div');
         this.timeDisp = document.createElement('div');
         this.playButton = document.createElement('button');
@@ -779,6 +798,7 @@ var Plugin = /** @class */ (function () {
         this.volume = 0;
         this.loadIMAScript = new Promise(function (resolve, reject) { });
         this.autoplay = false;
+        this.clickLayerClicked = false;
         this.adsManager = null;
         this.adsLoader = null;
         this.adsDisplayContainer = null;
@@ -791,4 +811,4 @@ var Plugin = /** @class */ (function () {
 }());
 
 export { Plugin as default };
-//# sourceMappingURL=stroeerVideoplayer-ima-plugin.esm.js.map
+//# sourceMappingURL=stroeervideoplayer-ima-plugin.esm.js.map

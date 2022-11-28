@@ -24,7 +24,7 @@ export default [{
     json(),
     svg(),
     scss({
-      output: 'dist/stroeerVideoplayer-ima-plugin.min.css',
+      output: 'dist/stroeervideoplayer-ima-plugin.min.css',
       outputStyle: 'compressed'
     })
 
@@ -49,7 +49,7 @@ export default [{
     json(),
     svg(),
     scss({
-      output: 'dist/stroeerVideoplayer-ima-plugin.min.css',
+      output: 'dist/stroeervideoplayer-ima-plugin.min.css',
       outputStyle: 'compressed'
     })
   ]
