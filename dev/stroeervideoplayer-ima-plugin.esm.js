@@ -256,6 +256,7 @@ var Plugin = /** @class */ (function () {
         this.createAdsManager = function () {
             google.ima.settings.setNumRedirects(10);
             google.ima.settings.setLocale('de');
+            console.log('createÄtzManager 3');
             _this.adsDisplayContainer = new google.ima.AdDisplayContainer(_this.adContainer);
             _this.adsLoader = new google.ima.AdsLoader(_this.adsDisplayContainer);
             _this.adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, function (adsManagerLoadedEvent) {

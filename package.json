@@ -14,6 +14,7 @@
   "build:js": "rollup -c",
   "build:css": "sass src/ima.scss ./dist/stroeervideoplayer-ima-plugin.css",
   "watch": "npm-run-all watch:*",
+  "watch:devjs": "rollup -c rollup.config.dev.js -w",
   "watch:js": "rollup -c -w",
   "watch:css": "sass --watch src/ima.scss ./dist/stroeervideoplayer-ima-plugin.css",
   "lint": "eslint src/*.ts src/**/*.ts",

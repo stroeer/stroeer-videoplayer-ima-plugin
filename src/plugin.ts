@@ -145,6 +145,7 @@ class Plugin {
   createAdsManager = (): void => {
     google.ima.settings.setNumRedirects(10)
     google.ima.settings.setLocale('de')
+    console.log('createÄtzManager 3')
 
     this.adsDisplayContainer = new google.ima.AdDisplayContainer(this.adContainer)
     this.adsLoader = new google.ima.AdsLoader(this.adsDisplayContainer)
