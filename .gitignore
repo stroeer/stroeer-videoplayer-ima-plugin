@@ -2,3 +2,6 @@ TAGS
 tags
 node_modules
 /package-lock.json
+/dev/*.map
+/dev/*.esm.js
+/dev/*.min.*

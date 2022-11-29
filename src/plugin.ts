@@ -87,6 +87,7 @@ class Plugin {
     opts = opts ?? {}
     this.videoElement = StroeerVideoplayer.getVideoEl()
     this.rootElement = StroeerVideoplayer.getRootEl()
+    this.autoplay = this.videoElement.dataset.autoplay === 'true'
 
     this.isMuted = convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted')
     this.volume = convertLocalStorageStringToNumber('StroeerVideoplayerVolume')
@@ -180,13 +181,15 @@ class Plugin {
     } else {
       this.adsManager.setVolume(0)
     }
-    if (this.clickLayerClicked) {
+    if (this.clickLayerClicked && !this.autoplay) {
       try {
         this.adsManager.init(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
         this.adsManager.start()
       } catch (adError) {
         this.videoElement.play()
       }
+    } else if (this.autoplay) {
+      this.onClickLayerClick()
     }
   }
 
