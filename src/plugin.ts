@@ -45,12 +45,15 @@ class Plugin {
   adsManager: any
   adsLoader: any
   adsDisplayContainer: any
+  clickLayer: HTMLDivElement
+  clickLayerClicked: boolean
   adsInitialized: boolean
 
   constructor () {
     this.videoElement = document.createElement('video')
     this.rootElement = document.createElement('div')
     this.adContainer = document.createElement('div')
+    this.clickLayer = document.createElement('div')
     this.loadingSpinnerContainer = document.createElement('div')
     this.timeDisp = document.createElement('div')
     this.playButton = document.createElement('button')
@@ -70,6 +73,7 @@ class Plugin {
     this.volume = 0
     this.loadIMAScript = new Promise((resolve, reject) => {})
     this.autoplay = false
+    this.clickLayerClicked = false
 
     this.adsManager = null
     this.adsLoader = null
@@ -127,7 +131,6 @@ class Plugin {
         if (!this.adsManager) {
           this.createAdsManager()
         }
-
         this.requestAds()
       })
       .catch(() => {
@@ -142,6 +145,7 @@ class Plugin {
   createAdsManager = (): void => {
     google.ima.settings.setNumRedirects(10)
     google.ima.settings.setLocale('de')
+    console.log('createÄtzManager 3')
 
     this.adsDisplayContainer = new google.ima.AdDisplayContainer(this.adContainer)
     this.adsLoader = new google.ima.AdsLoader(this.adsDisplayContainer)
@@ -177,6 +181,19 @@ class Plugin {
     } else {
       this.adsManager.setVolume(0)
     }
+    if (this.clickLayerClicked) {
+      try {
+        this.adsManager.init(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
+        this.adsManager.start()
+      } catch (adError) {
+        this.videoElement.play()
+      }
+    }
+  }
+
+  onClickLayerClick = (): void => {
+    this.clickLayer.parentNode?.removeChild(this.clickLayer)
+    this.clickLayerClicked = true
 
     if (!this.adsInitialized) {
       this.adsDisplayContainer.initialize()
@@ -220,6 +237,7 @@ class Plugin {
     adsRequest.nonLinearAdSlotHeight = this.videoElement.clientHeight / 3
 
     this.adsLoader.requestAds(adsRequest)
+
     this.videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
   }
 
@@ -683,6 +701,11 @@ class Plugin {
       const d = document.createElement('div')
       loadingSpinnerAnimation.appendChild(d)
     }
+
+    // add ClickLayer
+    this.clickLayer.className = 'ima-click-layer'
+    videoElement.after(this.clickLayer)
+    this.clickLayer.addEventListener('click', this.onClickLayerClick)
   }
 
   showLoadingSpinner = (modus: boolean): void => {
