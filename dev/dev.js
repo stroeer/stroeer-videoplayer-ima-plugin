@@ -31,5 +31,5 @@ myvideoplayer.loadStreamSource()
 // myvideoplayer.loadFirstChunk()
 
 // autoplay video
-video.muted = true
-video.play()
+// video.muted = true
+// video.play()

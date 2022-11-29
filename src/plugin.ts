@@ -22,6 +22,7 @@ class Plugin {
   videoElement: HTMLVideoElement
   rootElement: HTMLElement
   adContainer: HTMLElement
+  clickLayer: HTMLDivElement
   loadingSpinnerContainer: HTMLElement
   timeDisp: HTMLElement
   playButton: HTMLElement
@@ -51,6 +52,7 @@ class Plugin {
     this.videoElement = document.createElement('video')
     this.rootElement = document.createElement('div')
     this.adContainer = document.createElement('div')
+    this.clickLayer = document.createElement('div')
     this.loadingSpinnerContainer = document.createElement('div')
     this.timeDisp = document.createElement('div')
     this.playButton = document.createElement('button')
@@ -122,12 +124,31 @@ class Plugin {
       this.isMuted = true
     }
 
+    // TODO: this is needed for revolverplay, but not on the first run,
+    // otherwise the user sees two ads
+    //
+    // this.loadIMAScript
+    //   .then(() => {
+    //     if (this.adsManager) {
+    //       this.requestAds()
+    //     }
+    //   })
+    //   .catch(() => {
+    //     this.dispatchAndLogError(301, 'IMA could not be loaded')
+    //   })
+
+    if (this.autoplay) {
+      this.onClicklayerClick()
+    }
+  }
+
+  onClicklayerClick = (): void => {
+    this.clickLayer.parentNode?.removeChild(this.clickLayer)
     this.loadIMAScript
       .then(() => {
         if (!this.adsManager) {
           this.createAdsManager()
         }
-
         this.requestAds()
       })
       .catch(() => {
@@ -683,6 +704,10 @@ class Plugin {
       const d = document.createElement('div')
       loadingSpinnerAnimation.appendChild(d)
     }
+
+    this.clickLayer.addEventListener('click', this.onClicklayerClick)
+    this.clickLayer.className = 'ima-click-layer'
+    this.videoElement.after(this.clickLayer)
   }
 
   showLoadingSpinner = (modus: boolean): void => {

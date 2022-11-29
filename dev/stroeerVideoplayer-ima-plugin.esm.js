@@ -239,6 +239,25 @@ var Plugin = /** @class */ (function () {
             if (_this.videoElement.muted) {
                 _this.isMuted = true;
             }
+            // TODO: this is needed for revolverplay, but not on the first run,
+            // otherwise the user sees two ads
+            //
+            // this.loadIMAScript
+            //   .then(() => {
+            //     if (this.adsManager) {
+            //       this.requestAds()
+            //     }
+            //   })
+            //   .catch(() => {
+            //     this.dispatchAndLogError(301, 'IMA could not be loaded')
+            //   })
+            if (_this.autoplay) {
+                _this.onClicklayerClick();
+            }
+        };
+        this.onClicklayerClick = function () {
+            var _a;
+            (_a = _this.clickLayer.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(_this.clickLayer);
             _this.loadIMAScript
                 .then(function () {
                 if (!_this.adsManager) {
@@ -728,6 +747,9 @@ var Plugin = /** @class */ (function () {
                 var d = document.createElement('div');
                 loadingSpinnerAnimation.appendChild(d);
             }
+            _this.clickLayer.addEventListener('click', _this.onClicklayerClick);
+            _this.clickLayer.className = 'ima-click-layer';
+            _this.videoElement.after(_this.clickLayer);
         };
         this.showLoadingSpinner = function (modus) {
             if (modus) {
@@ -762,6 +784,7 @@ var Plugin = /** @class */ (function () {
         this.videoElement = document.createElement('video');
         this.rootElement = document.createElement('div');
         this.adContainer = document.createElement('div');
+        this.clickLayer = document.createElement('div');
         this.loadingSpinnerContainer = document.createElement('div');
         this.timeDisp = document.createElement('div');
         this.playButton = document.createElement('button');
