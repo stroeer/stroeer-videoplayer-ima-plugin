@@ -84,6 +84,7 @@ class Plugin {
   }
 
   init = (StroeerVideoplayer: IStroeerVideoplayer, opts?: any): void => {
+    logger.log('IMA Plugin version', version)
     opts = opts ?? {}
     this.videoElement = StroeerVideoplayer.getVideoEl()
     this.rootElement = StroeerVideoplayer.getRootEl()
