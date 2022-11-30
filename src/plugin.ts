@@ -117,7 +117,10 @@ class Plugin {
 
       return
     }
-
+    if (event.target && event.target === document.querySelector('.ima-click-layer')) {
+      this.clickLayerClicked = true
+      console.log('clicklayerclick V4', event.target, this.clickLayerClicked)
+    }
     // no new play event until content video is ended
     this.videoElement.removeEventListener('play', this.onVideoElementPlay)
 
@@ -171,7 +174,6 @@ class Plugin {
     adsRenderingSettings.uiElements = []
 
     this.adsManager = adsManagerLoadedEvent.getAdsManager(this.videoElement, adsRenderingSettings)
-    logger.log('IMA AdsManager loaded')
 
     this.addAdsManagerEvents()
 
@@ -182,32 +184,26 @@ class Plugin {
     } else {
       this.adsManager.setVolume(0)
     }
-    if (this.clickLayerClicked && !this.autoplay) {
+    this.autoplay = this.videoElement.dataset.autoplay === 'true'
+
+    logger.log('IMA AdsManager loaded', this.clickLayerClicked, this.autoplay)
+    if (this.clickLayerClicked || this.autoplay) {
+      if (this.clickLayerClicked) {
+        this.clickLayer.parentNode?.removeChild(this.clickLayer)
+        this.clickLayerClicked = false
+      }
+      if (!this.adsInitialized) {
+        this.adsDisplayContainer.initialize()
+        this.adsInitialized = true
+      }
+
       try {
         this.adsManager.init(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
         this.adsManager.start()
       } catch (adError) {
+        console.log('addError', adError)
         this.videoElement.play()
       }
-    } else if (this.autoplay) {
-      this.onClickLayerClick()
-    }
-  }
-
-  onClickLayerClick = (): void => {
-    this.clickLayer.parentNode?.removeChild(this.clickLayer)
-    this.clickLayerClicked = true
-
-    if (!this.adsInitialized) {
-      this.adsDisplayContainer.initialize()
-      this.adsInitialized = true
-    }
-
-    try {
-      this.adsManager.init(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
-      this.adsManager.start()
-    } catch (adError) {
-      this.videoElement.play()
     }
   }
 
@@ -708,7 +704,7 @@ class Plugin {
     // add ClickLayer
     this.clickLayer.className = 'ima-click-layer'
     videoElement.after(this.clickLayer)
-    this.clickLayer.addEventListener('click', this.onClickLayerClick)
+    this.clickLayer.addEventListener('click', this.onVideoElementPlay)
   }
 
   showLoadingSpinner = (modus: boolean): void => {
