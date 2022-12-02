@@ -111,7 +111,7 @@ class Plugin {
 
       return
     }
-
+    //
     // no new play event until content video is ended
     this.videoElement.removeEventListener('play', this.onVideoElementPlay)
 
@@ -682,6 +682,28 @@ class Plugin {
     for (let i = 0; i < 12; i++) {
       const d = document.createElement('div')
       loadingSpinnerAnimation.appendChild(d)
+    }
+
+    const onVisibilityChangeCallback = (): void => {
+      if (document.hidden) {
+        if (!videoElement.paused) {
+          videoElement.dataset.wasPlayingOnTabLeave = 'true'
+          videoElement.pause()
+        }
+      } else {
+        if (videoElement.dataset.wasPlayingOnTabLeave) {
+          videoElement.dataset.wasPlayingOnTabLeave = 'false'
+          videoElement.play()
+        }
+      }
+    }
+
+    if (this.videoElement.getAttribute('data-disable-pause-on-tab-leave') === null) {
+      document.addEventListener(
+        'visibilitychange',
+        onVisibilityChangeCallback,
+        false
+      )
     }
   }
 
