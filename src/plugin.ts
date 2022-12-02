@@ -45,12 +45,15 @@ class Plugin {
   adsManager: any
   adsLoader: any
   adsDisplayContainer: any
+  clickLayer: HTMLDivElement
+  clickLayerClicked: boolean
   adsInitialized: boolean
 
   constructor () {
     this.videoElement = document.createElement('video')
     this.rootElement = document.createElement('div')
     this.adContainer = document.createElement('div')
+    this.clickLayer = document.createElement('div')
     this.loadingSpinnerContainer = document.createElement('div')
     this.timeDisp = document.createElement('div')
     this.playButton = document.createElement('button')
@@ -70,6 +73,7 @@ class Plugin {
     this.volume = 0
     this.loadIMAScript = new Promise((resolve, reject) => {})
     this.autoplay = false
+    this.clickLayerClicked = false
 
     this.adsManager = null
     this.adsLoader = null
@@ -83,6 +87,7 @@ class Plugin {
     opts = opts ?? {}
     this.videoElement = StroeerVideoplayer.getVideoEl()
     this.rootElement = StroeerVideoplayer.getRootEl()
+    this.autoplay = this.videoElement.dataset.autoplay?.toLowerCase() === 'true' || this.videoElement.dataset.autoplay === '1'
 
     this.isMuted = convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted')
     this.volume = convertLocalStorageStringToNumber('StroeerVideoplayerVolume')
@@ -111,7 +116,9 @@ class Plugin {
 
       return
     }
-
+    if (event.target && event.target === document.querySelector('.ima-click-layer')) {
+      this.clickLayerClicked = true
+    }
     // no new play event until content video is ended
     this.videoElement.removeEventListener('play', this.onVideoElementPlay)
 
@@ -127,7 +134,6 @@ class Plugin {
         if (!this.adsManager) {
           this.createAdsManager()
         }
-
         this.requestAds()
       })
       .catch(() => {
@@ -166,7 +172,6 @@ class Plugin {
     adsRenderingSettings.uiElements = []
 
     this.adsManager = adsManagerLoadedEvent.getAdsManager(this.videoElement, adsRenderingSettings)
-    logger.log('IMA AdsManager loaded')
 
     this.addAdsManagerEvents()
 
@@ -177,17 +182,28 @@ class Plugin {
     } else {
       this.adsManager.setVolume(0)
     }
+    this.autoplay = this.videoElement.dataset.autoplay?.toLowerCase() === 'true' || this.videoElement.dataset.autoplay === '1'
 
-    if (!this.adsInitialized) {
-      this.adsDisplayContainer.initialize()
-      this.adsInitialized = true
-    }
+    if (this.clickLayerClicked || this.autoplay) {
+      if (this.clickLayerClicked) {
+        this.clickLayer.parentNode?.removeChild(this.clickLayer)
+        this.clickLayerClicked = false
+      }
+      if (!this.adsInitialized) {
+        this.adsDisplayContainer.initialize()
+        this.adsInitialized = true
+      }
 
-    try {
-      this.adsManager.init(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
-      this.adsManager.start()
-    } catch (adError) {
-      this.videoElement.play()
+      try {
+        this.adsManager.init(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
+        this.adsManager.start()
+      } catch (adError) {
+        if (this.clickLayer && document.querySelector('.ima-click-layer')) {
+          this.clickLayer.parentNode?.removeChild(this.clickLayer)
+          this.clickLayerClicked = false
+        }
+        this.videoElement.play()
+      }
     }
   }
 
@@ -196,6 +212,10 @@ class Plugin {
 
     if (this.adsManager) {
       this.adsManager.destroy()
+    }
+    if (this.clickLayer && document.querySelector('.ima-click-layer')) {
+      this.clickLayer.parentNode?.removeChild(this.clickLayer)
+      this.clickLayerClicked = false
     }
     this.videoElement.play()
     this.dispatchAndLogError(error.getVastErrorCode(), error.getMessage())
@@ -220,6 +240,7 @@ class Plugin {
     adsRequest.nonLinearAdSlotHeight = this.videoElement.clientHeight / 3
 
     this.adsLoader.requestAds(adsRequest)
+
     this.videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
   }
 
@@ -227,6 +248,10 @@ class Plugin {
     this.adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,
       (adErrorEvent: any) => {
         const error = adErrorEvent.getError()
+        if (this.clickLayer && document.querySelector('.ima-click-layer')) {
+          this.clickLayer.parentNode?.removeChild(this.clickLayer)
+          this.clickLayerClicked = false
+        }
         this.dispatchAndLogError(error.getVastErrorCode(), error.getMessage())
       })
 
@@ -683,6 +708,11 @@ class Plugin {
       const d = document.createElement('div')
       loadingSpinnerAnimation.appendChild(d)
     }
+
+    // add ClickLayer
+    this.clickLayer.className = 'ima-click-layer'
+    videoElement.after(this.clickLayer)
+    this.clickLayer.addEventListener('click', this.onVideoElementPlay)
   }
 
   showLoadingSpinner = (modus: boolean): void => {

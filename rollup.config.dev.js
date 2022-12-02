@@ -8,7 +8,7 @@ export default [{
   input: 'src/plugin.ts',
   output: [
     {
-      file: 'dev/stroeerVideoplayer-ima-plugin.esm.js',
+      file: 'dev/stroeervideoplayer-ima-plugin.esm.js',
       format: 'es',
       exports: 'named',
       sourcemap: true
@@ -20,7 +20,7 @@ export default [{
     json(),
     svg(),
     scss({
-      output: 'dev/stroeerVideoplayer-ima-plugin.min.css',
+      output: 'dev/stroeervideoplayer-ima-plugin.min.css',
       outputStyle: 'compressed',
       sourceMap: true
     })
