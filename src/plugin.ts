@@ -119,7 +119,6 @@ class Plugin {
     }
     if (event.target && event.target === document.querySelector('.ima-click-layer')) {
       this.clickLayerClicked = true
-      console.log('clicklayerclick V4', event.target, this.clickLayerClicked)
     }
     // no new play event until content video is ended
     this.videoElement.removeEventListener('play', this.onVideoElementPlay)
@@ -202,11 +201,9 @@ class Plugin {
         this.adsManager.start()
       } catch (adError) {
         if (this.clickLayer && document.querySelector('.ima-click-layer')) {
-          console.log('onAdsManagerLoaded clicklayer destroy')
           this.clickLayer.parentNode?.removeChild(this.clickLayer)
           this.clickLayerClicked = false
         }
-        console.log('addError', adError)
         this.videoElement.play()
       }
     }
@@ -219,7 +216,6 @@ class Plugin {
       this.adsManager.destroy()
     }
     if (this.clickLayer && document.querySelector('.ima-click-layer')) {
-      console.log('onAdsManagerError clicklayer destroy')
       this.clickLayer.parentNode?.removeChild(this.clickLayer)
       this.clickLayerClicked = false
     }
@@ -255,7 +251,6 @@ class Plugin {
       (adErrorEvent: any) => {
         const error = adErrorEvent.getError()
         if (this.clickLayer && document.querySelector('.ima-click-layer')) {
-          console.log('google ADD_ERROR clicklayer destroy')
           this.clickLayer.parentNode?.removeChild(this.clickLayer)
           this.clickLayerClicked = false
         }
