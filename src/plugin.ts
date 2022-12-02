@@ -84,7 +84,6 @@ class Plugin {
   }
 
   init = (StroeerVideoplayer: IStroeerVideoplayer, opts?: any): void => {
-    logger.log('IMA Plugin version', version)
     opts = opts ?? {}
     this.videoElement = StroeerVideoplayer.getVideoEl()
     this.rootElement = StroeerVideoplayer.getRootEl()
@@ -185,7 +184,6 @@ class Plugin {
     }
     this.autoplay = this.videoElement.dataset.autoplay?.toLowerCase() === 'true' || this.videoElement.dataset.autoplay === '1'
 
-    logger.log('IMA AdsManager loaded', this.clickLayerClicked, this.autoplay)
     if (this.clickLayerClicked || this.autoplay) {
       if (this.clickLayerClicked) {
         this.clickLayer.parentNode?.removeChild(this.clickLayer)
