@@ -125,6 +125,7 @@ class Plugin {
     this.showLoadingSpinner(true)
     this.videoElement.pause()
 
+    // set muted when xontent video was muted, e.g. when autoplay
     if (this.videoElement.muted) {
       this.isMuted = true
     }
@@ -137,6 +138,7 @@ class Plugin {
         this.requestAds()
       })
       .catch(() => {
+        this.removeClickLayer()
         this.dispatchAndLogError(301, 'IMA could not be loaded')
       })
   }
@@ -182,28 +184,21 @@ class Plugin {
     } else {
       this.adsManager.setVolume(0)
     }
-    this.autoplay = this.videoElement.dataset.autoplay?.toLowerCase() === 'true' || this.videoElement.dataset.autoplay === '1'
 
-    if (this.clickLayerClicked || this.autoplay) {
-      if (this.clickLayerClicked) {
-        this.clickLayer.parentNode?.removeChild(this.clickLayer)
-        this.clickLayerClicked = false
-      }
-      if (!this.adsInitialized) {
-        this.adsDisplayContainer.initialize()
-        this.adsInitialized = true
-      }
+    if (this.clickLayerClicked) {
+      this.removeClickLayer()
+    }
+    if (!this.adsInitialized) {
+      this.adsDisplayContainer.initialize()
+      this.adsInitialized = true
+    }
 
-      try {
-        this.adsManager.init(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
-        this.adsManager.start()
-      } catch (adError) {
-        if (this.clickLayer && document.querySelector('.ima-click-layer')) {
-          this.clickLayer.parentNode?.removeChild(this.clickLayer)
-          this.clickLayerClicked = false
-        }
-        this.videoElement.play()
-      }
+    try {
+      this.adsManager.init(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
+      this.adsManager.start()
+    } catch (adError) {
+      this.removeClickLayer()
+      this.videoElement.play()
     }
   }
 
@@ -213,10 +208,7 @@ class Plugin {
     if (this.adsManager) {
       this.adsManager.destroy()
     }
-    if (this.clickLayer && document.querySelector('.ima-click-layer')) {
-      this.clickLayer.parentNode?.removeChild(this.clickLayer)
-      this.clickLayerClicked = false
-    }
+    this.removeClickLayer()
     this.videoElement.play()
     this.dispatchAndLogError(error.getVastErrorCode(), error.getMessage())
   }
@@ -740,6 +732,13 @@ class Plugin {
       errorCode: code,
       errorMessage: message
     })
+  }
+
+  removeClickLayer = (): void => {
+    if (this.clickLayer && document.querySelector('.ima-click-layer')) {
+      this.clickLayer.parentNode?.removeChild(this.clickLayer)
+      this.clickLayerClicked = false
+    }
   }
 
   deinit = (StroeerVideoplayer: IStroeerVideoplayer): void => {
