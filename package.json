@@ -1,5 +1,5 @@
 {
- "version": "2.1.1",
+ "version": "3.0.1",
  "name": "@stroeer/stroeer-videoplayer-ima-plugin",
  "description": "Ströer Videoplayer IMA Plugin",
  "main": "dist/stroeervideoplayer-ima-plugin.umd.js",
