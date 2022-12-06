@@ -184,8 +184,9 @@ class Plugin {
     } else {
       this.adsManager.setVolume(0)
     }
+    this.autoplay = this.videoElement.dataset.autoplay?.toLowerCase() === 'true' || this.videoElement.dataset.autoplay === '1'
 
-    if (this.clickLayerClicked) {
+    if (this.clickLayerClicked || this.autoplay) {
       this.removeClickLayer()
     }
     if (!this.adsInitialized) {
