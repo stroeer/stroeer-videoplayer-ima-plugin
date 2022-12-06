@@ -140,6 +140,7 @@ class Plugin {
       .catch(() => {
         this.removeClickLayer()
         this.dispatchAndLogError(301, 'IMA could not be loaded')
+        this.videoElement.play()
       })
   }
 
@@ -278,7 +279,7 @@ class Plugin {
     // same as ended
     this.adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED, () => {
       this.adContainer.style.display = 'none'
-      logger.log('Event', 'ima:ended')
+      logger.log('Event', 'ima:skip')
       this.videoElement.dispatchEvent(eventWrapper('ima:ended'))
     })
 
