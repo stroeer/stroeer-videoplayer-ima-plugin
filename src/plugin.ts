@@ -108,6 +108,7 @@ class Plugin {
 
   onVideoElementPlay = (event: Event): void => {
     const prerollAdTag = this.videoElement.getAttribute('data-ivad-preroll-adtag')
+    this.removeClickLayer()
 
     if (prerollAdTag === null) return
 
@@ -138,7 +139,6 @@ class Plugin {
         this.requestAds()
       })
       .catch(() => {
-        this.removeClickLayer()
         this.dispatchAndLogError(301, 'IMA could not be loaded')
         this.videoElement.play()
       })
@@ -187,9 +187,6 @@ class Plugin {
     }
     this.autoplay = this.videoElement.dataset.autoplay?.toLowerCase() === 'true' || this.videoElement.dataset.autoplay === '1'
 
-    if (this.clickLayerClicked || this.autoplay) {
-      this.removeClickLayer()
-    }
     if (!this.adsInitialized) {
       this.adsDisplayContainer.initialize()
       this.adsInitialized = true
@@ -199,7 +196,6 @@ class Plugin {
       this.adsManager.init(this.videoElement.clientWidth, this.videoElement.clientHeight, google.ima.ViewMode.NORMAL)
       this.adsManager.start()
     } catch (adError) {
-      this.removeClickLayer()
       this.videoElement.play()
     }
   }
@@ -210,7 +206,6 @@ class Plugin {
     if (this.adsManager) {
       this.adsManager.destroy()
     }
-    this.removeClickLayer()
     this.videoElement.play()
     this.dispatchAndLogError(error.getVastErrorCode(), error.getMessage())
   }
@@ -242,10 +237,6 @@ class Plugin {
     this.adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,
       (adErrorEvent: any) => {
         const error = adErrorEvent.getError()
-        if (this.clickLayer && document.querySelector('.ima-click-layer')) {
-          this.clickLayer.parentNode?.removeChild(this.clickLayer)
-          this.clickLayerClicked = false
-        }
         this.dispatchAndLogError(error.getVastErrorCode(), error.getMessage())
       })
 
@@ -276,7 +267,6 @@ class Plugin {
       this.videoElement.dispatchEvent(eventWrapper('ima:ended'))
     })
 
-    // same as ended
     this.adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED, () => {
       this.adContainer.style.display = 'none'
       logger.log('Event', 'ima:skip')
