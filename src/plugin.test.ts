@@ -59,6 +59,7 @@ class StroeerVideoplayer {
   showBigPlayButton = (): void => {}
   enterFullscreen = (): void => {}
   exitFullscreen = (): void => {}
+  getDataStore=(): any => {}
 
   getHls = (): any => {
     const mock = (): any => {

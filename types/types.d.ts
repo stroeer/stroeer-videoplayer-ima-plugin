@@ -6,6 +6,7 @@ export interface IStroeerVideoplayer {
   initUI: Function
   deinitUI: Function
   getHls: Function
+  getDataStore: Function
 }
 
 declare global {

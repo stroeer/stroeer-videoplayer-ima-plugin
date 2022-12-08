@@ -99,6 +99,29 @@ class Plugin {
     this.videoElement.addEventListener('play', this.onVideoElementPlay)
     this.videoElement.addEventListener('contentVideoEnded', this.onContentVideoEnded)
     this.loadIMAScript = loadScript('//imasdk.googleapis.com/js/sdkloader/ima3.js')
+
+    const onVisibilityChangeCallback = (): void => {
+      const adVideo = this.adContainer.querySelector('video')
+      if (document.hidden) {
+        if (adVideo && !adVideo.paused) {
+          this.videoElement.setAttribute('data-was-playing-on-tab-leave', 'true')
+          adVideo?.pause()
+        }
+      } else {
+        if (this.videoElement.getAttribute('data-was-playing-on-tab-leave') === 'true') {
+          this.videoElement.setAttribute('data-was-playing-on-tab-leave', 'false')
+          adVideo?.play()
+        }
+      }
+    }
+
+    if (this.videoElement.getAttribute('data-disable-pause-on-tab-leave') === null) {
+      document.addEventListener(
+        'visibilitychange',
+        onVisibilityChangeCallback,
+        false
+      )
+    }
   }
 
   onVideoElementPlay = (event: Event): void => {
@@ -682,28 +705,6 @@ class Plugin {
     for (let i = 0; i < 12; i++) {
       const d = document.createElement('div')
       loadingSpinnerAnimation.appendChild(d)
-    }
-
-    const onVisibilityChangeCallback = (): void => {
-      if (document.hidden) {
-        if (!videoElement.paused) {
-          videoElement.dataset.wasPlayingOnTabLeave = 'true'
-          videoElement.pause()
-        }
-      } else {
-        if (videoElement.dataset.wasPlayingOnTabLeave) {
-          videoElement.dataset.wasPlayingOnTabLeave = 'false'
-          videoElement.play()
-        }
-      }
-    }
-
-    if (this.videoElement.getAttribute('data-disable-pause-on-tab-leave') === null) {
-      document.addEventListener(
-        'visibilitychange',
-        onVisibilityChangeCallback,
-        false
-      )
     }
   }
 
