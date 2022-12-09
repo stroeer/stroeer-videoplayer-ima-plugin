@@ -693,6 +693,7 @@ class Plugin {
     this.clickLayer.className = 'ima-click-layer'
     videoElement.after(this.clickLayer)
     this.clickLayer.addEventListener('click', (event: Event) => {
+      // user interaction triggers also the content video for playing later
       videoElement.play()
       videoElement.pause()
       this.onVideoElementPlay(event)
