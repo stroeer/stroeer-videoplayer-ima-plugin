@@ -120,9 +120,8 @@ class Plugin {
     this.videoElement.removeEventListener('play', this.onVideoElementPlay)
 
     this.showLoadingSpinner(true)
-    this.videoElement.pause()
 
-    // set muted when xontent video was muted, e.g. when autoplay
+    // set muted when content video was muted, e.g. autoplay
     if (this.videoElement.muted) {
       this.isMuted = true
     }
