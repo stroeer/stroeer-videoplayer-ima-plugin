@@ -28,8 +28,8 @@ declare global {
 }
 
 declare class Plugin {
-  version: string
-  pluginName: string
+  static version: string
+  static pluginName: string
   videoElement: HTMLVideoElement
   rootElement: HTMLElement
   adContainer: HTMLElement
