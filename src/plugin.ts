@@ -46,7 +46,6 @@ class Plugin {
   adsLoader: any
   adsDisplayContainer: any
   clickLayer: HTMLDivElement
-  clickLayerClicked: boolean
   adsInitialized: boolean
 
   constructor () {
@@ -73,7 +72,6 @@ class Plugin {
     this.volume = 0
     this.loadIMAScript = new Promise((resolve, reject) => {})
     this.autoplay = false
-    this.clickLayerClicked = false
 
     this.adsManager = null
     this.adsLoader = null
@@ -117,16 +115,13 @@ class Plugin {
 
       return
     }
-    if (event.target && event.target === document.querySelector('.ima-click-layer')) {
-      this.clickLayerClicked = true
-    }
+
     // no new play event until content video is ended
     this.videoElement.removeEventListener('play', this.onVideoElementPlay)
 
     this.showLoadingSpinner(true)
-    this.videoElement.pause()
 
-    // set muted when xontent video was muted, e.g. when autoplay
+    // set muted when content video was muted, e.g. autoplay
     if (this.videoElement.muted) {
       this.isMuted = true
     }
@@ -696,7 +691,12 @@ class Plugin {
     // add ClickLayer
     this.clickLayer.className = 'ima-click-layer'
     videoElement.after(this.clickLayer)
-    this.clickLayer.addEventListener('click', this.onVideoElementPlay)
+    this.clickLayer.addEventListener('click', (event: Event) => {
+      // user interaction triggers also the content video for playing later
+      videoElement.play()
+      videoElement.pause()
+      this.onVideoElementPlay(event)
+    })
   }
 
   showLoadingSpinner = (modus: boolean): void => {
@@ -727,9 +727,8 @@ class Plugin {
   }
 
   removeClickLayer = (): void => {
-    if (this.clickLayer && document.querySelector('.ima-click-layer')) {
-      this.clickLayer.parentNode?.removeChild(this.clickLayer)
-      this.clickLayerClicked = false
+    if (document.querySelector('.ima-click-layer')) {
+      this.clickLayer?.parentNode?.removeChild(this.clickLayer)
     }
   }
 
