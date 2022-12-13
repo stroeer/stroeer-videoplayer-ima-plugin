@@ -7,6 +7,7 @@
  "files": [
   "dist"
  ],
+ "types": "types/types.d.ts",
  "scripts": {
   "dev": "rollup -c rollup.config.dev.js -w",
   "start": "lite-server",
