@@ -1,12 +1,14 @@
 {
- "version": "3.0.5",
+ "version": "3.0.6",
  "name": "@stroeer/stroeer-videoplayer-ima-plugin",
  "description": "Ströer Videoplayer IMA Plugin",
  "main": "dist/stroeervideoplayer-ima-plugin.umd.js",
  "module": "dist/stroeervideoplayer-ima-plugin.esm.js",
  "files": [
-  "dist"
+  "dist", 
+  "types"
  ],
+ "types": "types/types.d.ts",
  "scripts": {
   "dev": "rollup -c rollup.config.dev.js -w",
   "start": "lite-server",
