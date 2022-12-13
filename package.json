@@ -5,7 +5,8 @@
  "main": "dist/stroeervideoplayer-ima-plugin.umd.js",
  "module": "dist/stroeervideoplayer-ima-plugin.esm.js",
  "files": [
-  "dist"
+  "dist", 
+  "types"
  ],
  "types": "types/types.d.ts",
  "scripts": {
