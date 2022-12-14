@@ -1,7 +1,7 @@
 Ströer Videoplayer IMA Plugin
 =============================
 
-Install via dependencies via `yarn --dev`.
+Install via dependencies via `yarn --frozen-lockfile`.
 
 Build via `yarn run build`. 
 Lint via `yarn run lint`. 

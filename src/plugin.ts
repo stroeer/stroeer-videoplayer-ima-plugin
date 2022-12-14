@@ -45,12 +45,14 @@ class Plugin {
   adsManager: any
   adsLoader: any
   adsDisplayContainer: any
+  clickLayer: HTMLDivElement
   adsInitialized: boolean
 
   constructor () {
     this.videoElement = document.createElement('video')
     this.rootElement = document.createElement('div')
     this.adContainer = document.createElement('div')
+    this.clickLayer = document.createElement('div')
     this.loadingSpinnerContainer = document.createElement('div')
     this.timeDisp = document.createElement('div')
     this.playButton = document.createElement('button')
@@ -83,6 +85,7 @@ class Plugin {
     opts = opts ?? {}
     this.videoElement = StroeerVideoplayer.getVideoEl()
     this.rootElement = StroeerVideoplayer.getRootEl()
+    this.autoplay = this.videoElement.dataset.autoplay?.toLowerCase() === 'true' || this.videoElement.dataset.autoplay === '1'
 
     this.isMuted = convertLocalStorageIntegerToBoolean('StroeerVideoplayerMuted')
     this.volume = convertLocalStorageStringToNumber('StroeerVideoplayerVolume')
@@ -111,6 +114,7 @@ class Plugin {
 
   onVideoElementPlay = (event: Event): void => {
     const prerollAdTag = this.videoElement.getAttribute('data-ivad-preroll-adtag')
+    this.removeClickLayer()
 
     if (prerollAdTag === null) return
 
@@ -124,8 +128,8 @@ class Plugin {
     this.videoElement.removeEventListener('play', this.onVideoElementPlay)
 
     this.showLoadingSpinner(true)
-    this.videoElement.pause()
 
+    // set muted when content video was muted, e.g. autoplay
     if (this.videoElement.muted) {
       this.isMuted = true
     }
@@ -135,11 +139,11 @@ class Plugin {
         if (!this.adsManager) {
           this.createAdsManager()
         }
-
         this.requestAds()
       })
       .catch(() => {
         this.dispatchAndLogError(301, 'IMA could not be loaded')
+        this.videoElement.play()
       })
   }
 
@@ -174,7 +178,6 @@ class Plugin {
     adsRenderingSettings.uiElements = []
 
     this.adsManager = adsManagerLoadedEvent.getAdsManager(this.videoElement, adsRenderingSettings)
-    logger.log('IMA AdsManager loaded')
 
     this.addAdsManagerEvents()
 
@@ -185,6 +188,7 @@ class Plugin {
     } else {
       this.adsManager.setVolume(0)
     }
+    this.autoplay = this.videoElement.dataset.autoplay?.toLowerCase() === 'true' || this.videoElement.dataset.autoplay === '1'
 
     if (!this.adsInitialized) {
       this.adsDisplayContainer.initialize()
@@ -228,6 +232,7 @@ class Plugin {
     adsRequest.nonLinearAdSlotHeight = this.videoElement.clientHeight / 3
 
     this.adsLoader.requestAds(adsRequest)
+
     this.videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
   }
 
@@ -280,10 +285,9 @@ class Plugin {
       this.videoElement.dispatchEvent(eventWrapper('ima:ended'))
     })
 
-    // same as ended
     this.adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED, () => {
       this.adContainer.style.display = 'none'
-      logger.log('Event', 'ima:ended')
+      logger.log('Event', 'ima:skip')
       this.videoElement.dispatchEvent(eventWrapper('ima:ended'))
     })
 
@@ -706,6 +710,16 @@ class Plugin {
       const d = document.createElement('div')
       loadingSpinnerAnimation.appendChild(d)
     }
+
+    // add ClickLayer
+    this.clickLayer.className = 'ima-click-layer'
+    videoElement.after(this.clickLayer)
+    this.clickLayer.addEventListener('click', (event: Event) => {
+      // user interaction triggers also the content video for playing later
+      videoElement.play()
+      videoElement.pause()
+      this.onVideoElementPlay(event)
+    })
   }
 
   showLoadingSpinner = (modus: boolean): void => {
@@ -733,6 +747,12 @@ class Plugin {
       errorCode: code,
       errorMessage: message
     })
+  }
+
+  removeClickLayer = (): void => {
+    if (document.querySelector('.ima-click-layer')) {
+      this.clickLayer?.parentNode?.removeChild(this.clickLayer)
+    }
   }
 
   deinit = (StroeerVideoplayer: IStroeerVideoplayer): void => {
