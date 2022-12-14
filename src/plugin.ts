@@ -102,6 +102,14 @@ class Plugin {
     this.videoElement.addEventListener('play', this.onVideoElementPlay)
     this.videoElement.addEventListener('contentVideoEnded', this.onContentVideoEnded)
     this.loadIMAScript = loadScript('//imasdk.googleapis.com/js/sdkloader/ima3.js')
+
+    if (this.videoElement.getAttribute('data-disable-pause-on-tab-leave') === null) {
+      document.addEventListener(
+        'visibilitychange',
+        this.onVisibilityChangeCallback,
+        false
+      )
+    }
   }
 
   onVideoElementPlay = (event: Event): void => {
@@ -226,6 +234,21 @@ class Plugin {
     this.adsLoader.requestAds(adsRequest)
 
     this.videoElement.dispatchEvent(new CustomEvent('ima:adcall'))
+  }
+
+  onVisibilityChangeCallback = (): void => {
+    const adVideo = this.adContainer.querySelector('video')
+    if (document.hidden) {
+      if (adVideo && !adVideo.paused) {
+        this.videoElement.setAttribute('data-was-playing-on-tab-leave', 'true')
+        adVideo?.pause()
+      }
+    } else {
+      if (this.videoElement.getAttribute('data-was-playing-on-tab-leave') === 'true') {
+        this.videoElement.setAttribute('data-was-playing-on-tab-leave', 'false')
+        adVideo?.play()
+      }
+    }
   }
 
   addAdsManagerEvents = (): void => {
